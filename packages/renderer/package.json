@@ -1,0 +1,31 @@
+{
+  "name": "@react-native-html/renderer",
+  "version": "0.0.1",
+  "description": "Renders nodes from @react-native-html/parser in react native",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Derk Nolte",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@react-native-html/parser": "^0.0.3"
+  },
+  "peerDependencies": {
+    "react": ">= 16.5",
+    "react-native": ">= 0.59",
+    "react-native-webview": ">= 6"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/react": "^16.9.23",
+    "@types/react-native": "^0.61.20",
+    "react": "^16.9.0",
+    "react-native": "^0.61.5",
+    "react-native-webview": "^8.1.2"
+  },
+  "scripts": {
+    "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
+    "declarations": "tsc --emitDeclarationOnly --outDir dist",
+    "prepublishOnly": "yarn build"
+  }
+}

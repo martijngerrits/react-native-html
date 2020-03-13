@@ -1,0 +1,24 @@
+{
+  "name": "@react-native-html/parser",
+  "version": "0.0.3",
+  "description": "Parses html into data nodes that are structured for easy rendering in react native",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Derk Nolte",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@types/htmlparser2": "^3.10.1",
+    "entities": "^2.0.0",
+    "htmlparser2-without-node-native": "^3.9.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/react-native": "^0.61.20"
+  },
+  "scripts": {
+    "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
+    "declarations": "tsc --emitDeclarationOnly --outDir dist",
+    "prepublishOnly": "yarn build"
+  }
+}
