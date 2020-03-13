@@ -61,7 +61,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     resolver: ({ path, element, style, hasTextSibling }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
-      const source = decodeHTML(element.attribs?.href ?? '');
+      const source = decodeHTML(element.attribs?.src ?? '');
       if (!source) return undefined;
 
       return {

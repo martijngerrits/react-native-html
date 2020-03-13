@@ -79,7 +79,7 @@ export function parseElement(
         });
         if (node) {
           nodes.push(node);
-          if (node.children) {
+          if (typeof node.children !== 'undefined') {
             nextNodes = children;
           }
           if (parentLinkNode) {

@@ -4,6 +4,7 @@
   "description": "Renders nodes from @react-native-html/parser in react native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "react-native": "src/index.tsx",
   "author": "Derk Nolte",
   "license": "MIT",
   "private": false,
@@ -11,16 +12,16 @@
     "@react-native-html/parser": "^0.0.3"
   },
   "peerDependencies": {
-    "react": ">= 16.5",
-    "react-native": ">= 0.59",
-    "react-native-webview": ">= 6"
+    "react": "*",
+    "react-native": "*",
+    "react-native-webview": "*"
   },
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@types/react": "^16.9.23",
     "@types/react-native": "^0.61.20",
-    "react": "^16.9.0",
-    "react-native": "^0.61.5",
+    "react": "16.9.0",
+    "react-native": "0.61.5",
     "react-native-webview": "^8.1.2"
   },
   "scripts": {

@@ -4,6 +4,7 @@
   "description": "Parses html into data nodes that are structured for easy rendering in react native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "react-native": "src/index.tsx",
   "author": "Derk Nolte",
   "license": "MIT",
   "private": false,
