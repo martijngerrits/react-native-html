@@ -1,6 +1,6 @@
 {
   "name": "@react-native-html/parser",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Parses html into data nodes that are structured for easy rendering in react native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,8 +14,7 @@
     "htmlparser2-without-node-native": "^3.9.2"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.4",
-    "@types/react-native": "^0.61.20"
+    "@types/jest": "^25.1.4"
   },
   "scripts": {
     "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",

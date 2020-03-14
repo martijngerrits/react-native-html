@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ViewStyle, TextStyle } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
@@ -10,8 +8,8 @@ export interface TagResolverArgs {
   element: DomElement;
   path: string[];
   hasTextSibling: boolean;
-  style: ViewStyle | TextStyle;
   children: NodeBase[];
+  isWithinParagraph: boolean;
 }
 
 export interface TagHandler {
@@ -39,7 +37,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['a']),
     nodeType: NodeType.Link,
     canParseChildren: true,
-    resolver: ({ path, element, children, hasTextSibling, style }: TagResolverArgs) => {
+    resolver: ({ path, element, children, isWithinParagraph }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
       const source = decodeHTML(element.attribs?.href ?? '');
       if (!source) return undefined;
@@ -48,17 +46,15 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         path,
         source,
         children,
-        hasTextSibling,
-        hasOnlyTextChildren: true, // will be updated in parseElement based on children's node
-        style,
+        isInline: isWithinParagraph,
       };
     },
   },
   {
     names: new Set(['img']),
     nodeType: NodeType.Image,
-    canParseChildren: true,
-    resolver: ({ path, element, style, hasTextSibling }: TagResolverArgs) => {
+    canParseChildren: false,
+    resolver: ({ path, element, isWithinParagraph }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
       const source = decodeHTML(element.attribs?.src ?? '');
@@ -67,11 +63,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
       return {
         type: NodeType.Image,
         path,
-        hasTextSibling,
+        isInline: isWithinParagraph,
         source,
         width,
         height,
-        style,
       } as ImageNode;
     },
   },
@@ -79,10 +74,9 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['li']),
     nodeType: NodeType.ListItem,
     canParseChildren: true,
-    resolver: ({ path, children, style }: TagResolverArgs) => {
+    resolver: ({ path, children }: TagResolverArgs) => {
       return {
         path,
-        style,
         children,
         type: NodeType.ListItem,
       } as ListItemNode;
@@ -92,11 +86,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['ol', 'ul']),
     nodeType: NodeType.List,
     canParseChildren: true,
-    resolver: ({ path, children, style, element }: TagResolverArgs) => {
+    resolver: ({ path, children, element }: TagResolverArgs) => {
       return {
         path,
         children,
-        style,
         isOrdered: element.name === 'ol',
         type: NodeType.List,
       } as ListNode;
@@ -106,7 +99,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['iframe']),
     nodeType: NodeType.IFrame,
     canParseChildren: false,
-    resolver: ({ path, element, style }: TagResolverArgs) => {
+    resolver: ({ path, element }: TagResolverArgs) => {
       if (element.name !== 'iframe' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
       const source = decodeHTML(element.attribs?.src ?? '');
@@ -116,7 +109,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         type: NodeType.IFrame,
         path,
         source,
-        style,
         width,
         height,
       } as IFrameNode;

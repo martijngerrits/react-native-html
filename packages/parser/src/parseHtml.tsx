@@ -1,12 +1,10 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { DomHandler, Parser } from 'htmlparser2-without-node-native';
 // eslint-disable-next-line import/no-unresolved
 import { DomElement } from 'htmlparser2';
 
-import { parseElement, ElementParser } from './parseElement';
+import { parseElements, ElementParser } from './parseElement';
 import { NodeBase } from './nodes';
-import { TagHandler, createDefaultTagHandlers } from './parseTags';
+import { TagHandler } from './parseTags';
 
 export enum ResultType {
   Failure,
@@ -25,12 +23,36 @@ export interface Failureresult {
 
 export type ParseHtmlResult = SuccessResult | Failureresult;
 
-export async function parseHtml(
-  rawHtml: string,
-  providedHtmlStyles: Record<string, ViewStyle | TextStyle | ImageStyle> = {},
-  customElementParser?: ElementParser,
-  tagHandlers: TagHandler[] = createDefaultTagHandlers()
-): Promise<ParseHtmlResult> {
+interface ParseHtmlArgs {
+  rawHtml: string;
+  customElementParser?: ElementParser;
+  tagHandlers?: TagHandler[];
+  excludeTags?: Set<string>;
+}
+
+export async function parseHtml({
+  rawHtml,
+  customElementParser,
+  tagHandlers,
+  excludeTags = new Set([
+    'input',
+    'textarea',
+    'dl',
+    'table',
+    'audio',
+    'video',
+    'form',
+    'button',
+    'frame',
+    'frameset',
+    'noframes',
+    'script',
+    'noscript',
+    'object',
+    'option',
+    'track',
+  ]),
+}: ParseHtmlArgs): Promise<ParseHtmlResult> {
   try {
     const promise = new Promise<DomElement[]>((resolve, reject) => {
       const handler = new DomHandler((err, dom) => {
@@ -48,25 +70,13 @@ export async function parseHtml(
     const elements = await promise;
 
     const nodes: NodeBase[] = [];
-    const htmlStyles = Object.keys(providedHtmlStyles).reduce((acc, key) => {
-      return {
-        ...acc,
-        [key.toLowerCase()]: providedHtmlStyles[key],
-      };
-    }, {} as Record<string, ViewStyle | TextStyle>);
 
-    elements.forEach(element => {
-      parseElement(
-        element,
-        null,
-        [],
-        false,
-        nodes,
-        htmlStyles,
-        {},
-        tagHandlers,
-        customElementParser
-      );
+    parseElements({
+      elements,
+      nodes,
+      tagHandlers,
+      customElementParser,
+      excludeTags,
     });
 
     return {

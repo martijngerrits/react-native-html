@@ -1,12 +1,12 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType } from '../nodes';
+import { NodeType, TextNode, LinkNode, ImageNode } from '../nodes';
 
-describe('parseHtml - link tests', () => {
+describe('parserawHtml - link tests', () => {
   it('parse text link', async () => {
     const text = 'link';
     const source = 'https://www.google.com/';
-    const html = `<a href="${source}">${text}</a>`;
-    const result = (await parseHtml(html)) as SuccessResult;
+    const rawHtml = `<a href="${source}">${text}</a>`;
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -14,18 +14,19 @@ describe('parseHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        style: {},
-        hasTextSibling: false,
-        hasOnlyTextChildren: true,
+        isInline: false,
         children: [
           {
-            content: text,
             type: NodeType.Text,
             path: ['a', 'text'],
-            style: {},
-          },
+            content: text,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+          } as TextNode,
         ],
-      },
+      } as LinkNode,
     ]);
   });
   it('parse image link', async () => {
@@ -33,8 +34,8 @@ describe('parseHtml - link tests', () => {
       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
-    const html = `<a href="${source}">${imageHtml}</a>`;
-    const result = (await parseHtml(html)) as SuccessResult;
+    const rawHtml = `<a href="${source}">${imageHtml}</a>`;
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -42,21 +43,18 @@ describe('parseHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        style: {},
-        hasTextSibling: false,
-        hasOnlyTextChildren: false,
+        isInline: false,
         children: [
           {
             type: NodeType.Image,
             path: ['a', 'img'],
             source: imageSource,
-            hasTextSibling: false,
-            style: {},
+            isInline: false,
             width: 272,
             height: 90,
-          },
+          } as ImageNode,
         ],
-      },
+      } as LinkNode,
     ]);
   });
   it('parse text & image link', async () => {
@@ -65,8 +63,8 @@ describe('parseHtml - link tests', () => {
       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
-    const html = `<a href="${source}">${text}${imageHtml}</a>`;
-    const result = (await parseHtml(html)) as SuccessResult;
+    const rawHtml = `<a href="${source}">${text}${imageHtml}</a>`;
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -74,68 +72,27 @@ describe('parseHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        style: {},
-        hasTextSibling: false,
-        hasOnlyTextChildren: false,
+        isInline: false,
         children: [
           {
             content: text,
             type: NodeType.Text,
             path: ['a', 'text'],
-            style: {},
-          },
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+          } as TextNode,
           {
             type: NodeType.Image,
             path: ['a', 'img'],
             source: imageSource,
-            hasTextSibling: true,
-            style: {},
+            isInline: false,
             width: 272,
             height: 90,
-          },
+          } as ImageNode,
         ],
-      },
-    ]);
-  });
-  it('parse link between text elements', async () => {
-    const pretext = 'check';
-    const linkText = 'this';
-    const subtext = 'out';
-
-    const source = 'https://www.google.com/';
-    const html = `<p>${pretext}<a href="${source}">${linkText}</a>${subtext}</p>`;
-    const result = (await parseHtml(html)) as SuccessResult;
-
-    expect(result.type).toBe(ResultType.Success);
-    expect(result.nodes).toEqual([
-      {
-        content: pretext,
-        type: NodeType.Text,
-        path: ['p', 'text'],
-        style: {},
-      },
-      {
-        type: NodeType.Link,
-        path: ['p', 'a'],
-        source,
-        style: {},
-        hasTextSibling: true,
-        hasOnlyTextChildren: true,
-        children: [
-          {
-            content: linkText,
-            type: NodeType.Text,
-            path: ['p', 'a', 'text'],
-            style: {},
-          },
-        ],
-      },
-      {
-        content: subtext,
-        type: NodeType.Text,
-        path: ['p', 'text'],
-        style: {},
-      },
+      } as LinkNode,
     ]);
   });
 });

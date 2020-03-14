@@ -1,90 +1,108 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType } from '../nodes';
+import { NodeType, TextNode } from '../nodes';
 
 describe('parseHtml - text tests', () => {
   it('parse text', async () => {
-    const html = 'hallo dit is een test';
-    const result = (await parseHtml(html)) as SuccessResult;
+    const rawHtml = 'hallo dit is een test';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
-        content: html,
+        content: rawHtml,
         type: NodeType.Text,
         path: ['text'],
-        style: {},
-      },
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+      } as TextNode,
     ]);
   });
-  it('parse text within p', async () => {
-    const text = 'hallo dit is een test';
-    const html = `<p>${text}</p>`;
-    const result = (await parseHtml(html)) as SuccessResult;
+  it('parse text within h1 with header number', async () => {
+    const rawHtml = '<h1>hallo dit is een test</h2>';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
-        content: text,
+        content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['p', 'text'],
-        style: {},
-      },
+        path: ['h1', 'text'],
+        header: 1,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+      } as TextNode,
     ]);
   });
-  it('parse text with styling for P', async () => {
-    const text = 'hallo dit is een test';
-    const html = `<P>${text}</P>`;
-    const result = (await parseHtml(html, {
-      P: {
-        fontSize: 10,
-      },
-    })) as SuccessResult;
+  it('parse text within b with isBold flag', async () => {
+    const rawHtml = '<b>hallo dit is een test</b>';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
-        content: text,
+        content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['p', 'text'],
-        style: {
-          fontSize: 10,
-        },
-      },
+        path: ['b', 'text'],
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: true,
+      } as TextNode,
     ]);
   });
-  it('inherits styles with direct ancestor having precedence', async () => {
-    const text = 'hallo dit is een test';
-    const html = `<div><P>${text}</P></div><div>${text}</div>`;
-    const result = (await parseHtml(html, {
-      div: {
-        fontSize: 5,
-        marginTop: 10,
-      },
-      P: {
-        fontSize: 10,
-      },
-    })) as SuccessResult;
+  it('parse text within i with isItalic flag', async () => {
+    const rawHtml = '<i>hallo dit is een test</i>';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
-        content: text,
+        content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['div', 'p', 'text'],
-        style: {
-          fontSize: 10,
-          marginTop: 10,
-        },
-      },
+        path: ['i', 'text'],
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: true,
+        isBold: false,
+      } as TextNode,
+    ]);
+  });
+  it('parse text within u with isUnderlined flag', async () => {
+    const rawHtml = '<u>hallo dit is een test</u>';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
       {
-        content: text,
+        content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['div', 'text'],
-        style: {
-          fontSize: 5,
-          marginTop: 10,
-        },
-      },
+        path: ['u', 'text'],
+        hasStrikethrough: false,
+        isUnderlined: true,
+        isItalic: false,
+        isBold: false,
+      } as TextNode,
+    ]);
+  });
+  it('parse text within del with hasStrikethrough flag', async () => {
+    const rawHtml = '<del>hallo dit is een test</del>';
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        content: 'hallo dit is een test',
+        type: NodeType.Text,
+        path: ['del', 'text'],
+        hasStrikethrough: true,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+      } as TextNode,
     ]);
   });
 });
