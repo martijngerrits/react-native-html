@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ViewStyle, ImageStyle, TextStyle } from 'react-native';
+import { ViewStyle, ImageStyle, TextStyle, StyleProp } from 'react-native';
 import {
   NodeBase,
   parseHtml,
@@ -16,6 +16,8 @@ interface Props {
   htmlStyles?: Record<string, ViewStyle | TextStyle | ImageStyle>;
   customElementParser?: ElementParser;
   tagHandlers?: TagHandler[];
+  excludeTags?: string[];
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const RawHtmlView = ({
@@ -24,20 +26,27 @@ export const RawHtmlView = ({
   htmlStyles,
   customElementParser,
   tagHandlers,
+  excludeTags,
+  containerStyle,
 }: Props) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
     const sideEffect = async () => {
-      const result = await parseHtml(rawHtml, htmlStyles, customElementParser, tagHandlers);
+      const result = await parseHtml({
+        rawHtml,
+        customElementParser,
+        tagHandlers,
+        excludeTags: new Set(excludeTags),
+      });
       if (result.type === ResultType.Success) {
         setNodes(result.nodes);
       }
     };
     sideEffect();
-  }, [rawHtml, htmlStyles, customElementParser, tagHandlers]);
+  }, [rawHtml, htmlStyles, customElementParser, tagHandlers, excludeTags]);
 
   if (!nodes) return null;
 
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <HtmlView nodes={nodes} {...options} />;
+  return <HtmlView nodes={nodes} {...options} containerStyle={containerStyle} />;
 };

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import {
   NodeBase,
   isTextNode,
@@ -6,6 +6,7 @@ import {
   isLinkNode,
   isIFrameNode,
   isListNode,
+  isTextContainerNode,
 } from '@react-native-html/parser';
 import {
   Text,
@@ -14,44 +15,28 @@ import {
   Image,
   TouchableOpacity,
   TouchableWithoutFeedbackProps,
-  Linking,
-  ImageStyle,
-  TextStyle,
   StyleProp,
   ViewStyle,
+  StyleSheet,
+  View,
+  Dimensions,
 } from 'react-native';
 import { WebView, WebViewProps } from 'react-native-webview';
-import { ListItem } from './ListItem';
-import { AutoSizedImage } from './AutoSizedImage';
+import { HtmlNodeImage } from './nodes/HtmlNodeImage';
+import { HtmlNodeText } from './nodes/HtmlNodeText';
+import { HtmlNodeLink } from './nodes/HtmlNodeLink';
+import { HtmlNodeList } from './nodes/HtmlNodeList';
+import { HtmlStyles } from './HtmlStyles';
+import { HtmlNodeTextContainer } from './nodes/HtmlNodeTextContainer';
 
-export interface HtmlStyles {
-  text?: StyleProp<TextStyle>;
-  h1?: StyleProp<TextStyle>;
-  h2?: StyleProp<TextStyle>;
-  h3?: StyleProp<TextStyle>;
-  h4?: StyleProp<TextStyle>;
-  h5?: StyleProp<TextStyle>;
-  h6?: StyleProp<TextStyle>;
-  paragraph?: StyleProp<TextStyle>;
-  image?: StyleProp<ImageStyle>;
-  inlineImage?: StyleProp<ImageStyle>;
-  standAloneImage?: StyleProp<ImageStyle>;
-  link?: StyleProp<TextStyle>;
-  inlineLink?: StyleProp<TextStyle>;
-  standAloneLink?: StyleProp<TextStyle>;
-  list?: StyleProp<ViewStyle>;
-  orderedList?: StyleProp<ViewStyle>;
-  unorderedList?: StyleProp<ViewStyle>;
-  listItem?: StyleProp<ViewStyle>;
-  orderedListItem?: StyleProp<ViewStyle>;
-  unorderedListItem?: StyleProp<ViewStyle>;
-  listItemBullet?: StyleProp<TextStyle>;
-  listItemNumber?: StyleProp<TextStyle>;
-  listItemContent?: StyleProp<ViewStyle>;
+export interface CustomRendererArgs {
+  node: NodeBase;
+  key: string;
+  renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
 }
 
 export interface HtmlViewOptions {
-  customRenderer?: (node: NodeBase, key: string) => React.ReactNode;
+  customRenderer?: (args: CustomRendererArgs) => React.ReactNode;
   TextComponent: React.ElementType<TextProperties>;
   ImageComponent: React.ElementType<ImageProperties>;
   TouchableComponent: React.ElementType<TouchableWithoutFeedbackProps>;
@@ -62,6 +47,7 @@ export interface HtmlViewOptions {
 
 export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   nodes: NodeBase[];
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const HtmlView: FunctionComponent<HtmlViewProps> = ({
@@ -71,21 +57,51 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
   TouchableComponent = TouchableOpacity,
   WebViewComponent = WebView,
   htmlStyles = {},
+  containerStyle,
 }: HtmlViewProps) => {
+  const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
+
   return (
-    <>
-      {nodes.map((node, index) =>
-        renderNode(
-          node,
-          { TextComponent, ImageComponent, TouchableComponent, WebViewComponent, htmlStyles },
-          index
-        )
+    <View
+      style={[styles.container, containerStyle]}
+      onLayout={({
+        nativeEvent: {
+          layout: { width },
+        },
+      }) => {
+        if (width !== maxWidth) {
+          setMaxWidth(width);
+        }
+      }}
+    >
+      {renderNodes(
+        nodes,
+        { TextComponent, ImageComponent, TouchableComponent, WebViewComponent, htmlStyles },
+        maxWidth
       )}
-    </>
+    </View>
   );
 };
 
-const renderNode = (node: NodeBase, options: HtmlViewOptions, index: number): React.ReactNode => {
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
+
+const renderNodes = (nodes: NodeBase[], options: HtmlViewOptions, maxWidth: number) => {
+  const renderChildNode = (node: NodeBase, index: number) =>
+    renderNode(node, options, index, maxWidth, renderChildNode);
+  return nodes.map((node, index) => renderNode(node, options, index, maxWidth, renderChildNode));
+};
+
+const renderNode = (
+  node: NodeBase,
+  options: HtmlViewOptions,
+  index: number,
+  maxWidth: number,
+  renderChildNode: (node: NodeBase, index: number) => React.ReactNode
+): React.ReactNode => {
   const {
     customRenderer,
     TextComponent,
@@ -97,72 +113,79 @@ const renderNode = (node: NodeBase, options: HtmlViewOptions, index: number): Re
 
   const key = `react_native_node_${node.type}_${index}`;
   if (customRenderer) {
-    const view = customRenderer(node, key);
+    const view = customRenderer({ node, key, renderChildNode });
     if (view) {
       return view;
     }
   }
   if (isTextNode(node)) {
     return (
-      <TextComponent key={key} style={htmlStyles.text}>
-        {node.content}
-      </TextComponent>
+      <HtmlNodeText
+        key={key}
+        node={node}
+        textStyle={htmlStyles.text}
+        nestedTextStyle={htmlStyles.nestedText}
+        linkStyle={htmlStyles.link}
+        TextComponent={TextComponent}
+      />
+    );
+  }
+  if (isTextContainerNode(node)) {
+    return (
+      <HtmlNodeTextContainer
+        key={key}
+        node={node}
+        style={htmlStyles.text}
+        TextComponent={TextComponent}
+        renderChildNode={renderChildNode}
+      />
     );
   }
   if (isImageNode(node)) {
     return (
-      <AutoSizedImage
+      <HtmlNodeImage
         key={key}
-        uri={node.source}
-        width={node.width}
-        height={node.height}
-        style={node.style as ImageStyle}
+        node={node}
+        style={htmlStyles.image}
         ImageComponent={ImageComponent}
+        maxWidth={maxWidth}
       />
     );
   }
   if (isLinkNode(node)) {
-    if (node.hasTextSibling && node.hasOnlyTextChildren) {
-      // use text
-      return (
-        <TextComponent key={key} style={node.style} onPress={() => onPress(node.source)}>
-          {node.children.map((child, childIndex) => renderNode(child, options, childIndex))}
-        </TextComponent>
-      );
-    }
     return (
-      <TouchableComponent key={key} style={node.style} onPress={() => onPress(node.source)}>
-        {node.children.map((child, childIndex) => renderNode(child, options, childIndex))}
-      </TouchableComponent>
+      <HtmlNodeLink
+        key={key}
+        node={node}
+        style={htmlStyles.touchable}
+        TouchableComponent={TouchableComponent}
+        renderChildNode={renderChildNode}
+      />
     );
   }
   if (isIFrameNode(node)) {
-    return <WebViewComponent key={key} source={{ uri: node.source }} style={node.style} />;
+    return <WebViewComponent key={key} source={{ uri: node.source }} style={htmlStyles.iframe} />;
   }
   if (isListNode(node) && node.children.length > 0) {
-    return node.children.map((listItem, listItemIndex) => (
-      <ListItem
-        key={
-          `react_native_list_item_node_${listItemIndex}` /* eslint-disable-line react/no-array-index-key */
-        }
-        node={listItem}
-        number={listItemIndex + 1}
-        isOrdered={node.isOrdered}
-      >
-        {listItem.children.map((listItemChildren, listItemChildrenIndex) =>
-          renderNode(listItemChildren, options, listItemChildrenIndex)
-        )}
-      </ListItem>
-    ));
+    return (
+      <HtmlNodeList
+        key={key}
+        node={node}
+        renderChildNode={renderChildNode}
+        styles={{
+          list: htmlStyles.list,
+          orderedList: htmlStyles.orderedList,
+          unorderedList: htmlStyles.unorderedList,
+          listItem: htmlStyles.listItem,
+          orderedListItem: htmlStyles.orderedListItem,
+          unorderedListItem: htmlStyles.unorderedListItem,
+          listItemBullet: htmlStyles.listItemBullet,
+          listItemNumber: htmlStyles.listItemNumber,
+          listItemContent: htmlStyles.listItemContent,
+        }}
+      />
+    );
   }
 
   return null;
-};
-
-const onPress = (uri: string, customHandler?: (uri: string) => void) => {
-  if (customHandler) {
-    customHandler(uri);
-  } else {
-    Linking.openURL(uri);
-  }
 };

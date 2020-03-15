@@ -1,2 +1,3 @@
-export { HtmlView } from './HtmlView';
-export { RawHtmlView } from './RawHtmlView';
+export * from './HtmlView';
+export * from './RawHtmlView';
+export * from './HtmlStyles';
