@@ -7,9 +7,8 @@ import { NodeType, NodeBase, ListNode, ImageNode, ListItemNode, IFrameNode } fro
 export interface TagResolverArgs {
   element: DomElement;
   path: string[];
-  hasTextSibling: boolean;
   children: NodeBase[];
-  isWithinParagraph: boolean;
+  isWithinTextContainer: boolean;
 }
 
 export interface TagHandler {
@@ -18,6 +17,8 @@ export interface TagHandler {
   resolver: (args: TagResolverArgs) => NodeBase | undefined;
   canParseChildren: boolean;
 }
+
+export const LINK_NAMES = new Set(['a']);
 
 const getWidthAndHeight = (element: DomElement) => {
   const width =
@@ -34,10 +35,10 @@ const getWidthAndHeight = (element: DomElement) => {
 
 export const createDefaultTagHandlers = (): TagHandler[] => [
   {
-    names: new Set(['a']),
+    names: LINK_NAMES,
     nodeType: NodeType.Link,
     canParseChildren: true,
-    resolver: ({ path, element, children, isWithinParagraph }: TagResolverArgs) => {
+    resolver: ({ path, element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
       const source = decodeHTML(element.attribs?.href ?? '');
       if (!source) return undefined;
@@ -46,7 +47,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         path,
         source,
         children,
-        isInline: isWithinParagraph,
+        isWithinTextContainer,
       };
     },
   },
@@ -54,7 +55,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['img']),
     nodeType: NodeType.Image,
     canParseChildren: false,
-    resolver: ({ path, element, isWithinParagraph }: TagResolverArgs) => {
+    resolver: ({ path, element }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
       const source = decodeHTML(element.attribs?.src ?? '');
@@ -63,7 +64,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
       return {
         type: NodeType.Image,
         path,
-        isInline: isWithinParagraph,
         source,
         width,
         height,

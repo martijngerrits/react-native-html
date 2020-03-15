@@ -14,7 +14,7 @@ describe('parserawHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        isInline: false,
+        isWithinTextContainer: false,
         children: [
           {
             type: NodeType.Text,
@@ -24,6 +24,8 @@ describe('parserawHtml - link tests', () => {
             isUnderlined: false,
             isItalic: false,
             isBold: false,
+            isWithinTextContainer: false,
+            isWithinLink: true,
           } as TextNode,
         ],
       } as LinkNode,
@@ -43,13 +45,12 @@ describe('parserawHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        isInline: false,
+        isWithinTextContainer: false,
         children: [
           {
             type: NodeType.Image,
             path: ['a', 'img'],
             source: imageSource,
-            isInline: false,
             width: 272,
             height: 90,
           } as ImageNode,
@@ -72,7 +73,7 @@ describe('parserawHtml - link tests', () => {
         type: NodeType.Link,
         path: ['a'],
         source,
-        isInline: false,
+        isWithinTextContainer: false,
         children: [
           {
             content: text,
@@ -82,12 +83,13 @@ describe('parserawHtml - link tests', () => {
             isUnderlined: false,
             isItalic: false,
             isBold: false,
+            isWithinLink: true,
+            isWithinTextContainer: false,
           } as TextNode,
           {
             type: NodeType.Image,
             path: ['a', 'img'],
             source: imageSource,
-            isInline: false,
             width: 272,
             height: 90,
           } as ImageNode,

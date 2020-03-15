@@ -12,7 +12,6 @@ describe('parseHtml - image tests', () => {
     expect(result.nodes).toEqual([
       {
         type: NodeType.Image,
-        isInline: false,
         path: ['img'],
         source,
         width: 272,
@@ -37,6 +36,8 @@ describe('parseHtml - image tests', () => {
         isUnderlined: false,
         isItalic: false,
         isBold: false,
+        isWithinLink: false,
+        isWithinTextContainer: false,
       } as TextNode,
       {
         type: NodeType.Image,
@@ -44,7 +45,6 @@ describe('parseHtml - image tests', () => {
         source,
         width: 272,
         height: 90,
-        isInline: false,
       } as ImageNode,
       {
         content: text,
@@ -54,6 +54,8 @@ describe('parseHtml - image tests', () => {
         isUnderlined: false,
         isItalic: false,
         isBold: false,
+        isWithinLink: false,
+        isWithinTextContainer: false,
       } as TextNode,
     ]);
   });
@@ -69,7 +71,6 @@ describe('parseHtml - image tests', () => {
         type: NodeType.Image,
         path: ['img'],
         source,
-        isInline: false,
       } as ImageNode,
     ]);
   });

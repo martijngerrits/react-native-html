@@ -2,8 +2,8 @@
 import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
 
-import { NodeBase, NodeType, TextNode, ParagraphNode } from './nodes';
-import { TagHandler, createDefaultTagHandlers } from './parseTags';
+import { NodeBase, NodeType, TextNode, TextContainerNode } from './nodes';
+import { TagHandler, createDefaultTagHandlers, LINK_NAMES } from './parseTags';
 
 const TEXT_FORMATTING_TAGS = [
   'b',
@@ -20,14 +20,12 @@ const TEXT_FORMATTING_TAGS = [
   'u',
 ];
 const TEXT_PATH_NAME = 'text';
-const TEXT_AND_TEXT_FORMATTINGS_PATH_NAMES = new Set([...TEXT_FORMATTING_TAGS, 'text']);
 const BOLD_PATH_NAMES = new Set(['b', 'strong']);
 const ITALIC_PATH_NAMES = new Set(['i', 'em']);
 const UNDERLINE_PATH_NAMES = new Set(['ins', 'u']);
 const STRIKETHROUGH_PATH_NAMES = new Set(['strike', 'del']);
-const PARAGRAPH_PATH_NAMES = new Set(['p', 'span', 'div']);
-const PARAGRAPH_CHILD_PATH_NAMES = new Set([...TEXT_FORMATTING_TAGS, 'text', 'a']);
 const HEADER_PATH_NAMES = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+const TEXT_CONTAINER_PATH_NAMES = new Set([...TEXT_FORMATTING_TAGS, 'a', 'text']);
 
 const getPathName = (element: DomElement): string => {
   const pathName = element.type === 'text' ? TEXT_PATH_NAME : element.name;
@@ -53,6 +51,8 @@ interface ParseTextArgs {
   isItalic: boolean;
   hasStrikethrough: boolean;
   isUnderlined: boolean;
+  isWithinTextContainer: boolean;
+  isWithinLink: boolean;
 }
 
 const parseText = ({
@@ -63,6 +63,8 @@ const parseText = ({
   isItalic,
   hasStrikethrough,
   isUnderlined,
+  isWithinTextContainer,
+  isWithinLink,
 }: ParseTextArgs): TextNode | undefined => {
   if (element.type !== 'text' || !element.data || !element.data.replace(/\s/g, '').length) {
     return undefined;
@@ -77,6 +79,8 @@ const parseText = ({
     isItalic,
     hasStrikethrough,
     isUnderlined,
+    isWithinTextContainer,
+    isWithinLink,
   };
 };
 
@@ -85,29 +89,34 @@ interface ParseParagraphArgs {
   children: NodeBase[];
 }
 
-const parseParagraph = ({ path, children }: ParseParagraphArgs): ParagraphNode => {
+const parseTextContainer = ({ path, children }: ParseParagraphArgs): TextContainerNode => {
   return {
-    type: NodeType.Paragraph,
+    type: NodeType.TextContainer,
     path,
     children,
   };
 };
+
+interface ChildGroup {
+  isTextContainer: boolean;
+  children: DomElement[];
+}
 
 interface ParseElementArgs {
   element: DomElement;
   pathName: string;
   parent?: DomElement;
   parentPath?: string[];
-  hasTextSibling?: boolean;
   nodes: NodeBase[];
   tagHandlers: TagHandler[];
   customElementParser?: ElementParser;
-  isWithinParagraph?: boolean;
+  isWithinTextContainer?: boolean;
   isWithinHeader?: number;
   isWithinBold?: boolean;
   isWithinItalic?: boolean;
   isWithinUnderline?: boolean;
   isWithinStrikethrough?: boolean;
+  isWithinLink?: boolean;
   excludeTags: Set<string>;
 }
 
@@ -116,16 +125,16 @@ function parseElement({
   pathName,
   parent,
   parentPath = [],
-  hasTextSibling = false,
   nodes,
   tagHandlers,
   customElementParser,
-  isWithinParagraph = false,
+  isWithinTextContainer = false,
   isWithinHeader,
   isWithinBold = false,
   isWithinItalic = false,
   isWithinStrikethrough = false,
   isWithinUnderline = false,
+  isWithinLink = false,
   excludeTags,
 }: ParseElementArgs) {
   const path = [...parentPath, pathName];
@@ -139,8 +148,7 @@ function parseElement({
       element,
       parent,
       path,
-      hasTextSibling,
-      isWithinParagraph,
+      isWithinTextContainer,
       isWithinHeader,
       isWithinBold,
       isWithinItalic,
@@ -156,6 +164,8 @@ function parseElement({
       isItalic: isWithinItalic,
       isUnderlined: isWithinUnderline,
       hasStrikethrough: isWithinStrikethrough,
+      isWithinTextContainer,
+      isWithinLink,
     });
     if (textNode) {
       nodes.push(textNode);
@@ -167,10 +177,9 @@ function parseElement({
         const children: NodeBase[] = [];
         const node = tagHandler.resolver({
           element,
-          hasTextSibling,
           path,
           children,
-          isWithinParagraph,
+          isWithinTextContainer,
         });
         if (node) {
           nodes.push(node);
@@ -184,59 +193,94 @@ function parseElement({
 
   if (canParseChildren && element.children) {
     const nextParent = element;
-    let isThereAnyTextChild: boolean;
-    let childrenCanBeParagraph = true;
-    let anyTextLikeChild = false;
-    const includedChildren: DomElement[] = [];
 
-    element.children.forEach(child => {
+    /**
+     * purpose of text container node is to group together text like nodes inside a <Text /> so that they are inlined
+     * @example <Text>this is an awesome <Text onPres=={..}>link</Text>! Check out this <Text>Bold</text> text.</Text>
+     *
+     * the children will be grouped together per text container or other nodes
+     *
+     * a text caontainer should be grouped together when:
+     * - at least one <a />, <b />, etc. (i.e., TEXT_CONTAINER_TRIGGER_PATH_NAMES)
+     * - at least one adjacent text element or <a />, <b />, etc. (i.e., TEXT_CONTAINER_TRIGGER_PATH_NAMES)
+     * - add to the group together every adjacent text and tags like <a />, <b />, etc.
+     */
+
+    const childrenGroups: ChildGroup[] = [
+      {
+        isTextContainer: false,
+        children: [],
+      },
+    ];
+    let currentGroupIndex = 0;
+    let shouldCreateTextContainer = false;
+    element.children.forEach((child, index) => {
       const childPathName = getPathName(child);
       if (!excludeTags.has(childPathName)) {
-        includedChildren.push(child);
-        if (childPathName === TEXT_PATH_NAME) {
-          isThereAnyTextChild = true;
+        // can this element be a new text container group?
+        if (!shouldCreateTextContainer && TEXT_CONTAINER_PATH_NAMES.has(childPathName)) {
+          // yes, but check next element as well
+          const nextChild = element.children && element.children[index + 1];
+          if (nextChild && TEXT_CONTAINER_PATH_NAMES.has(getPathName(nextChild))) {
+            // we should have a text container group
+
+            // update flag if it is the first element
+            if (currentGroupIndex === 0 && childrenGroups[0].children.length === 0) {
+              childrenGroups[0].isTextContainer = true;
+
+              // otherwise, add a new group
+            } else {
+              childrenGroups.push({
+                isTextContainer: true,
+                children: [],
+              });
+              currentGroupIndex += 1;
+            }
+            shouldCreateTextContainer = true;
+          }
+
+          // this is not a text container element but last group is a text container
+        } else if (shouldCreateTextContainer && !TEXT_CONTAINER_PATH_NAMES.has(childPathName)) {
+          childrenGroups.push({
+            isTextContainer: false,
+            children: [],
+          });
+          currentGroupIndex += 1;
+          shouldCreateTextContainer = false;
         }
-        if (childrenCanBeParagraph && !PARAGRAPH_CHILD_PATH_NAMES.has(childPathName)) {
-          childrenCanBeParagraph = false;
-        }
-        if (!anyTextLikeChild && TEXT_AND_TEXT_FORMATTINGS_PATH_NAMES.has(childPathName)) {
-          anyTextLikeChild = true;
-        }
+
+        childrenGroups[currentGroupIndex].children.push(child);
       }
     });
-    /**
-     * purpose of paragraph node is to group together nodes inside a <Text /> so that they are inlined
-     * @example <Text>this is an awesome <Text onPres=={..}>link</Text>! Check out this <Text>Bold</text> text.</Text>
-     */
-    if (
-      !isWithinParagraph && // no paragraph when it is already contained in one
-      PARAGRAPH_PATH_NAMES.has(pathName) && // only div, span, p
-      includedChildren.length > 1 && // need to have more than one child
-      anyTextLikeChild && // need to have at least one text like element
-      childrenCanBeParagraph // all children are text like elments or links
-    ) {
-      nextNodes = [];
-      const node = parseParagraph({ path, children: nextNodes });
-      nodes.push(node);
-    }
 
-    includedChildren.forEach(child => {
-      parseElement({
-        element: child,
-        pathName: getPathName(child),
-        parent: nextParent,
-        parentPath: path,
-        hasTextSibling: isThereAnyTextChild,
-        nodes: nextNodes,
-        tagHandlers,
-        customElementParser,
-        excludeTags,
-        isWithinParagraph: isWithinParagraph || childrenCanBeParagraph,
-        isWithinHeader: isWithinHeader ?? getHeaderNumber(pathName),
-        isWithinBold: isWithinBold || BOLD_PATH_NAMES.has(pathName),
-        isWithinItalic: isWithinItalic || ITALIC_PATH_NAMES.has(pathName),
-        isWithinStrikethrough: isWithinStrikethrough || STRIKETHROUGH_PATH_NAMES.has(pathName),
-        isWithinUnderline: isWithinUnderline || UNDERLINE_PATH_NAMES.has(pathName),
+    let selectedNodes = nextNodes;
+    childrenGroups.forEach(childrenGroup => {
+      if (childrenGroup.isTextContainer) {
+        const children: NodeBase[] = [];
+        selectedNodes = children;
+        const textContainerNode = parseTextContainer({ path, children });
+        nodes.push(textContainerNode);
+      } else {
+        selectedNodes = nextNodes;
+      }
+      childrenGroup.children.forEach(child => {
+        parseElement({
+          element: child,
+          pathName: getPathName(child),
+          parent: nextParent,
+          parentPath: path,
+          nodes: selectedNodes,
+          tagHandlers,
+          customElementParser,
+          excludeTags,
+          isWithinTextContainer: isWithinTextContainer || childrenGroup.isTextContainer,
+          isWithinHeader: isWithinHeader ?? getHeaderNumber(pathName),
+          isWithinBold: isWithinBold || BOLD_PATH_NAMES.has(pathName),
+          isWithinItalic: isWithinItalic || ITALIC_PATH_NAMES.has(pathName),
+          isWithinStrikethrough: isWithinStrikethrough || STRIKETHROUGH_PATH_NAMES.has(pathName),
+          isWithinUnderline: isWithinUnderline || UNDERLINE_PATH_NAMES.has(pathName),
+          isWithinLink: isWithinLink || LINK_NAMES.has(pathName),
+        });
       });
     });
   }
@@ -276,8 +320,7 @@ export interface ElementParserArgs {
   element: DomElement;
   parent?: DomElement;
   path: string[];
-  hasTextSibling: boolean;
-  isWithinParagraph: boolean;
+  isWithinTextContainer: boolean;
   isWithinHeader?: number;
   isWithinBold: boolean;
   isWithinItalic: boolean;

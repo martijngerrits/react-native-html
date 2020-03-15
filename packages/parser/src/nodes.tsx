@@ -6,7 +6,7 @@ export interface NodeBase {
 
 export enum NodeType {
   Text = 'Text',
-  Paragraph = 'Paragraph',
+  TextContainer = 'TextContainer',
   Image = 'Image',
   IFrame = 'IFrame',
   Link = 'Link',
@@ -22,21 +22,22 @@ export interface TextNode extends NodeBase {
   isItalic: boolean;
   hasStrikethrough: boolean;
   isUnderlined: boolean;
+  isWithinTextContainer: boolean;
+  isWithinLink: boolean;
 }
 export const isTextNode = (node: NodeBase): node is TextNode => node.type === NodeType.Text;
 
-export interface ParagraphNode extends NodeBase {
-  type: NodeType.Paragraph;
+export interface TextContainerNode extends NodeBase {
+  type: NodeType.TextContainer;
   children: NodeBase[];
 }
-export const isParagraphNode = (node: NodeBase): node is ParagraphNode =>
-  node.type === NodeType.Paragraph;
+export const isTextContainerNode = (node: NodeBase): node is TextContainerNode =>
+  node.type === NodeType.TextContainer;
 
 export interface ImageNode extends NodeBase {
   source: string;
   width?: number;
   height?: number;
-  isInline: boolean;
   type: NodeType.Image;
 }
 export const isImageNode = (node: NodeBase): node is ImageNode => node.type === NodeType.Image;
@@ -68,7 +69,7 @@ export interface LinkNode extends NodeBase {
   type: NodeType.Link;
   children: NodeBase[];
   source: string;
-  isInline: boolean;
+  isWithinTextContainer: boolean;
 }
 export const isLinkNode = (node: NodeBase): node is LinkNode => node.type === NodeType.Link;
 
