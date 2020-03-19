@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListItemNode, NodeBase } from '@react-native-html/parser';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, TextStyle, StyleProp } from 'react-native';
 import { HtmlListStyles } from '../HtmlStyles';
 
 interface Props {
@@ -9,6 +9,8 @@ interface Props {
   number: number;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   styles: HtmlListStyles;
+  OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
+  UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
 }
 
 export const HtmlNodeListItem = ({
@@ -17,26 +19,56 @@ export const HtmlNodeListItem = ({
   number,
   renderChildNode,
   styles: providedStyles,
+  OrderedListItemIndicator: orderedListItemIndicator,
+  UnorderedListItemIndicator: unorderedListItemIndicator,
 }: Props) => {
   const listItemStyles = [styles.listItem, providedStyles.listItem];
-  if (isOrdered) {
+  if (isOrdered && providedStyles.orderedListItem) {
     listItemStyles.push(providedStyles.orderedListItem);
-  } else {
+  } else if (!isOrdered && providedStyles.unorderedListItem) {
     listItemStyles.push(providedStyles.unorderedListItem);
   }
 
-  const indicatorStyles = isOrdered ? providedStyles.listItemNumber : providedStyles.listItemBullet;
+  const indicatorStyles: StyleProp<TextStyle> = [];
+  if (isOrdered && providedStyles.listItemNumber) {
+    indicatorStyles.push(providedStyles.listItemNumber);
+  } else if (!isOrdered && providedStyles.listItemBullet) {
+    indicatorStyles.push(providedStyles.listItemBullet);
+  }
 
   const listItemContentStyles = [styles.listItemContents, providedStyles.listItemContent];
 
+  const NumberIndicator = orderedListItemIndicator ?? HtmlNodeListItemNumber;
+  const BulletIndicator = unorderedListItemIndicator ?? HtmlNodeListItemBullet;
+
   return (
     <View style={listItemStyles}>
-      <Text style={indicatorStyles}>{isOrdered ? `${number}.` : '\u2022'} </Text>
+      {isOrdered ? (
+        <NumberIndicator number={number} style={providedStyles.listItemNumber} />
+      ) : (
+        <BulletIndicator style={providedStyles.listItemBullet} />
+      )}
       <View style={listItemContentStyles}>
         {node.children.map((child, index) => renderChildNode(child, index))}
       </View>
     </View>
   );
+};
+
+export interface HtmlNodeListItemNumberProps {
+  number: number;
+  style?: StyleProp<TextStyle>;
+}
+
+const HtmlNodeListItemNumber = ({ number, style }: HtmlNodeListItemNumberProps) => {
+  return <Text style={style}>{number}. </Text>;
+};
+
+export interface HtmlNodeListItemBulletProps {
+  style?: StyleProp<TextStyle>;
+}
+const HtmlNodeListItemBullet = ({ style }: HtmlNodeListItemBulletProps) => {
+  return <Text style={style}>{'\u2022'} </Text>;
 };
 
 const styles = StyleSheet.create({

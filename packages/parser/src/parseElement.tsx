@@ -2,8 +2,18 @@
 import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
 
-import { NodeBase, NodeType, TextNode, TextContainerNode } from './nodes';
-import { TagHandler, createDefaultTagHandlers, LINK_NAMES } from './parseTags';
+import {
+  NodeBase,
+  NodeType,
+  TextNodeWithoutHash,
+  TextContainerNodeWithoutHash,
+  NodeWithoutHash,
+  InternalLinkNode,
+  isInternalLinkNode,
+  generateNodeHash,
+  getNodeKey,
+} from './nodes';
+import { TagHandler, createDefaultTagHandlers, LINK_NAMES, LIST_NAMES } from './parseTags';
 
 const TEXT_FORMATTING_TAGS = [
   'b',
@@ -45,7 +55,6 @@ const getHeaderNumber = (pathName: string): number | undefined => {
 
 interface ParseTextArgs {
   element: DomElement;
-  path: string[];
   header?: number;
   isBold: boolean;
   isItalic: boolean;
@@ -53,11 +62,11 @@ interface ParseTextArgs {
   isUnderlined: boolean;
   isWithinTextContainer: boolean;
   isWithinLink: boolean;
+  isWithinList: boolean;
 }
 
 const parseText = ({
   element,
-  path,
   header,
   isBold,
   isItalic,
@@ -65,14 +74,14 @@ const parseText = ({
   isUnderlined,
   isWithinTextContainer,
   isWithinLink,
-}: ParseTextArgs): TextNode | undefined => {
+  isWithinList,
+}: ParseTextArgs): TextNodeWithoutHash | undefined => {
   if (element.type !== 'text' || !element.data || !element.data.replace(/\s/g, '').length) {
     return undefined;
   }
 
   return {
     type: NodeType.Text,
-    path,
     content: decodeHTML(element.data),
     header,
     isBold,
@@ -81,18 +90,17 @@ const parseText = ({
     isUnderlined,
     isWithinTextContainer,
     isWithinLink,
+    isWithinList,
   };
 };
 
-interface ParseParagraphArgs {
-  path: string[];
+interface ParseTextConatinerArgs {
   children: NodeBase[];
 }
 
-const parseTextContainer = ({ path, children }: ParseParagraphArgs): TextContainerNode => {
+const parseTextContainer = ({ children }: ParseTextConatinerArgs): TextContainerNodeWithoutHash => {
   return {
     type: NodeType.TextContainer,
-    path,
     children,
   };
 };
@@ -105,11 +113,14 @@ interface ChildGroup {
 interface ParseElementArgs {
   element: DomElement;
   pathName: string;
-  parent?: DomElement;
-  parentPath?: string[];
   nodes: NodeBase[];
+  internalLinkNodes: InternalLinkNode[];
+  nodeMap: Map<string, NodeBase>;
+  hashToPathIds: Map<string, string[]>;
   tagHandlers: TagHandler[];
-  customElementParser?: ElementParser;
+  parent?: DomElement;
+  parentPathIds?: string[];
+  customParser?: ElementParser;
   isWithinTextContainer?: boolean;
   isWithinHeader?: number;
   isWithinBold?: boolean;
@@ -117,17 +128,19 @@ interface ParseElementArgs {
   isWithinUnderline?: boolean;
   isWithinStrikethrough?: boolean;
   isWithinLink?: boolean;
+  isWithinList?: boolean;
   excludeTags: Set<string>;
+  keyPrefix?: string;
 }
 
 function parseElement({
   element,
   pathName,
   parent,
-  parentPath = [],
+  parentPathIds = [],
   nodes,
   tagHandlers,
-  customElementParser,
+  customParser,
   isWithinTextContainer = false,
   isWithinHeader,
   isWithinBold = false,
@@ -135,30 +148,49 @@ function parseElement({
   isWithinStrikethrough = false,
   isWithinUnderline = false,
   isWithinLink = false,
+  isWithinList = false,
   excludeTags,
+  keyPrefix = '',
+  nodeMap,
+  internalLinkNodes,
+  hashToPathIds,
 }: ParseElementArgs) {
-  const path = [...parentPath, pathName];
+  const domElementId = element?.attribs?.id ?? '';
+  const pathIds = [...parentPathIds, domElementId];
 
   let nextNodes = nodes;
   let canParseChildren = true;
+  let parsedNode: NodeWithoutHash | null = null;
+  let nextKeyPrefix = keyPrefix;
 
-  const customNode =
-    customElementParser &&
-    customElementParser({
+  const customParseResult =
+    customParser &&
+    customParser({
       element,
       parent,
-      path,
+      pathIds,
       isWithinTextContainer,
       isWithinHeader,
       isWithinBold,
       isWithinItalic,
+      isWithinLink,
+      isWithinList,
+      hasClassName: (className: string) => {
+        if (element.type === 'tag') {
+          const classNames = element.attribs?.class;
+          if (classNames) {
+            const regex = new RegExp(`(?:^| )${className}(?:$| )`);
+            return regex.test(classNames);
+          }
+        }
+        return false;
+      },
     });
-  if (customNode) {
-    nodes.push(customNode);
+  if (customParseResult?.node) {
+    parsedNode = customParseResult.node;
   } else if (element.type === 'text') {
     const textNode = parseText({
       element,
-      path,
       header: isWithinHeader,
       isBold: isWithinBold,
       isItalic: isWithinItalic,
@@ -166,29 +198,54 @@ function parseElement({
       hasStrikethrough: isWithinStrikethrough,
       isWithinTextContainer,
       isWithinLink,
+      isWithinList,
     });
     if (textNode) {
-      nodes.push(textNode);
+      parsedNode = textNode;
     }
   } else if (element.type === 'tag') {
     tagHandlers.forEach(tagHandler => {
       if (element.name && tagHandler.names.has(element.name)) {
         canParseChildren = tagHandler.canParseChildren;
         const children: NodeBase[] = [];
-        const node = tagHandler.resolver({
+        const nodeWithoutKey = tagHandler.resolver({
           element,
-          path,
           children,
           isWithinTextContainer,
         });
-        if (node) {
-          nodes.push(node);
-          if (node.children === children) {
+        if (nodeWithoutKey) {
+          parsedNode = nodeWithoutKey;
+          if (nodeWithoutKey.children === children) {
             nextNodes = children;
           }
         }
       }
     });
+  }
+
+  if (parsedNode) {
+    const hash = generateNodeHash({
+      keyPrefix,
+      nodeType: parsedNode.type,
+      index: nodes.length,
+    });
+    const node = { hash, ...parsedNode };
+    // going a level deeper, update key prefix
+    if (nextNodes !== nodes) {
+      nextKeyPrefix = getNodeKey(keyPrefix, parsedNode.type, nodes.length);
+    }
+
+    nodes.push(node);
+    nodeMap.set(hash, node);
+    hashToPathIds.set(hash, pathIds);
+    if (isInternalLinkNode(node)) {
+      internalLinkNodes.push(node);
+    }
+  }
+
+  // allow the custom parser to control whether children should be parsed
+  if (typeof customParseResult?.continueParsingChildren !== 'undefined') {
+    canParseChildren = customParseResult.continueParsingChildren;
   }
 
   if (canParseChildren && element.children) {
@@ -254,12 +311,23 @@ function parseElement({
     });
 
     let selectedNodes = nextNodes;
+    let selectedKeyPrefix = nextKeyPrefix;
     childrenGroups.forEach(childrenGroup => {
       if (childrenGroup.isTextContainer) {
         const children: NodeBase[] = [];
         selectedNodes = children;
-        const textContainerNode = parseTextContainer({ path, children });
-        nodes.push(textContainerNode);
+        const textContainerNode = parseTextContainer({ children });
+        const hash = generateNodeHash({
+          keyPrefix,
+          nodeType: textContainerNode.type,
+          index: nodes.length,
+        });
+        const node = { hash, ...textContainerNode };
+        // going a level deeper, update key prefix
+        selectedKeyPrefix = getNodeKey(keyPrefix, textContainerNode.type, nodes.length);
+        nodes.push(node);
+        nodeMap.set(hash, node);
+        hashToPathIds.set(hash, pathIds);
       } else {
         selectedNodes = nextNodes;
       }
@@ -268,11 +336,12 @@ function parseElement({
           element: child,
           pathName: getPathName(child),
           parent: nextParent,
-          parentPath: path,
+          parentPathIds: pathIds,
           nodes: selectedNodes,
           tagHandlers,
-          customElementParser,
+          customParser,
           excludeTags,
+          internalLinkNodes,
           isWithinTextContainer: isWithinTextContainer || childrenGroup.isTextContainer,
           isWithinHeader: isWithinHeader ?? getHeaderNumber(pathName),
           isWithinBold: isWithinBold || BOLD_PATH_NAMES.has(pathName),
@@ -280,6 +349,10 @@ function parseElement({
           isWithinStrikethrough: isWithinStrikethrough || STRIKETHROUGH_PATH_NAMES.has(pathName),
           isWithinUnderline: isWithinUnderline || UNDERLINE_PATH_NAMES.has(pathName),
           isWithinLink: isWithinLink || LINK_NAMES.has(pathName),
+          isWithinList: isWithinList || LIST_NAMES.has(pathName),
+          keyPrefix: selectedKeyPrefix,
+          nodeMap,
+          hashToPathIds,
         });
       });
     });
@@ -289,17 +362,23 @@ function parseElement({
 interface ParseElementsArgs {
   elements: DomElement[];
   nodes: NodeBase[];
+  internalLinkNodes: InternalLinkNode[];
   tagHandlers?: TagHandler[];
-  customElementParser?: ElementParser;
+  customParser?: ElementParser;
   excludeTags: Set<string>;
+  hashToPathIds: Map<string, string[]>;
+  nodeMap: Map<string, NodeBase>;
 }
 
 export function parseElements({
   elements,
   nodes,
   tagHandlers = createDefaultTagHandlers(),
-  customElementParser,
+  customParser,
   excludeTags,
+  internalLinkNodes,
+  hashToPathIds,
+  nodeMap,
 }: ParseElementsArgs) {
   elements.forEach(element => {
     const pathName = getPathName(element);
@@ -307,10 +386,13 @@ export function parseElements({
       parseElement({
         element,
         pathName,
+        internalLinkNodes,
         nodes,
         tagHandlers,
-        customElementParser,
+        customParser,
         excludeTags,
+        hashToPathIds,
+        nodeMap,
       });
     }
   });
@@ -319,11 +401,19 @@ export function parseElements({
 export interface ElementParserArgs {
   element: DomElement;
   parent?: DomElement;
-  path: string[];
+  pathIds: string[];
   isWithinTextContainer: boolean;
   isWithinHeader?: number;
   isWithinBold: boolean;
   isWithinItalic: boolean;
+  isWithinLink: boolean;
+  isWithinList: boolean;
+  hasClassName: (className: string) => boolean;
 }
 
-export type ElementParser = (args: ElementParserArgs) => NodeBase | undefined;
+export interface ElementParserResult {
+  node?: NodeWithoutHash;
+  continueParsingChildren?: boolean;
+}
+
+export type ElementParser = (args: ElementParserArgs) => ElementParserResult | undefined;

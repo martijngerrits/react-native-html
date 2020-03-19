@@ -3,7 +3,7 @@ import { DomHandler, Parser } from 'htmlparser2-without-node-native';
 import { DomElement } from 'htmlparser2';
 
 import { parseElements, ElementParser } from './parseElement';
-import { NodeBase } from './nodes';
+import { NodeBase, InternalLinkNode } from './nodes';
 import { TagHandler } from './parseTags';
 
 export enum ResultType {
@@ -25,14 +25,14 @@ export type ParseHtmlResult = SuccessResult | Failureresult;
 
 interface ParseHtmlArgs {
   rawHtml: string;
-  customElementParser?: ElementParser;
+  customParser?: ElementParser;
   tagHandlers?: TagHandler[];
   excludeTags?: Set<string>;
 }
 
 export async function parseHtml({
   rawHtml,
-  customElementParser,
+  customParser,
   tagHandlers,
   excludeTags = new Set([
     'input',
@@ -70,13 +70,19 @@ export async function parseHtml({
     const elements = await promise;
 
     const nodes: NodeBase[] = [];
+    const internalLinkNodes: InternalLinkNode[] = [];
+    const nodeMap = new Map<string, NodeBase>();
+    const hashToPathIds = new Map<string, string[]>();
 
     parseElements({
       elements,
       nodes,
       tagHandlers,
-      customElementParser,
+      customParser,
       excludeTags,
+      internalLinkNodes,
+      nodeMap,
+      hashToPathIds,
     });
 
     return {

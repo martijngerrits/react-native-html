@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode } from '../nodes';
+import { NodeType, TextNode, generateNodeHash } from '../nodes';
 
 describe('parseHtml - text tests', () => {
   it('parse text', async () => {
@@ -11,13 +11,14 @@ describe('parseHtml - text tests', () => {
       {
         content: rawHtml,
         type: NodeType.Text,
-        path: ['text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
         isBold: false,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });
@@ -30,7 +31,7 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['h1', 'text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         header: 1,
         hasStrikethrough: false,
         isUnderlined: false,
@@ -38,6 +39,7 @@ describe('parseHtml - text tests', () => {
         isBold: false,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });
@@ -50,13 +52,14 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['b', 'text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
         isBold: true,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });
@@ -69,13 +72,14 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['i', 'text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: true,
         isBold: false,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });
@@ -88,13 +92,14 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['u', 'text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         hasStrikethrough: false,
         isUnderlined: true,
         isItalic: false,
         isBold: false,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });
@@ -107,13 +112,14 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        path: ['del', 'text'],
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
         hasStrikethrough: true,
         isUnderlined: false,
         isItalic: false,
         isBold: false,
         isWithinTextContainer: false,
         isWithinLink: false,
+        isWithinList: false,
       } as TextNode,
     ]);
   });

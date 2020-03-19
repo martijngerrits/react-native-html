@@ -1,25 +1,57 @@
 import React from 'react';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
-import { RawHtmlView } from '@react-native-html/renderer';
+import { HtmlParseAndView, HtmlParseAndViewProps, HtmlStyles } from '@react-native-html/renderer';
 
 interface Props {
   description?: string;
   rawHtml: string;
+  htmlViewProps?: Omit<HtmlParseAndViewProps, 'rawHtml'>;
 }
 
-export const HtmlScreenBase = ({ description, rawHtml }: Props) => {
+export const HtmlScreenBase = ({ description, rawHtml, htmlViewProps }: Props) => {
   return (
     <SafeAreaView>
       {description && <Text>{description}</Text>}
-      <RawHtmlView rawHtml={rawHtml} htmlStyles={htmlStyles} />
+      <HtmlParseAndView
+        rawHtml={rawHtml}
+        htmlStyles={htmlStyles}
+        containerStyle={styles.container}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...htmlViewProps}
+      />
     </SafeAreaView>
   );
 };
 
-/* eslint-disable react-native/no-unused-styles */
-const htmlStyles = StyleSheet.create({
-  p: {
-    margin: 10,
+const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 10,
   },
 });
-/* eslint-enabl react-native/no-unused-styles */
+
+const htmlStyles: HtmlStyles = {
+  text: {
+    marginVertical: 5,
+  },
+  image: {
+    marginVertical: 5,
+  },
+  list: {
+    marginVertical: 5,
+  },
+  h1: {
+    fontSize: 28,
+    marginTop: 15,
+  },
+  h2: {
+    fontSize: 24,
+    marginTop: 15,
+  },
+  h3: {
+    fontSize: 20,
+    marginTop: 10,
+  },
+  listItem: {
+    marginVertical: 2,
+  },
+};

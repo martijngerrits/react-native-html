@@ -8,6 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "link:add": "yarn wml add ../packages/renderer node_modules/@react-native-html/renderer",
+    "link:start": "watchman watch-del-all && yarn wml start",
     "reinstall": "rm -rf node_modules/@react-native-html && yarn install --check-files"
   },
   "dependencies": {
@@ -37,7 +39,8 @@
     "jest": "^24.9.0",
     "metro-react-native-babel-preset": "^0.56.0",
     "react-test-renderer": "16.9.0",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.3",
+    "wml": "^0.0.83"
   },
   "jest": {
     "preset": "react-native",

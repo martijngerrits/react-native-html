@@ -1,25 +1,22 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Example1Screen } from './Example1Screen';
+import { BasicExampleScreen } from './BasicExampleScreen';
+import { ListIndicatorExampleScreen } from './ListIndicatorExampleScreen';
+import { MainScreen } from './MainScreen';
+import { RootStackParamList } from './RootStack';
+import { CustomNodeExampleScreen } from './CustomNodeExampleScreen';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Example1" component={Example1Screen} />
+      <Stack.Navigator initialRouteName="Main">
+        <Stack.Screen name="Main" component={MainScreen} />
+        <Stack.Screen name="BasicExample" component={BasicExampleScreen} />
+        <Stack.Screen name="ListIndicatorExample" component={ListIndicatorExampleScreen} />
+        <Stack.Screen name="CustomNodeExample" component={CustomNodeExampleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

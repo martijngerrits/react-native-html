@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextNode } from '@react-native-html/parser';
 import { TextProperties, StyleProp, TextStyle, StyleSheet } from 'react-native';
+import { HtmlHeaderStyles } from '../HtmlStyles';
 
 interface Props {
   node: TextNode;
@@ -8,6 +9,7 @@ interface Props {
   textStyle?: StyleProp<TextStyle>;
   nestedTextStyle?: StyleProp<TextStyle>;
   linkStyle?: StyleProp<TextStyle>;
+  headerStyles: HtmlHeaderStyles;
 }
 
 export const HtmlNodeText = ({
@@ -16,6 +18,7 @@ export const HtmlNodeText = ({
   textStyle,
   nestedTextStyle,
   linkStyle,
+  headerStyles,
 }: Props) => {
   const combinedStyles: StyleProp<TextStyle>[] = [];
   if (node.isBold) {
@@ -31,14 +34,26 @@ export const HtmlNodeText = ({
     combinedStyles.push(styles.strike);
   }
 
-  if (node.isWithinTextContainer) {
-    combinedStyles.push(nestedTextStyle);
-  } else {
+  if (node.isWithinTextContainer || node.isWithinList) {
+    if (nestedTextStyle) {
+      combinedStyles.push(nestedTextStyle);
+    }
+  } else if (textStyle) {
     combinedStyles.push(textStyle);
   }
 
   if (node.isWithinLink) {
-    combinedStyles.push(linkStyle);
+    combinedStyles.push(styles.link);
+    if (linkStyle) {
+      combinedStyles.push(linkStyle);
+    }
+  }
+
+  if (node.header) {
+    const headerStyle = `h${node.header}` as keyof HtmlHeaderStyles;
+    if (headerStyles[headerStyle]) {
+      combinedStyles.push(headerStyles[headerStyle]);
+    }
   }
 
   return <TextComponent style={combinedStyles}>{node.content}</TextComponent>;
@@ -56,5 +71,9 @@ const styles = StyleSheet.create({
   },
   italic: {
     fontStyle: 'italic',
+  },
+  link: {
+    color: '#0000EE',
+    textDecorationLine: 'underline',
   },
 });

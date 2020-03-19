@@ -28,6 +28,7 @@ import { HtmlNodeLink } from './nodes/HtmlNodeLink';
 import { HtmlNodeList } from './nodes/HtmlNodeList';
 import { HtmlStyles } from './HtmlStyles';
 import { HtmlNodeTextContainer } from './nodes/HtmlNodeTextContainer';
+import { HtmlNodeListItemNumberProps, HtmlNodeListItemBulletProps } from './nodes/HtmlNodeListItem';
 
 export interface CustomRendererArgs {
   node: NodeBase;
@@ -43,6 +44,8 @@ export interface HtmlViewOptions {
   WebViewComponent: React.ElementType<WebViewProps>;
   onLinkPress?: (uri: string) => void;
   htmlStyles: HtmlStyles;
+  OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
+  UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
 }
 
 export interface HtmlViewProps extends Partial<HtmlViewOptions> {
@@ -52,11 +55,14 @@ export interface HtmlViewProps extends Partial<HtmlViewOptions> {
 
 export const HtmlView: FunctionComponent<HtmlViewProps> = ({
   nodes,
+  customRenderer,
   TextComponent = Text,
   ImageComponent = Image,
   TouchableComponent = TouchableOpacity,
   WebViewComponent = WebView,
   htmlStyles = {},
+  OrderedListItemIndicator,
+  UnorderedListItemIndicator,
   containerStyle,
 }: HtmlViewProps) => {
   const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
@@ -76,7 +82,16 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
     >
       {renderNodes(
         nodes,
-        { TextComponent, ImageComponent, TouchableComponent, WebViewComponent, htmlStyles },
+        {
+          customRenderer,
+          TextComponent,
+          ImageComponent,
+          TouchableComponent,
+          WebViewComponent,
+          htmlStyles,
+          OrderedListItemIndicator,
+          UnorderedListItemIndicator,
+        },
         maxWidth
       )}
     </View>
@@ -84,9 +99,7 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: {},
 });
 
 const renderNodes = (nodes: NodeBase[], options: HtmlViewOptions, maxWidth: number) => {
@@ -109,8 +122,9 @@ const renderNode = (
     TouchableComponent,
     WebViewComponent,
     htmlStyles,
+    OrderedListItemIndicator,
+    UnorderedListItemIndicator,
   } = options;
-
   const key = `react_native_node_${node.type}_${index}`;
   if (customRenderer) {
     const view = customRenderer({ node, key, renderChildNode });
@@ -127,6 +141,14 @@ const renderNode = (
         nestedTextStyle={htmlStyles.nestedText}
         linkStyle={htmlStyles.link}
         TextComponent={TextComponent}
+        headerStyles={{
+          h1: htmlStyles.h1,
+          h2: htmlStyles.h2,
+          h3: htmlStyles.h3,
+          h4: htmlStyles.h4,
+          h5: htmlStyles.h5,
+          h6: htmlStyles.h6,
+        }}
       />
     );
   }
@@ -158,6 +180,7 @@ const renderNode = (
         key={key}
         node={node}
         style={htmlStyles.touchable}
+        TextComponent={TextComponent}
         TouchableComponent={TouchableComponent}
         renderChildNode={renderChildNode}
       />
@@ -183,6 +206,8 @@ const renderNode = (
           listItemNumber: htmlStyles.listItemNumber,
           listItemContent: htmlStyles.listItemContent,
         }}
+        OrderedListItemIndicator={OrderedListItemIndicator}
+        UnorderedListItemIndicator={UnorderedListItemIndicator}
       />
     );
   }

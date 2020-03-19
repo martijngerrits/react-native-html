@@ -31,13 +31,19 @@ export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth }: Props) 
   }, [source]);
 
   useEffect(() => {
-    if (imageSize.width > maxWidth) {
+    const width = providedWidth && providedWidth > 1 ? providedWidth : imageSize.width;
+    const height = providedHeight && providedHeight > 1 ? providedHeight : imageSize.height;
+
+    if (width > maxWidth) {
       const ratio = imageSize.width / maxWidth;
       setSize({ width: maxWidth, height: imageSize.height * ratio });
+    } else if (width > 1 && height > 1) {
+      setSize({ width, height });
     } else {
-      setSize(imageSize);
+      const ratio = imageSize.width / width;
+      setSize({ width, height: width * ratio });
     }
-  }, [maxWidth, imageSize]);
+  }, [maxWidth, imageSize, providedWidth, providedHeight]);
 
   return (
     <ImageComponent

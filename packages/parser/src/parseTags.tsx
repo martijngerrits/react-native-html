@@ -2,11 +2,18 @@
 import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
 
-import { NodeType, NodeBase, ListNode, ImageNode, ListItemNode, IFrameNode } from './nodes';
+import {
+  NodeType,
+  NodeBase,
+  ListNode,
+  ImageNode,
+  ListItemNode,
+  IFrameNode,
+  NodeWithoutHash,
+} from './nodes';
 
 export interface TagResolverArgs {
   element: DomElement;
-  path: string[];
   children: NodeBase[];
   isWithinTextContainer: boolean;
 }
@@ -14,11 +21,12 @@ export interface TagResolverArgs {
 export interface TagHandler {
   names: Set<string>;
   nodeType: NodeType;
-  resolver: (args: TagResolverArgs) => NodeBase | undefined;
+  resolver: (args: TagResolverArgs) => NodeWithoutHash | undefined;
   canParseChildren: boolean;
 }
 
 export const LINK_NAMES = new Set(['a']);
+export const LIST_NAMES = new Set(['ol', 'ul']);
 
 const getWidthAndHeight = (element: DomElement) => {
   const width =
@@ -38,15 +46,32 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: LINK_NAMES,
     nodeType: NodeType.Link,
     canParseChildren: true,
-    resolver: ({ path, element, children, isWithinTextContainer }: TagResolverArgs) => {
+    resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
       const source = decodeHTML(element.attribs?.href ?? '');
-      if (!source) return undefined;
+      if (!source || source.startsWith('#')) return undefined;
       return {
         type: NodeType.Link,
-        path,
         source,
         children,
+        isWithinTextContainer,
+      };
+    },
+  },
+  {
+    names: LINK_NAMES,
+    nodeType: NodeType.InternalLink,
+    canParseChildren: true,
+    resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
+      if (element.name !== 'a' || !element.attribs) return undefined;
+      const source = decodeHTML(element.attribs?.href ?? '');
+      if (!source || !source.startsWith('#')) return undefined;
+      const domId = source.substr(1);
+      return {
+        type: NodeType.InternalLink,
+        linkToHash: '', // will be added later
+        children,
+        domId,
         isWithinTextContainer,
       };
     },
@@ -55,7 +80,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['img']),
     nodeType: NodeType.Image,
     canParseChildren: false,
-    resolver: ({ path, element }: TagResolverArgs) => {
+    resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
       const source = decodeHTML(element.attribs?.src ?? '');
@@ -63,7 +88,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
 
       return {
         type: NodeType.Image,
-        path,
         source,
         width,
         height,
@@ -74,21 +98,19 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['li']),
     nodeType: NodeType.ListItem,
     canParseChildren: true,
-    resolver: ({ path, children }: TagResolverArgs) => {
+    resolver: ({ children }: TagResolverArgs) => {
       return {
-        path,
         children,
         type: NodeType.ListItem,
       } as ListItemNode;
     },
   },
   {
-    names: new Set(['ol', 'ul']),
+    names: LIST_NAMES,
     nodeType: NodeType.List,
     canParseChildren: true,
-    resolver: ({ path, children, element }: TagResolverArgs) => {
+    resolver: ({ children, element }: TagResolverArgs) => {
       return {
-        path,
         children,
         isOrdered: element.name === 'ol',
         type: NodeType.List,
@@ -99,7 +121,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['iframe']),
     nodeType: NodeType.IFrame,
     canParseChildren: false,
-    resolver: ({ path, element }: TagResolverArgs) => {
+    resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'iframe' || !element.attribs) return undefined;
       const { width, height } = getWidthAndHeight(element);
       const source = decodeHTML(element.attribs?.src ?? '');
@@ -107,7 +129,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
 
       return {
         type: NodeType.IFrame,
-        path,
         source,
         width,
         height,

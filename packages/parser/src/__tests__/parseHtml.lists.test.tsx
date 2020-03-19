@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, ListItemNode, ListNode } from '../nodes';
+import { NodeType, TextNode, ListItemNode, ListNode, getNodeKey, generateNodeHash } from '../nodes';
 
 describe('parseHtml - list tests', () => {
   it('parse unordered list', async () => {
@@ -10,43 +10,57 @@ describe('parseHtml - list tests', () => {
 
     expect(result.type).toBe(ResultType.Success);
 
+    const keyPrefix = getNodeKey('', NodeType.List, 0);
+    const keyPrefix1 = getNodeKey(keyPrefix, NodeType.ListItem, 0);
+    const keyPrefix2 = getNodeKey(keyPrefix, NodeType.ListItem, 1);
+
     expect(result.nodes).toEqual([
       {
         type: NodeType.List,
-        path: ['ul'],
+        hash: generateNodeHash({ nodeType: NodeType.List, index: 0 }),
         isOrdered: false,
         children: [
           {
             type: NodeType.ListItem,
-            path: ['ul', 'li'],
+            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.ListItem, index: 0 }),
             children: [
               {
                 type: NodeType.Text,
                 content: text1,
-                path: ['ul', 'li', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix1,
+                  nodeType: NodeType.Text,
+                  index: 0,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
                 isBold: false,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
             ],
           },
           {
             type: NodeType.ListItem,
-            path: ['ul', 'li'],
+            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.ListItem, index: 1 }),
             children: [
               {
                 type: NodeType.Text,
                 content: text2,
-                path: ['ul', 'li', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix2,
+                  nodeType: NodeType.Text,
+                  index: 0,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
                 isBold: false,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -61,45 +75,59 @@ describe('parseHtml - list tests', () => {
     const rawHtml = `<ol><li>${text1}</li><li>${text2}</li></ol>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
+    const keyPrefix = getNodeKey('', NodeType.List, 0);
+    const keyPrefix1 = getNodeKey(keyPrefix, NodeType.ListItem, 0);
+    const keyPrefix2 = getNodeKey(keyPrefix, NodeType.ListItem, 1);
+
     expect(result.type).toBe(ResultType.Success);
 
     expect(result.nodes).toEqual([
       {
         type: NodeType.List,
-        path: ['ol'],
+        hash: generateNodeHash({ nodeType: NodeType.List, index: 0 }),
         isOrdered: true,
         children: [
           {
             type: NodeType.ListItem,
-            path: ['ol', 'li'],
+            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.ListItem, index: 0 }),
             children: [
               {
                 type: NodeType.Text,
                 content: text1,
-                path: ['ol', 'li', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix1,
+                  nodeType: NodeType.Text,
+                  index: 0,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
                 isBold: false,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
             ],
           } as ListItemNode,
           {
             type: NodeType.ListItem,
-            path: ['ol', 'li'],
+            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.ListItem, index: 1 }),
             children: [
               {
                 type: NodeType.Text,
                 content: text2,
-                path: ['ol', 'li', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix2,
+                  nodeType: NodeType.Text,
+                  index: 0,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
                 isBold: false,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -114,22 +142,29 @@ describe('parseHtml - list tests', () => {
     const rawHtml = `<ul><li><h3>${header1}</h3><p>${text1}</p></li></ul>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
+    const keyPrefix = getNodeKey('', NodeType.List, 0);
+    const keyPrefix1 = getNodeKey(keyPrefix, NodeType.ListItem, 0);
+
     expect(result.type).toBe(ResultType.Success);
 
     expect(result.nodes).toEqual([
       {
         type: NodeType.List,
-        path: ['ul'],
+        hash: generateNodeHash({ nodeType: NodeType.List, index: 0 }),
         isOrdered: false,
         children: [
           {
             type: NodeType.ListItem,
-            path: ['ul', 'li'],
+            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.ListItem, index: 0 }),
             children: [
               {
                 type: NodeType.Text,
                 content: header1,
-                path: ['ul', 'li', 'h3', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix1,
+                  nodeType: NodeType.Text,
+                  index: 0,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -137,17 +172,23 @@ describe('parseHtml - list tests', () => {
                 header: 3,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
               {
                 type: NodeType.Text,
                 content: text1,
-                path: ['ul', 'li', 'p', 'text'],
+                hash: generateNodeHash({
+                  keyPrefix: keyPrefix1,
+                  nodeType: NodeType.Text,
+                  index: 1,
+                }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
                 isBold: false,
                 isWithinLink: false,
                 isWithinTextContainer: false,
+                isWithinList: true,
               } as TextNode,
             ],
           } as ListItemNode,

@@ -1,14 +1,18 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, NodeBase, IFrameNode } from '../nodes';
-import { ElementParserArgs } from '../parseElement';
+import { NodeType, NodeBase, IFrameNode, TextNode, generateNodeHash } from '../nodes';
+import { ElementParser } from '../parseElement';
 
 const MyNodeTypes = {
   ...NodeType,
   Facebook: 'Facebook',
+  Magic: 'Magic',
 };
 interface FacebookNode extends NodeBase {
   type: 'Facebook';
   source: string;
+}
+interface MagicNode extends NodeBase {
+  type: 'Magic';
 }
 
 describe('parseHtml - custom parser tests', () => {
@@ -16,25 +20,26 @@ describe('parseHtml - custom parser tests', () => {
     const src = 'https://www.facebook.com';
     const rawHtml = `<iframe src="${src}" height="200" width="300"></iframe>`;
 
-    const customElementParser = ({ element, path }: ElementParserArgs): NodeBase | undefined => {
+    const customParser: ElementParser = ({ element }) => {
       const source = element.attribs?.src ?? '';
       if (element.name === 'iframe' && source.startsWith(src)) {
         return {
-          type: MyNodeTypes.Facebook,
-          source,
-          path,
-        } as FacebookNode;
+          node: {
+            type: MyNodeTypes.Facebook,
+            source,
+          } as FacebookNode,
+        };
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({ rawHtml, customElementParser })) as SuccessResult;
+    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
     expect(result.nodes).toEqual([
       {
         type: MyNodeTypes.Facebook,
-        path: ['iframe'],
+        hash: generateNodeHash({ nodeType: MyNodeTypes.Facebook, index: 0 }),
         source: src,
       },
     ]);
@@ -44,34 +49,88 @@ describe('parseHtml - custom parser tests', () => {
     const src2 = 'https://www.instagram.com';
     const rawHtml = `<iframe src="${src}" height="200" width="300"></iframe><iframe src="${src2}" height="200" width="300"></iframe>`;
 
-    const customElementParser = ({ element, path }: ElementParserArgs): NodeBase | undefined => {
+    const customParser: ElementParser = ({ element }) => {
       const source = element.attribs?.src ?? '';
       if (element.name === 'iframe' && source.startsWith(src)) {
         return {
-          type: MyNodeTypes.Facebook,
-          source,
-          path,
-        } as FacebookNode;
+          node: {
+            type: MyNodeTypes.Facebook,
+            source,
+          } as FacebookNode,
+        };
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({ rawHtml, customElementParser })) as SuccessResult;
+    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
     expect(result.nodes).toEqual([
       {
         type: MyNodeTypes.Facebook,
-        path: ['iframe'],
+        hash: generateNodeHash({ nodeType: MyNodeTypes.Facebook, index: 0 }),
         source: src,
       } as FacebookNode,
       {
         type: NodeType.IFrame,
-        path: ['iframe'],
+        hash: generateNodeHash({ nodeType: NodeType.IFrame, index: 1 }),
         source: src2,
         height: 200,
         width: 300,
       } as IFrameNode,
+    ]);
+  });
+  it('parse with custom parser and no longer parse children', async () => {
+    const rawHtml = `<p>Below the custom node 'Magic':</p>
+    <div class="magic">stuff you don't want to render but show something else in stead</div>
+    <p>Normal text again!</p>`;
+
+    const customParser: ElementParser = ({ hasClassName }) => {
+      if (hasClassName('magic')) {
+        return {
+          parsed: true,
+          node: {
+            type: 'Magic',
+          } as MagicNode,
+          continueParsingChildren: false,
+        };
+      }
+      return undefined;
+    };
+
+    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+
+    expect(result.nodes).toEqual([
+      {
+        content: "Below the custom node 'Magic':",
+        type: NodeType.Text,
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+      } as TextNode,
+      {
+        type: MyNodeTypes.Magic,
+        hash: generateNodeHash({ nodeType: MyNodeTypes.Magic, index: 1 }),
+      } as MagicNode,
+      {
+        content: 'Normal text again!',
+        type: NodeType.Text,
+        hash: generateNodeHash({ nodeType: NodeType.Text, index: 2 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+      } as TextNode,
     ]);
   });
 });

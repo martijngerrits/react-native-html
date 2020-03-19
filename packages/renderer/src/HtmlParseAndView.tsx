@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ViewStyle, ImageStyle, TextStyle, StyleProp } from 'react-native';
+import { ViewStyle, StyleProp } from 'react-native';
 import {
   NodeBase,
   parseHtml,
@@ -10,31 +10,28 @@ import {
 
 import { HtmlViewOptions, HtmlView } from './HtmlView';
 
-interface Props {
+export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   rawHtml: string;
-  options?: HtmlViewOptions;
-  htmlStyles?: Record<string, ViewStyle | TextStyle | ImageStyle>;
-  customElementParser?: ElementParser;
+  customParser?: ElementParser;
   tagHandlers?: TagHandler[];
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const RawHtmlView = ({
+export const HtmlParseAndView = ({
   rawHtml,
-  options,
-  htmlStyles,
-  customElementParser,
+  customParser,
   tagHandlers,
   excludeTags,
   containerStyle,
-}: Props) => {
+  ...options
+}: HtmlParseAndViewProps) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
     const sideEffect = async () => {
       const result = await parseHtml({
         rawHtml,
-        customElementParser,
+        customParser,
         tagHandlers,
         excludeTags: new Set(excludeTags),
       });
@@ -43,7 +40,7 @@ export const RawHtmlView = ({
       }
     };
     sideEffect();
-  }, [rawHtml, htmlStyles, customElementParser, tagHandlers, excludeTags]);
+  }, [rawHtml, customParser, tagHandlers, excludeTags]);
 
   if (!nodes) return null;
 
