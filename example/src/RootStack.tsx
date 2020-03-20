@@ -3,4 +3,5 @@ export type RootStackParamList = {
   BasicExample: undefined;
   ListIndicatorExample: undefined;
   CustomNodeExample: undefined;
+  InternalLinkExample: undefined;
 };

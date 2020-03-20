@@ -1,6 +1,6 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, NodeBase, IFrameNode, TextNode, generateNodeHash } from '../nodes';
-import { ElementParser } from '../parseElement';
+import { NodeType, NodeBase, IFrameNode, TextNode, getNodeKey } from '../nodes';
+import { CustomParser } from '../customParser';
 
 const MyNodeTypes = {
   ...NodeType,
@@ -20,7 +20,7 @@ describe('parseHtml - custom parser tests', () => {
     const src = 'https://www.facebook.com';
     const rawHtml = `<iframe src="${src}" height="200" width="300"></iframe>`;
 
-    const customParser: ElementParser = ({ element }) => {
+    const customParser: CustomParser = ({ element }) => {
       const source = element.attribs?.src ?? '';
       if (element.name === 'iframe' && source.startsWith(src)) {
         return {
@@ -39,7 +39,7 @@ describe('parseHtml - custom parser tests', () => {
     expect(result.nodes).toEqual([
       {
         type: MyNodeTypes.Facebook,
-        hash: generateNodeHash({ nodeType: MyNodeTypes.Facebook, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source: src,
       },
     ]);
@@ -49,7 +49,7 @@ describe('parseHtml - custom parser tests', () => {
     const src2 = 'https://www.instagram.com';
     const rawHtml = `<iframe src="${src}" height="200" width="300"></iframe><iframe src="${src2}" height="200" width="300"></iframe>`;
 
-    const customParser: ElementParser = ({ element }) => {
+    const customParser: CustomParser = ({ element }) => {
       const source = element.attribs?.src ?? '';
       if (element.name === 'iframe' && source.startsWith(src)) {
         return {
@@ -68,12 +68,12 @@ describe('parseHtml - custom parser tests', () => {
     expect(result.nodes).toEqual([
       {
         type: MyNodeTypes.Facebook,
-        hash: generateNodeHash({ nodeType: MyNodeTypes.Facebook, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source: src,
       } as FacebookNode,
       {
         type: NodeType.IFrame,
-        hash: generateNodeHash({ nodeType: NodeType.IFrame, index: 1 }),
+        key: getNodeKey({ index: 1 }),
         source: src2,
         height: 200,
         width: 300,
@@ -85,7 +85,7 @@ describe('parseHtml - custom parser tests', () => {
     <div class="magic">stuff you don't want to render but show something else in stead</div>
     <p>Normal text again!</p>`;
 
-    const customParser: ElementParser = ({ hasClassName }) => {
+    const customParser: CustomParser = ({ hasClassName }) => {
       if (hasClassName('magic')) {
         return {
           parsed: true,
@@ -106,7 +106,7 @@ describe('parseHtml - custom parser tests', () => {
       {
         content: "Below the custom node 'Magic':",
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
@@ -117,12 +117,12 @@ describe('parseHtml - custom parser tests', () => {
       } as TextNode,
       {
         type: MyNodeTypes.Magic,
-        hash: generateNodeHash({ nodeType: MyNodeTypes.Magic, index: 1 }),
+        key: getNodeKey({ index: 1 }),
       } as MagicNode,
       {
         content: 'Normal text again!',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 2 }),
+        key: getNodeKey({ index: 2 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,

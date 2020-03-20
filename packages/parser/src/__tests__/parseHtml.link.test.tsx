@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, LinkNode, ImageNode, getNodeKey, generateNodeHash } from '../nodes';
+import { NodeType, TextNode, LinkNode, ImageNode, getNodeKey } from '../nodes';
 
 describe('parserawHtml - link tests', () => {
   it('parse text link', async () => {
@@ -8,19 +8,19 @@ describe('parserawHtml - link tests', () => {
     const rawHtml = `<a href="${source}">${text}</a>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.Link, 0);
+    const keyPrefix = getNodeKey({ index: 0 });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.Link,
-        hash: generateNodeHash({ nodeType: NodeType.Link, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         isWithinTextContainer: false,
         children: [
           {
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             content: text,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -42,19 +42,19 @@ describe('parserawHtml - link tests', () => {
     const rawHtml = `<a href="${source}">${imageHtml}</a>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.Link, 0);
+    const keyPrefix = getNodeKey({ index: 0 });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.Link,
-        hash: generateNodeHash({ nodeType: NodeType.Link, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         isWithinTextContainer: false,
         children: [
           {
             type: NodeType.Image,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Image, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             source: imageSource,
             width: 272,
             height: 90,
@@ -72,20 +72,20 @@ describe('parserawHtml - link tests', () => {
     const rawHtml = `<a href="${source}">${text}${imageHtml}</a>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.Link, 0);
+    const keyPrefix = getNodeKey({ index: 0 });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.Link,
-        hash: generateNodeHash({ nodeType: NodeType.Link, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         isWithinTextContainer: false,
         children: [
           {
             content: text,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -96,7 +96,7 @@ describe('parserawHtml - link tests', () => {
           } as TextNode,
           {
             type: NodeType.Image,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Image, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             source: imageSource,
             width: 272,
             height: 90,

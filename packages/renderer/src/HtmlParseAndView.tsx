@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ViewStyle, StyleProp } from 'react-native';
+import { ViewStyle, StyleProp, ScrollView } from 'react-native';
 import {
   NodeBase,
   parseHtml,
@@ -16,6 +16,7 @@ export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   tagHandlers?: TagHandler[];
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
+  scrollRef?: ScrollView;
 }
 
 export const HtmlParseAndView = ({
@@ -24,11 +25,12 @@ export const HtmlParseAndView = ({
   tagHandlers,
   excludeTags,
   containerStyle,
+  scrollRef,
   ...options
 }: HtmlParseAndViewProps) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
-    const sideEffect = async () => {
+    const applyEffect = async () => {
       const result = await parseHtml({
         rawHtml,
         customParser,
@@ -36,14 +38,18 @@ export const HtmlParseAndView = ({
         excludeTags: new Set(excludeTags),
       });
       if (result.type === ResultType.Success) {
+        console.log(result.nodes);
+        console.log('hallooo');
         setNodes(result.nodes);
       }
     };
-    sideEffect();
+    applyEffect();
   }, [rawHtml, customParser, tagHandlers, excludeTags]);
 
   if (!nodes) return null;
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <HtmlView nodes={nodes} {...options} containerStyle={containerStyle} />;
+  return (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <HtmlView nodes={nodes} scrollRef={scrollRef} {...options} containerStyle={containerStyle} />
+  );
 };

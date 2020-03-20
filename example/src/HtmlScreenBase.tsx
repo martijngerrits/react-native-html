@@ -1,24 +1,34 @@
-import React from 'react';
-import { SafeAreaView, Text, StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import { SafeAreaView, Text, StyleSheet, ScrollView } from 'react-native';
 import { HtmlParseAndView, HtmlParseAndViewProps, HtmlStyles } from '@react-native-html/renderer';
 
 interface Props {
   description?: string;
   rawHtml: string;
   htmlViewProps?: Omit<HtmlParseAndViewProps, 'rawHtml'>;
+  withScrollView?: boolean;
 }
 
 export const HtmlScreenBase = ({ description, rawHtml, htmlViewProps }: Props) => {
+  const scrollRef = useRef<ScrollView | undefined>();
   return (
     <SafeAreaView>
-      {description && <Text>{description}</Text>}
-      <HtmlParseAndView
-        rawHtml={rawHtml}
-        htmlStyles={htmlStyles}
-        containerStyle={styles.container}
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...htmlViewProps}
-      />
+      <ScrollView
+        ref={ref => {
+          if (ref) scrollRef.current = ref;
+        }}
+      >
+        {description && <Text>{description}</Text>}
+
+        <HtmlParseAndView
+          rawHtml={rawHtml}
+          htmlStyles={htmlStyles}
+          containerStyle={styles.container}
+          scrollRef={scrollRef.current}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...htmlViewProps}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 };

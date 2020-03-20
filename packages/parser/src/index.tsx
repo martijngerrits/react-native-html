@@ -1,4 +1,4 @@
 export * from './parseHtml';
-export { ElementParser, ElementParserArgs } from './parseElement';
+export { CustomParser, CustomParserArgs } from './customParser';
 export { TagResolverArgs, TagHandler, createDefaultTagHandlers } from './parseTags';
 export * from './nodes';

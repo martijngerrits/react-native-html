@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, IFrameNode, generateNodeHash } from '../nodes';
+import { NodeType, IFrameNode, getNodeKey } from '../nodes';
 
 describe('parseHtml - iframe tests', () => {
   it('parse iframe', async () => {
@@ -12,7 +12,7 @@ describe('parseHtml - iframe tests', () => {
     expect(result.nodes).toEqual([
       {
         type: NodeType.IFrame,
-        hash: generateNodeHash({ nodeType: NodeType.IFrame, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         height: 200,
         width: 300,
@@ -29,7 +29,7 @@ describe('parseHtml - iframe tests', () => {
     expect(result.nodes).toEqual([
       {
         type: NodeType.IFrame,
-        hash: generateNodeHash({ nodeType: NodeType.IFrame, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         height: 200,
         width: 300,

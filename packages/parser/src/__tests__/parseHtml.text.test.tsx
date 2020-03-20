@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, generateNodeHash } from '../nodes';
+import { NodeType, TextNode, getNodeKey } from '../nodes';
 
 describe('parseHtml - text tests', () => {
   it('parse text', async () => {
@@ -11,7 +11,7 @@ describe('parseHtml - text tests', () => {
       {
         content: rawHtml,
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
@@ -31,7 +31,7 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         header: 1,
         hasStrikethrough: false,
         isUnderlined: false,
@@ -52,7 +52,7 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
@@ -72,7 +72,7 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: true,
@@ -92,7 +92,7 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: true,
         isItalic: false,
@@ -112,8 +112,30 @@ describe('parseHtml - text tests', () => {
       {
         content: 'hallo dit is een test',
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: true,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+      } as TextNode,
+    ]);
+  });
+  it('parse text and replace space by new line and remove duplicate spaces', async () => {
+    const rawHtml = `<p>  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`;
+    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        content:
+          ' Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0 }),
+        hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
         isBold: false,

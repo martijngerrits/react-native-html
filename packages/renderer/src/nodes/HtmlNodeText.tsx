@@ -2,6 +2,7 @@ import React from 'react';
 import { TextNode } from '@react-native-html/parser';
 import { TextProperties, StyleProp, TextStyle, StyleSheet } from 'react-native';
 import { HtmlHeaderStyles } from '../HtmlStyles';
+import { onLayoutHandler } from './types';
 
 interface Props {
   node: TextNode;
@@ -10,6 +11,7 @@ interface Props {
   nestedTextStyle?: StyleProp<TextStyle>;
   linkStyle?: StyleProp<TextStyle>;
   headerStyles: HtmlHeaderStyles;
+  onLayout?: onLayoutHandler;
 }
 
 export const HtmlNodeText = ({
@@ -19,6 +21,7 @@ export const HtmlNodeText = ({
   nestedTextStyle,
   linkStyle,
   headerStyles,
+  onLayout,
 }: Props) => {
   const combinedStyles: StyleProp<TextStyle>[] = [];
   if (node.isBold) {
@@ -56,7 +59,11 @@ export const HtmlNodeText = ({
     }
   }
 
-  return <TextComponent style={combinedStyles}>{node.content}</TextComponent>;
+  return (
+    <TextComponent onLayout={onLayout} style={combinedStyles}>
+      {node.content}
+    </TextComponent>
+  );
 };
 
 const styles = StyleSheet.create({

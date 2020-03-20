@@ -30,6 +30,12 @@ export const MainScreen = ({ navigation }: Props) => {
       >
         <Text style={styles.touchableLabel}>Custom Node Example</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={() => navigation.navigate('InternalLinkExample')}
+      >
+        <Text style={styles.touchableLabel}>Internal Link Example</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

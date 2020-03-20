@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, ImageNode, TextNode, generateNodeHash } from '../nodes';
+import { NodeType, ImageNode, TextNode, getNodeKey } from '../nodes';
 
 describe('parseHtml - image tests', () => {
   it('parse image', async () => {
@@ -12,7 +12,7 @@ describe('parseHtml - image tests', () => {
     expect(result.nodes).toEqual([
       {
         type: NodeType.Image,
-        hash: generateNodeHash({ nodeType: NodeType.Image, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
         width: 272,
         height: 90,
@@ -31,7 +31,7 @@ describe('parseHtml - image tests', () => {
       {
         content: text,
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
@@ -42,7 +42,7 @@ describe('parseHtml - image tests', () => {
       } as TextNode,
       {
         type: NodeType.Image,
-        hash: generateNodeHash({ nodeType: NodeType.Image, index: 1 }),
+        key: getNodeKey({ index: 1 }),
         source,
         width: 272,
         height: 90,
@@ -50,7 +50,7 @@ describe('parseHtml - image tests', () => {
       {
         content: text,
         type: NodeType.Text,
-        hash: generateNodeHash({ nodeType: NodeType.Text, index: 2 }),
+        key: getNodeKey({ index: 2 }),
         hasStrikethrough: false,
         isUnderlined: false,
         isItalic: false,
@@ -71,7 +71,7 @@ describe('parseHtml - image tests', () => {
     expect(result.nodes).toEqual([
       {
         type: NodeType.Image,
-        hash: generateNodeHash({ nodeType: NodeType.Image, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         source,
       } as ImageNode,
     ]);

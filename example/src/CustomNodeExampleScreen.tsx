@@ -27,12 +27,11 @@ interface MagicNode extends NodeBase {
 }
 const isMagicNode = (node: NodeBase): node is MagicNode => node.type === 'Magic';
 
-const customParser: ElementParser = ({ hasClassName, path }) => {
+const customParser: ElementParser = ({ hasClassName }) => {
   if (hasClassName('magic')) {
     return {
       node: {
         type: 'Magic',
-        path,
       },
       continueParsingChildren: false,
     };
@@ -40,9 +39,9 @@ const customParser: ElementParser = ({ hasClassName, path }) => {
   return undefined;
 };
 
-const customRenderer = ({ node }: CustomRendererArgs) => {
+const customRenderer = ({ node, key }: CustomRendererArgs) => {
   if (isMagicNode(node)) {
-    return <MagicView />;
+    return <MagicView key={key} />;
   }
   return undefined;
 };

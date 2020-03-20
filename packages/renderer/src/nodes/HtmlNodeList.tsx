@@ -7,6 +7,7 @@ import {
   HtmlNodeListItemNumberProps,
 } from './HtmlNodeListItem';
 import { HtmlListStyles } from '../HtmlStyles';
+import { onLayoutHandler } from './types';
 
 interface Props {
   node: ListNode;
@@ -14,6 +15,7 @@ interface Props {
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
+  onLayout?: onLayoutHandler;
 }
 
 export const HtmlNodeList = ({
@@ -22,6 +24,7 @@ export const HtmlNodeList = ({
   styles,
   OrderedListItemIndicator,
   UnorderedListItemIndicator,
+  onLayout,
 }: Props) => {
   const listStyles = [styles.list];
   if (node.isOrdered) {
@@ -30,7 +33,7 @@ export const HtmlNodeList = ({
     listStyles.push(styles.unorderedList);
   }
   return (
-    <View style={listStyles}>
+    <View style={listStyles} onLayout={onLayout}>
       {node.children.map((listItemNode, listItemIndex) => (
         <HtmlNodeListItem
           key={

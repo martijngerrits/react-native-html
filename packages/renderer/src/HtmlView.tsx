@@ -7,6 +7,7 @@ import {
   isIFrameNode,
   isListNode,
   isTextContainerNode,
+  isInternalLinkNode,
 } from '@react-native-html/parser';
 import {
   Text,
@@ -20,6 +21,7 @@ import {
   StyleSheet,
   View,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { WebView, WebViewProps } from 'react-native-webview';
 import { HtmlNodeImage } from './nodes/HtmlNodeImage';
@@ -29,11 +31,14 @@ import { HtmlNodeList } from './nodes/HtmlNodeList';
 import { HtmlStyles } from './HtmlStyles';
 import { HtmlNodeTextContainer } from './nodes/HtmlNodeTextContainer';
 import { HtmlNodeListItemNumberProps, HtmlNodeListItemBulletProps } from './nodes/HtmlNodeListItem';
+import { onLayoutHandler } from './nodes/types';
+import { HtmlNodeInternalLink } from './nodes/HtmlNodeInternalLink';
 
 export interface CustomRendererArgs {
   node: NodeBase;
   key: string;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
+  onLayout?: onLayoutHandler;
 }
 
 export interface HtmlViewOptions {
@@ -51,6 +56,7 @@ export interface HtmlViewOptions {
 export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   nodes: NodeBase[];
   containerStyle?: StyleProp<ViewStyle>;
+  scrollRef?: ScrollView;
 }
 
 export const HtmlView: FunctionComponent<HtmlViewProps> = ({
@@ -64,8 +70,10 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
   OrderedListItemIndicator,
   UnorderedListItemIndicator,
   containerStyle,
+  scrollRef,
 }: HtmlViewProps) => {
   const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
+  const [offsetYs, setOffsetYs] = useState<Record<string, number>>({});
 
   return (
     <View
@@ -92,7 +100,10 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
           OrderedListItemIndicator,
           UnorderedListItemIndicator,
         },
-        maxWidth
+        maxWidth,
+        offsetYs,
+        (hash: string, offsetY: number) => setOffsetYs({ ...offsetYs, [hash]: offsetY }),
+        scrollRef
       )}
     </View>
   );
@@ -102,10 +113,19 @@ const styles = StyleSheet.create({
   container: {},
 });
 
-const renderNodes = (nodes: NodeBase[], options: HtmlViewOptions, maxWidth: number) => {
+const renderNodes = (
+  nodes: NodeBase[],
+  options: HtmlViewOptions,
+  maxWidth: number,
+  offsetYs: Record<string, number>,
+  setOffsetY: (hash: string, offsetY: number) => void,
+  scrollRef?: ScrollView
+) => {
   const renderChildNode = (node: NodeBase, index: number) =>
-    renderNode(node, options, index, maxWidth, renderChildNode);
-  return nodes.map((node, index) => renderNode(node, options, index, maxWidth, renderChildNode));
+    renderNode(node, options, index, maxWidth, renderChildNode, offsetYs, setOffsetY, scrollRef);
+  return nodes.map((node, index) =>
+    renderNode(node, options, index, maxWidth, renderChildNode, offsetYs, setOffsetY, scrollRef)
+  );
 };
 
 const renderNode = (
@@ -113,7 +133,10 @@ const renderNode = (
   options: HtmlViewOptions,
   index: number,
   maxWidth: number,
-  renderChildNode: (node: NodeBase, index: number) => React.ReactNode
+  renderChildNode: (node: NodeBase, index: number) => React.ReactNode,
+  offsetYs: Record<string, number>,
+  setOffsetY: (hash: string, offsetY: number) => void,
+  scrollRef?: ScrollView
 ): React.ReactNode => {
   const {
     customRenderer,
@@ -126,8 +149,13 @@ const renderNode = (
     UnorderedListItemIndicator,
   } = options;
   const key = `react_native_node_${node.type}_${index}`;
+  const onLayout: onLayoutHandler | undefined =
+    node.isLinkedTo && scrollRef
+      ? ({ nativeEvent: { layout } }) => setOffsetY(node.hash, layout.y)
+      : undefined;
+
   if (customRenderer) {
-    const view = customRenderer({ node, key, renderChildNode });
+    const view = customRenderer({ node, key, renderChildNode, onLayout });
     if (view) {
       return view;
     }
@@ -149,6 +177,7 @@ const renderNode = (
           h5: htmlStyles.h5,
           h6: htmlStyles.h6,
         }}
+        onLayout={onLayout}
       />
     );
   }
@@ -182,6 +211,19 @@ const renderNode = (
         style={htmlStyles.touchable}
         TextComponent={TextComponent}
         TouchableComponent={TouchableComponent}
+        renderChildNode={renderChildNode}
+      />
+    );
+  }
+  if (isInternalLinkNode(node)) {
+    return (
+      <HtmlNodeInternalLink
+        key={key}
+        node={node}
+        TouchableComponent={TouchableComponent}
+        TextComponent={TextComponent}
+        scrollRef={scrollRef}
+        scrollToY={(node.targetKey && offsetYs[node.targetKey]) || undefined}
         renderChildNode={renderChildNode}
       />
     );

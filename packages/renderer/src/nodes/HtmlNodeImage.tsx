@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
+import { onLayoutHandler } from './types';
 
 interface Props {
   node: ImageNode;
   ImageComponent: React.ElementType<ImageProperties>;
   style?: StyleProp<ImageStyle>;
   maxWidth: number;
+  onLayout?: onLayoutHandler;
 }
 
-export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth }: Props) => {
+export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth, onLayout }: Props) => {
   const { source, width: providedWidth, height: providedHeight } = node;
   const [size, setSize] = useState({
     width: providedWidth ?? 1,
@@ -49,6 +51,7 @@ export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth }: Props) 
     <ImageComponent
       source={{ uri: source }}
       style={[{ width: size.width, height: size.height }, style]}
+      onLayout={onLayout}
     />
   );
 };

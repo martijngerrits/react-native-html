@@ -9,7 +9,7 @@ import {
   ImageNode,
   ListItemNode,
   IFrameNode,
-  NodeWithoutHash,
+  NodeWithoutKey,
 } from './nodes';
 
 export interface TagResolverArgs {
@@ -21,7 +21,7 @@ export interface TagResolverArgs {
 export interface TagHandler {
   names: Set<string>;
   nodeType: NodeType;
-  resolver: (args: TagResolverArgs) => NodeWithoutHash | undefined;
+  resolver: (args: TagResolverArgs) => NodeWithoutKey | undefined;
   canParseChildren: boolean;
 }
 
@@ -69,7 +69,8 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
       const domId = source.substr(1);
       return {
         type: NodeType.InternalLink,
-        linkToHash: '', // will be added later
+        targetKey: '', // will be added later
+        hasResolvedTarget: false,
         children,
         domId,
         isWithinTextContainer,

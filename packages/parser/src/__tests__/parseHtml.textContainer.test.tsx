@@ -1,5 +1,5 @@
 import { ResultType, SuccessResult, parseHtml } from '../parseHtml';
-import { TextNode, NodeType, LinkNode, generateNodeHash, getNodeKey } from '../nodes';
+import { TextNode, NodeType, LinkNode, getNodeKey } from '../nodes';
 
 describe('parseHtml - text container tests', () => {
   it('parse text + a within p as text container', async () => {
@@ -10,19 +10,19 @@ describe('parseHtml - text container tests', () => {
     const rawHtml = `<p>${pretext}<a href="${source}">${link}</a>${subtext}</p>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.TextContainer, 0);
-    const keyPrefix2 = getNodeKey(keyPrefix, NodeType.Link, 1);
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefix2 = getNodeKey({ index: 1, keyPrefix });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.TextContainer,
-        hash: generateNodeHash({ nodeType: NodeType.TextContainer, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         children: [
           {
             content: pretext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -35,16 +35,12 @@ describe('parseHtml - text container tests', () => {
             type: NodeType.Link,
             source,
             isWithinTextContainer: true,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Link, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             children: [
               {
                 content: link,
                 type: NodeType.Text,
-                hash: generateNodeHash({
-                  keyPrefix: keyPrefix2,
-                  nodeType: NodeType.Text,
-                  index: 0,
-                }),
+                key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -58,7 +54,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: subtext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 2 }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -79,18 +75,18 @@ describe('parseHtml - text container tests', () => {
     const rawHtml = `<p>${pretext}<b>${link}</b>${subtext}</p>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.TextContainer, 0);
+    const keyPrefix = getNodeKey({ index: 0 });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.TextContainer,
-        hash: generateNodeHash({ nodeType: NodeType.TextContainer, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         children: [
           {
             content: pretext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -101,7 +97,7 @@ describe('parseHtml - text container tests', () => {
           } as TextNode,
           {
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             content: link,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -114,7 +110,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: subtext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 2 }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -138,19 +134,19 @@ describe('parseHtml - text container tests', () => {
     const rawHtml = `<p>${pretext}<b>${bold}</b>${subtext}<a href="${source}">${link}</a>${finaltext}</p>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.TextContainer, 0);
-    const keyPrefix2 = getNodeKey(keyPrefix, NodeType.Link, 3);
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefix2 = getNodeKey({ index: 3, keyPrefix });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.TextContainer,
-        hash: generateNodeHash({ nodeType: NodeType.TextContainer, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         children: [
           {
             content: pretext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -161,7 +157,7 @@ describe('parseHtml - text container tests', () => {
           } as TextNode,
           {
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             content: bold,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -174,7 +170,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: subtext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 2 }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -185,18 +181,14 @@ describe('parseHtml - text container tests', () => {
           } as TextNode,
           {
             type: NodeType.Link,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Link, index: 3 }),
+            key: getNodeKey({ index: 3, keyPrefix }),
             source,
             isWithinTextContainer: true,
             children: [
               {
                 content: link,
                 type: NodeType.Text,
-                hash: generateNodeHash({
-                  keyPrefix: keyPrefix2,
-                  nodeType: NodeType.Text,
-                  index: 0,
-                }),
+                key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -210,7 +202,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: finaltext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 4 }),
+            key: getNodeKey({ index: 4, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -234,15 +226,15 @@ describe('parseHtml - text container tests', () => {
     expect(result.type).toBe(ResultType.Success);
 
     const createTextContainer = (index: number) => {
-      const keyPrefix = getNodeKey('', NodeType.TextContainer, index);
+      const keyPrefix = getNodeKey({ index });
       return {
         type: NodeType.TextContainer,
-        hash: generateNodeHash({ nodeType: NodeType.TextContainer, index }),
+        key: keyPrefix,
         children: [
           {
             content: pretext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -253,7 +245,7 @@ describe('parseHtml - text container tests', () => {
           } as TextNode,
           {
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             content: link,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -266,7 +258,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: subtext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 2 }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -290,18 +282,18 @@ describe('parseHtml - text container tests', () => {
     const rawHtml = `<div><b>${bold}</b><a href="${source}">${link}</a>${finaltext}</div>`;
     const result = (await parseHtml({ rawHtml })) as SuccessResult;
 
-    const keyPrefix = getNodeKey('', NodeType.TextContainer, 0);
-    const keyPrefix2 = getNodeKey(keyPrefix, NodeType.Link, 1);
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefix2 = getNodeKey({ index: 1, keyPrefix });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
         type: NodeType.TextContainer,
-        hash: generateNodeHash({ nodeType: NodeType.TextContainer, index: 0 }),
+        key: getNodeKey({ index: 0 }),
         children: [
           {
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 0 }),
+            key: getNodeKey({ index: 0, keyPrefix }),
             content: bold,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -313,18 +305,14 @@ describe('parseHtml - text container tests', () => {
           } as TextNode,
           {
             type: NodeType.Link,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Link, index: 1 }),
+            key: getNodeKey({ index: 1, keyPrefix }),
             source,
             isWithinTextContainer: true,
             children: [
               {
                 content: link,
                 type: NodeType.Text,
-                hash: generateNodeHash({
-                  keyPrefix: keyPrefix2,
-                  nodeType: NodeType.Text,
-                  index: 0,
-                }),
+                key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -338,7 +326,7 @@ describe('parseHtml - text container tests', () => {
           {
             content: finaltext,
             type: NodeType.Text,
-            hash: generateNodeHash({ keyPrefix, nodeType: NodeType.Text, index: 2 }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,

@@ -2,9 +2,11 @@ import { DomHandler, Parser } from 'htmlparser2-without-node-native';
 // eslint-disable-next-line import/no-unresolved
 import { DomElement } from 'htmlparser2';
 
-import { parseElements, ElementParser } from './parseElement';
 import { NodeBase, InternalLinkNode } from './nodes';
 import { TagHandler } from './parseTags';
+import { resolveInternalLinks } from './resolveInternalLinks';
+import { CustomParser } from './customParser';
+import { parseElements } from './paseElements';
 
 export enum ResultType {
   Failure,
@@ -25,7 +27,7 @@ export type ParseHtmlResult = SuccessResult | Failureresult;
 
 interface ParseHtmlArgs {
   rawHtml: string;
-  customParser?: ElementParser;
+  customParser?: CustomParser;
   tagHandlers?: TagHandler[];
   excludeTags?: Set<string>;
 }
@@ -72,7 +74,7 @@ export async function parseHtml({
     const nodes: NodeBase[] = [];
     const internalLinkNodes: InternalLinkNode[] = [];
     const nodeMap = new Map<string, NodeBase>();
-    const hashToPathIds = new Map<string, string[]>();
+    const keyToPathIds = new Map<string, string[]>();
 
     parseElements({
       elements,
@@ -82,7 +84,13 @@ export async function parseHtml({
       excludeTags,
       internalLinkNodes,
       nodeMap,
-      hashToPathIds,
+      keyToPathIds,
+    });
+
+    resolveInternalLinks({
+      internalLinkNodes,
+      nodeMap,
+      keyToPathIds,
     });
 
     return {
