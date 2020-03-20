@@ -3,8 +3,8 @@ export * from './HtmlParseAndView';
 export * from './HtmlStyles';
 export { HtmlNodeListItemNumberProps, HtmlNodeListItemBulletProps } from './nodes/HtmlNodeListItem';
 export {
-  ElementParserArgs,
-  ElementParser,
+  CustomParserArgs,
+  CustomParser,
   NodeBase,
   TextContainerNode,
   TextNode,

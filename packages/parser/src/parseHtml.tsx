@@ -6,7 +6,8 @@ import { NodeBase, InternalLinkNode } from './nodes';
 import { TagHandler } from './parseTags';
 import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './customParser';
-import { parseElements } from './paseElements';
+import { parseElements } from './parseElements';
+import { DomIdMap } from './domIdToKey';
 
 export enum ResultType {
   Failure,
@@ -74,7 +75,7 @@ export async function parseHtml({
     const nodes: NodeBase[] = [];
     const internalLinkNodes: InternalLinkNode[] = [];
     const nodeMap = new Map<string, NodeBase>();
-    const keyToPathIds = new Map<string, string[]>();
+    const domIdToKeys: DomIdMap = new Map();
 
     parseElements({
       elements,
@@ -84,13 +85,13 @@ export async function parseHtml({
       excludeTags,
       internalLinkNodes,
       nodeMap,
-      keyToPathIds,
+      domIdToKeys,
     });
 
     resolveInternalLinks({
       internalLinkNodes,
       nodeMap,
-      keyToPathIds,
+      domIdToKeys,
     });
 
     return {

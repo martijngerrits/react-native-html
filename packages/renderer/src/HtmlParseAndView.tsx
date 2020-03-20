@@ -4,7 +4,7 @@ import {
   NodeBase,
   parseHtml,
   TagHandler,
-  ElementParser,
+  CustomParser,
   ResultType,
 } from '@react-native-html/parser';
 
@@ -12,11 +12,11 @@ import { HtmlViewOptions, HtmlView } from './HtmlView';
 
 export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   rawHtml: string;
-  customParser?: ElementParser;
+  customParser?: CustomParser;
   tagHandlers?: TagHandler[];
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
-  scrollRef?: ScrollView;
+  scrollRef?: ScrollView | null;
 }
 
 export const HtmlParseAndView = ({
@@ -39,7 +39,6 @@ export const HtmlParseAndView = ({
       });
       if (result.type === ResultType.Success) {
         console.log(result.nodes);
-        console.log('hallooo');
         setNodes(result.nodes);
       }
     };

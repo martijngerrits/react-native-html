@@ -1,18 +1,19 @@
 import { InternalLinkNode, NodeBase, isTextNode, NodeType } from './nodes';
+import { DomIdMap } from './domIdToKey';
 
 interface ResolveInternalLinkArgs {
   internalLinkNodes: InternalLinkNode[];
   nodeMap: Map<string, NodeBase>;
-  keyToPathIds: Map<string, string[]>;
+  domIdToKeys: DomIdMap;
 }
 
 export const resolveInternalLinks = ({
   internalLinkNodes,
   nodeMap,
-  keyToPathIds,
+  domIdToKeys,
 }: ResolveInternalLinkArgs) => {
   internalLinkNodes.forEach(referringNode => {
-    const referredNode = findNodeByDomId(referringNode, nodeMap, keyToPathIds);
+    const referredNode = findNodeByDomId(referringNode, nodeMap, domIdToKeys);
     if (referredNode) {
       referredNode.isLinkedTo = true;
       /* eslint-disable no-param-reassign */
@@ -27,35 +28,23 @@ export const resolveInternalLinks = ({
 };
 
 const findNodeByDomId = (
-  node: InternalLinkNode,
+  internalLinkNode: InternalLinkNode,
   nodeMap: Map<string, NodeBase>,
-  keyToPathIds: Map<string, string[]>
+  domIdToKeys: DomIdMap
 ): NodeBase | undefined => {
-  let closestLevel = Number.MAX_SAFE_INTEGER;
-  let selectedKey: string | null = null;
-  // find the dom id
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [key, pathIds] of keyToPathIds.entries()) {
-    // skip own node
-    if (node.key !== key) {
-      let currentLevel = 0;
-      let shouldBreak = false;
-      for (let i = pathIds.length - 1; i > -1; i -= 1) {
-        if (pathIds[i] === node.domId && currentLevel < closestLevel) {
-          closestLevel = currentLevel;
-          selectedKey = key;
-          if (closestLevel === 0) {
-            shouldBreak = true;
-          }
-        }
-        currentLevel += 1;
+  const keyInfo = domIdToKeys.get(internalLinkNode.domId);
+  if (keyInfo) {
+    let node = nodeMap.get(keyInfo.key);
+    while (node) {
+      if (!node.isWithinTextContainer) {
+        node.isLinkedTo = true;
+        return node;
       }
-      if (shouldBreak) {
-        break;
-      }
+      node.isLinkedTo = undefined;
+      node = node.parentKey ? nodeMap.get(node.parentKey) : undefined;
     }
   }
-  return (selectedKey && nodeMap.get(selectedKey)) || undefined;
+  return undefined;
 };
 
 const linkTypes = new Set<string>([NodeType.Link, NodeType.InternalLink]);

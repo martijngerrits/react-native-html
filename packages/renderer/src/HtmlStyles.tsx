@@ -1,4 +1,8 @@
-import { StyleProp, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import { StyleProp, ViewStyle, TextStyle, ImageStyle, FlexStyle } from 'react-native';
+
+export interface BasicStyle extends FlexStyle {
+  overflow?: 'visible' | 'hidden';
+}
 
 export interface HtmlListStyles {
   list?: StyleProp<ViewStyle>;
@@ -29,4 +33,5 @@ export interface HtmlStyles extends HtmlListStyles, HtmlHeaderStyles {
   link?: StyleProp<TextStyle>;
   touchable?: StyleProp<ViewStyle>;
   iframe?: StyleProp<ViewStyle>;
+  firstChildInListItem?: StyleProp<BasicStyle>;
 }

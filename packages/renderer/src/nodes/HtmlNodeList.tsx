@@ -1,12 +1,12 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleProp } from 'react-native';
 import { ListNode, NodeBase } from '@react-native-html/parser';
 import {
   HtmlNodeListItem,
   HtmlNodeListItemBulletProps,
   HtmlNodeListItemNumberProps,
 } from './HtmlNodeListItem';
-import { HtmlListStyles } from '../HtmlStyles';
+import { HtmlListStyles, BasicStyle } from '../HtmlStyles';
 import { onLayoutHandler } from './types';
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
 export const HtmlNodeList = ({
@@ -25,12 +26,16 @@ export const HtmlNodeList = ({
   OrderedListItemIndicator,
   UnorderedListItemIndicator,
   onLayout,
+  firstChildInListItemStyle,
 }: Props) => {
   const listStyles = [styles.list];
   if (node.isOrdered) {
     listStyles.push(styles.orderedList);
   } else {
     listStyles.push(styles.unorderedList);
+  }
+  if (firstChildInListItemStyle) {
+    listStyles.push(firstChildInListItemStyle);
   }
   return (
     <View style={listStyles} onLayout={onLayout}>

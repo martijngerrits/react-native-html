@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useRef } from 'react';
 import {
   NodeBase,
   isTextNode,
@@ -28,7 +28,7 @@ import { HtmlNodeImage } from './nodes/HtmlNodeImage';
 import { HtmlNodeText } from './nodes/HtmlNodeText';
 import { HtmlNodeLink } from './nodes/HtmlNodeLink';
 import { HtmlNodeList } from './nodes/HtmlNodeList';
-import { HtmlStyles } from './HtmlStyles';
+import { HtmlStyles, BasicStyle } from './HtmlStyles';
 import { HtmlNodeTextContainer } from './nodes/HtmlNodeTextContainer';
 import { HtmlNodeListItemNumberProps, HtmlNodeListItemBulletProps } from './nodes/HtmlNodeListItem';
 import { onLayoutHandler } from './nodes/types';
@@ -39,6 +39,7 @@ export interface CustomRendererArgs {
   key: string;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<ViewStyle>;
 }
 
 export interface HtmlViewOptions {
@@ -56,7 +57,7 @@ export interface HtmlViewOptions {
 export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   nodes: NodeBase[];
   containerStyle?: StyleProp<ViewStyle>;
-  scrollRef?: ScrollView;
+  scrollRef?: ScrollView | null;
 }
 
 export const HtmlView: FunctionComponent<HtmlViewProps> = ({
@@ -73,7 +74,8 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
   scrollRef,
 }: HtmlViewProps) => {
   const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
-  const [offsetYs, setOffsetYs] = useState<Record<string, number>>({});
+  const [hasSetMaxWidth, setHasSetMaxWidth] = useState(false);
+  const offsetYsRef = useRef<Record<string, number>>({});
 
   return (
     <View
@@ -86,25 +88,28 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
         if (width !== maxWidth) {
           setMaxWidth(width);
         }
+        if (!hasSetMaxWidth) {
+          setHasSetMaxWidth(true);
+        }
       }}
     >
-      {renderNodes(
-        nodes,
-        {
-          customRenderer,
-          TextComponent,
-          ImageComponent,
-          TouchableComponent,
-          WebViewComponent,
-          htmlStyles,
-          OrderedListItemIndicator,
-          UnorderedListItemIndicator,
-        },
-        maxWidth,
-        offsetYs,
-        (hash: string, offsetY: number) => setOffsetYs({ ...offsetYs, [hash]: offsetY }),
-        scrollRef
-      )}
+      {hasSetMaxWidth &&
+        renderNodes(
+          nodes,
+          {
+            customRenderer,
+            TextComponent,
+            ImageComponent,
+            TouchableComponent,
+            WebViewComponent,
+            htmlStyles,
+            OrderedListItemIndicator,
+            UnorderedListItemIndicator,
+          },
+          maxWidth,
+          offsetYsRef.current,
+          scrollRef
+        )}
     </View>
   );
 };
@@ -118,25 +123,22 @@ const renderNodes = (
   options: HtmlViewOptions,
   maxWidth: number,
   offsetYs: Record<string, number>,
-  setOffsetY: (hash: string, offsetY: number) => void,
-  scrollRef?: ScrollView
+  scrollRef?: ScrollView | null
 ) => {
-  const renderChildNode = (node: NodeBase, index: number) =>
-    renderNode(node, options, index, maxWidth, renderChildNode, offsetYs, setOffsetY, scrollRef);
-  return nodes.map((node, index) =>
-    renderNode(node, options, index, maxWidth, renderChildNode, offsetYs, setOffsetY, scrollRef)
+  const renderChildNode = (node: NodeBase) =>
+    renderNode(node, options, maxWidth, renderChildNode, offsetYs, scrollRef);
+  return nodes.map(node =>
+    renderNode(node, options, maxWidth, renderChildNode, offsetYs, scrollRef)
   );
 };
 
 const renderNode = (
   node: NodeBase,
   options: HtmlViewOptions,
-  index: number,
   maxWidth: number,
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode,
   offsetYs: Record<string, number>,
-  setOffsetY: (hash: string, offsetY: number) => void,
-  scrollRef?: ScrollView
+  scrollRef?: ScrollView | null
 ): React.ReactNode => {
   const {
     customRenderer,
@@ -148,18 +150,33 @@ const renderNode = (
     OrderedListItemIndicator,
     UnorderedListItemIndicator,
   } = options;
-  const key = `react_native_node_${node.type}_${index}`;
+  const { key } = node;
   const onLayout: onLayoutHandler | undefined =
     node.isLinkedTo && scrollRef
-      ? ({ nativeEvent: { layout } }) => setOffsetY(node.hash, layout.y)
+      ? ({ nativeEvent: { layout } }) => {
+          // eslint-disable-next-line no-param-reassign
+          offsetYs[node.key] = layout.y;
+        }
       : undefined;
 
+  const firstChildInListItemStyle: StyleProp<BasicStyle> =
+    htmlStyles.firstChildInListItem && node.isFirstChildInListItem
+      ? htmlStyles.firstChildInListItem
+      : { marginTop: 0 }; // default style
+
   if (customRenderer) {
-    const view = customRenderer({ node, key, renderChildNode, onLayout });
+    const view = customRenderer({
+      node,
+      key,
+      renderChildNode,
+      onLayout,
+      firstChildInListItemStyle,
+    });
     if (view) {
       return view;
     }
   }
+
   if (isTextNode(node)) {
     return (
       <HtmlNodeText
@@ -178,6 +195,7 @@ const renderNode = (
           h6: htmlStyles.h6,
         }}
         onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }
@@ -189,6 +207,8 @@ const renderNode = (
         style={htmlStyles.text}
         TextComponent={TextComponent}
         renderChildNode={renderChildNode}
+        onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }
@@ -200,6 +220,8 @@ const renderNode = (
         style={htmlStyles.image}
         ImageComponent={ImageComponent}
         maxWidth={maxWidth}
+        onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }
@@ -212,6 +234,8 @@ const renderNode = (
         TextComponent={TextComponent}
         TouchableComponent={TouchableComponent}
         renderChildNode={renderChildNode}
+        onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }
@@ -223,13 +247,22 @@ const renderNode = (
         TouchableComponent={TouchableComponent}
         TextComponent={TextComponent}
         scrollRef={scrollRef}
-        scrollToY={(node.targetKey && offsetYs[node.targetKey]) || undefined}
+        offsetYs={offsetYs}
         renderChildNode={renderChildNode}
+        onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }
   if (isIFrameNode(node)) {
-    return <WebViewComponent key={key} source={{ uri: node.source }} style={htmlStyles.iframe} />;
+    return (
+      <WebViewComponent
+        onLayout={onLayout}
+        key={key}
+        source={{ uri: node.source }}
+        style={[htmlStyles.iframe, firstChildInListItemStyle]}
+      />
+    );
   }
   if (isListNode(node) && node.children.length > 0) {
     return (
@@ -250,6 +283,8 @@ const renderNode = (
         }}
         OrderedListItemIndicator={OrderedListItemIndicator}
         UnorderedListItemIndicator={UnorderedListItemIndicator}
+        onLayout={onLayout}
+        firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
   }

@@ -8,13 +8,14 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "link:add": "yarn wml add ../packages/renderer node_modules/@react-native-html/renderer",
+    "link:add": "yarn wml add ../packages/renderer node_modules/@react-native-html/renderer && yarn wml add ../packages/parser node_modules/@react-native-html/parser && yarn wml add ../packages/parser node_modules/@react-native-html/renderer/node_modules/@react-native-html/parser",
     "link:start": "watchman watch-del-all && yarn wml start",
     "reinstall": "rm -rf node_modules/@react-native-html && yarn install --check-files"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.7",
     "@react-native-html/renderer": "file:../packages/renderer",
+    "@react-native-html/parser": "file:../packages/parser",
     "@react-navigation/native": "^5.0.9",
     "@react-navigation/stack": "^5.1.1",
     "react": "16.9.0",

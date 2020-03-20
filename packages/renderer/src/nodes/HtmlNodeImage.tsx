@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
 import { onLayoutHandler } from './types';
+import { BasicStyle } from '../HtmlStyles';
 
 interface Props {
   node: ImageNode;
@@ -9,9 +10,17 @@ interface Props {
   style?: StyleProp<ImageStyle>;
   maxWidth: number;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth, onLayout }: Props) => {
+export const HtmlNodeImage = ({
+  node,
+  ImageComponent,
+  style,
+  maxWidth,
+  onLayout,
+  firstChildInListItemStyle,
+}: Props) => {
   const { source, width: providedWidth, height: providedHeight } = node;
   const [size, setSize] = useState({
     width: providedWidth ?? 1,
@@ -50,7 +59,7 @@ export const HtmlNodeImage = ({ node, ImageComponent, style, maxWidth, onLayout 
   return (
     <ImageComponent
       source={{ uri: source }}
-      style={[{ width: size.width, height: size.height }, style]}
+      style={[{ width: size.width, height: size.height }, style, firstChildInListItemStyle]}
       onLayout={onLayout}
     />
   );

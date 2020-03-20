@@ -966,10 +966,17 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/masked-view/-/masked-view-0.1.7.tgz#a65ce0702f55cb67fd777995de6fc7b3e5781903"
   integrity sha512-9KbP7LTLFz9dx1heURJbO6nuVMdSjDez8znlrUzaB1nUwKVsTTwlKRuHxGUYIIkReLWrJQeCv9tidy+84z2eCw==
 
-"@react-native-html/parser@^0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@react-native-html/parser/-/parser-0.0.12.tgz#b6befb42beaa288c15b3e7dbd3158696eb4936cc"
-  integrity sha512-3AVOMJKAcLe7keV5wYiRmOlqlntkZhTtdIgqzdnzqyAjRjM7iC17EN2x2HmG2mebeCvQlri3OvVDGCfeOgDf3A==
+"@react-native-html/parser@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@react-native-html/parser/-/parser-0.0.13.tgz#d161e8c396fc7f296de03906a07b422156ce4d74"
+  integrity sha512-VntVtpMsH4izEDr4PGdV6DqlG8BJrJX/6VD0BpcyVuHNHvcof66j52wI9UL52YLb40s1LGZGDjjHe9MYsIRbqg==
+  dependencies:
+    "@types/htmlparser2" "^3.10.1"
+    entities "^2.0.0"
+    htmlparser2-without-node-native "^3.9.2"
+
+"@react-native-html/parser@file:../packages/parser":
+  version "0.0.13"
   dependencies:
     "@types/htmlparser2" "^3.10.1"
     entities "^2.0.0"
@@ -978,7 +985,7 @@
 "@react-native-html/renderer@file:../packages/renderer":
   version "0.0.1"
   dependencies:
-    "@react-native-html/parser" "^0.0.12"
+    "@react-native-html/parser" "^0.0.13"
 
 "@react-navigation/core@^5.2.1":
   version "5.2.1"

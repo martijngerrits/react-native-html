@@ -10,6 +10,7 @@ import {
   ListItemNode,
   IFrameNode,
   NodeWithoutKey,
+  getElementAttribute,
 } from './nodes';
 
 export interface TagResolverArgs {
@@ -30,12 +31,12 @@ export const LIST_NAMES = new Set(['ol', 'ul']);
 
 const getWidthAndHeight = (element: DomElement) => {
   const width =
-    parseInt(element.attribs?.width ?? '0', 10) ||
-    parseInt(element.attribs?.['data-width'] ?? '0', 10) ||
+    parseInt(getElementAttribute(element, 'width') ?? '0', 10) ||
+    parseInt(getElementAttribute(element, 'data-width') ?? '0', 10) ||
     undefined;
   const height =
-    parseInt(element.attribs?.height ?? '0', 10) ||
-    parseInt(element.attribs?.['data-height'] ?? '0', 10) ||
+    parseInt(getElementAttribute(element, 'height') ?? '0', 10) ||
+    parseInt(getElementAttribute(element, 'data-height') ?? '0', 10) ||
     undefined;
 
   return { width, height };
@@ -48,8 +49,11 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
-      const source = decodeHTML(element.attribs?.href ?? '');
+      let source = getElementAttribute(element, 'href');
       if (!source || source.startsWith('#')) return undefined;
+
+      source = decodeHTML(source);
+
       return {
         type: NodeType.Link,
         source,
@@ -64,8 +68,9 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
-      const source = decodeHTML(element.attribs?.href ?? '');
-      if (!source || !source.startsWith('#')) return undefined;
+      const source = getElementAttribute(element, 'href');
+      if (!source || !source.startsWith('#') || source.length < 2) return undefined;
+
       const domId = source.substr(1);
       return {
         type: NodeType.InternalLink,

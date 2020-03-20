@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { ElementParser, NodeBase, CustomRendererArgs } from '@react-native-html/renderer';
+import { CustomParser, NodeBase, CustomRendererArgs } from '@react-native-html/renderer';
 
 import { HtmlScreenBase } from './HtmlScreenBase';
 
@@ -27,7 +27,7 @@ interface MagicNode extends NodeBase {
 }
 const isMagicNode = (node: NodeBase): node is MagicNode => node.type === 'Magic';
 
-const customParser: ElementParser = ({ hasClassName }) => {
+const customParser: CustomParser = ({ hasClassName }) => {
   if (hasClassName('magic')) {
     return {
       node: {

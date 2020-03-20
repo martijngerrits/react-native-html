@@ -12,6 +12,12 @@ export interface NodeBase {
    * @desc isLinked is true when linked as element with '#{id}'
    */
   isLinkedTo?: boolean;
+  /**
+   * @desc isFirstNodeInListItem is true when first child node in ListItemNode
+   */
+  isFirstChildInListItem?: boolean;
+  parentKey?: string;
+  isWithinTextContainer?: boolean;
 }
 export type NodeWithoutKey = Omit<NodeBase, 'key'>;
 
@@ -130,4 +136,24 @@ const TEXT_PATH_NAME = 'text';
 export const getPathName = (element: DomElement): string => {
   const pathName = element.type === 'text' ? TEXT_PATH_NAME : element.name;
   return pathName?.toLowerCase() ?? 'unknown';
+};
+
+export const getElementAttribute = (
+  element: DomElement,
+  attributeName: string
+): string | undefined => {
+  const attributes = element.attribs;
+  if (attributes) {
+    if (attributes[attributeName]) {
+      return attributes[attributeName];
+    }
+    // check case insenstive
+    const key = Object.keys(attributes).find(
+      propertyName => attributeName === propertyName.toLowerCase()
+    );
+    if (key) {
+      return attributes[key];
+    }
+  }
+  return undefined;
 };

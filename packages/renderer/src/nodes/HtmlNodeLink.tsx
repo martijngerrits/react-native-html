@@ -8,6 +8,7 @@ import {
   TextProperties,
 } from 'react-native';
 import { onLayoutHandler } from './types';
+import { BasicStyle } from '../HtmlStyles';
 
 interface Props {
   node: LinkNode;
@@ -16,6 +17,7 @@ interface Props {
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
 export const HtmlNodeLink = ({
@@ -25,10 +27,15 @@ export const HtmlNodeLink = ({
   TextComponent,
   renderChildNode,
   onLayout,
+  firstChildInListItemStyle,
 }: Props) => {
   const LinkComponent = node.isWithinTextContainer ? TextComponent : TouchableComponent;
   return (
-    <LinkComponent style={style} onPress={() => onPress(node.source)} onLayout={onLayout}>
+    <LinkComponent
+      style={[style, firstChildInListItemStyle]}
+      onPress={() => onPress(node.source)}
+      onLayout={onLayout}
+    >
       {node.children.map((child, childIndex) => renderChildNode(child, childIndex))}
     </LinkComponent>
   );

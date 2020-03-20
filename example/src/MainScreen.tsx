@@ -36,6 +36,18 @@ export const MainScreen = ({ navigation }: Props) => {
       >
         <Text style={styles.touchableLabel}>Internal Link Example</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={() => navigation.navigate('ArticleExample')}
+      >
+        <Text style={styles.touchableLabel}>Article Example (Slower)</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={() => navigation.navigate('CachedArticleExample')}
+      >
+        <Text style={styles.touchableLabel}>Cached Article Example (Faster)</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };

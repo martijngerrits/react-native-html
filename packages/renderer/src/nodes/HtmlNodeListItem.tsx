@@ -1,7 +1,7 @@
 import React from 'react';
 import { ListItemNode, NodeBase } from '@react-native-html/parser';
 import { Text, View, StyleSheet, TextStyle, StyleProp } from 'react-native';
-import { HtmlListStyles } from '../HtmlStyles';
+import { HtmlListStyles, BasicStyle } from '../HtmlStyles';
 import { onLayoutHandler } from './types';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
 export const HtmlNodeListItem = ({
@@ -24,12 +25,16 @@ export const HtmlNodeListItem = ({
   OrderedListItemIndicator: orderedListItemIndicator,
   UnorderedListItemIndicator: unorderedListItemIndicator,
   onLayout,
+  firstChildInListItemStyle,
 }: Props) => {
   const listItemStyles = [styles.listItem, providedStyles.listItem];
   if (isOrdered && providedStyles.orderedListItem) {
     listItemStyles.push(providedStyles.orderedListItem);
   } else if (!isOrdered && providedStyles.unorderedListItem) {
     listItemStyles.push(providedStyles.unorderedListItem);
+  }
+  if (firstChildInListItemStyle) {
+    listItemStyles.push(firstChildInListItemStyle);
   }
 
   const indicatorStyles: StyleProp<TextStyle> = [];

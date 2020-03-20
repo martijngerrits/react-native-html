@@ -8,11 +8,14 @@ import {
   isInternalLinkNode,
   getNodeKey,
   getPathName,
+  isListItemNode,
+  getElementAttribute,
 } from './nodes';
 import { TagHandler, LINK_NAMES, LIST_NAMES } from './parseTags';
 import { parseText } from './parseText';
 import { parseTextContainer } from './parseTextContainer';
 import { CustomParser } from './customParser';
+import { DomIdMap } from './domIdToKey';
 
 const TEXT_FORMATTING_TAGS = [
   'b',
@@ -34,7 +37,7 @@ const ITALIC_PATH_NAMES = new Set(['i', 'em']);
 const UNDERLINE_PATH_NAMES = new Set(['ins', 'u']);
 const STRIKETHROUGH_PATH_NAMES = new Set(['strike', 'del']);
 const HEADER_PATH_NAMES = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
-const TEXT_CONTAINER_PATH_NAMES = new Set([...TEXT_FORMATTING_TAGS, 'a', 'text', 'br']);
+const TEXT_CONTAINER_PATH_NAMES = new Set([...TEXT_FORMATTING_TAGS, 'a', 'text', 'br', 'span']);
 
 const getHeaderNumber = (pathName: string): number | undefined => {
   if (HEADER_PATH_NAMES.has(pathName)) {
@@ -58,9 +61,12 @@ interface ParseElementArgs {
   nodes: NodeBase[];
   internalLinkNodes: InternalLinkNode[];
   nodeMap: Map<string, NodeBase>;
-  keyToPathIds: Map<string, string[]>;
+  domIdToKeys: DomIdMap;
   tagHandlers: TagHandler[];
+  isTextContainerFirstChild?: boolean;
+  isTextContainerLastChild?: boolean;
   parent?: DomElement;
+  parentNode?: NodeBase;
   parentPathIds?: string[];
   customParser?: CustomParser;
   isWithinTextContainer?: boolean;
@@ -79,6 +85,7 @@ export function parseElement({
   element,
   pathName,
   parent,
+  parentNode,
   parentPathIds = [],
   nodes,
   tagHandlers,
@@ -95,10 +102,15 @@ export function parseElement({
   keyPrefix = '',
   nodeMap,
   internalLinkNodes,
-  keyToPathIds,
+  domIdToKeys,
+  isTextContainerFirstChild,
+  isTextContainerLastChild,
 }: ParseElementArgs) {
-  const domElementId = element?.attribs?.id ?? '';
-  const pathIds = [...parentPathIds, domElementId];
+  const domElementId = getElementAttribute(element, 'id');
+  let pathIds = [...parentPathIds];
+  if (domElementId) {
+    pathIds.unshift(domElementId);
+  }
 
   let nextNodes = nodes;
   let canParseChildren = true;
@@ -119,7 +131,7 @@ export function parseElement({
       isWithinList,
       hasClassName: (className: string) => {
         if (element.type === 'tag') {
-          const classNames = element.attribs?.class;
+          const classNames = getElementAttribute(element, 'class');
           if (classNames) {
             const regex = new RegExp(`(?:^| )${className}(?:$| )`);
             return regex.test(classNames);
@@ -141,6 +153,9 @@ export function parseElement({
       isWithinTextContainer,
       isWithinLink,
       isWithinList,
+      parentNode,
+      isTextContainerFirstChild,
+      isTextContainerLastChild,
     });
     if (textNode) {
       parsedNode = textNode;
@@ -165,17 +180,23 @@ export function parseElement({
     });
   }
 
+  let node: NodeBase | undefined;
   if (parsedNode) {
-    const key = getNodeKey({ keyPrefix, index: nodes.length });
-    const node = { key, ...parsedNode };
+    node = addNode({
+      keyPrefix,
+      nodes,
+      node: parsedNode,
+      pathIds,
+      domIdToKeys,
+      nodeMap,
+      parentNode,
+    });
     // going a level deeper, update key prefix
     if (nextNodes !== nodes) {
-      nextKeyPrefix = key;
+      nextKeyPrefix = node.key;
     }
+    pathIds = [];
 
-    nodes.push(node);
-    nodeMap.set(key, node);
-    keyToPathIds.set(key, pathIds);
     if (isInternalLinkNode(node)) {
       internalLinkNodes.push(node);
     }
@@ -188,6 +209,7 @@ export function parseElement({
 
   if (canParseChildren && element.children) {
     const nextParent = element;
+    const nextParentNode = node || parentNode;
 
     /**
      * purpose of text container node is to group together text like nodes inside a <Text /> so that they are inlined
@@ -250,26 +272,38 @@ export function parseElement({
 
     let selectedNodes = nextNodes;
     let selectedKeyPrefix = nextKeyPrefix;
+    let selectedParentNode = parentNode;
     childrenGroups.forEach(childrenGroup => {
       if (childrenGroup.isTextContainer) {
         const children: NodeBase[] = [];
-        selectedNodes = children;
-        const textContainerNode = parseTextContainer({ children });
-        const key = getNodeKey({ keyPrefix, index: nodes.length });
-        const node = { key, ...textContainerNode };
+        const nodeWithoutKey = parseTextContainer({ children });
+        const textContainerNode = addNode({
+          keyPrefix: nextKeyPrefix,
+          nodes: nextNodes,
+          node: nodeWithoutKey,
+          pathIds,
+          domIdToKeys,
+          nodeMap,
+          parentNode: nextParentNode,
+        });
+        pathIds = [];
+
         // going a level deeper, update key prefix
-        selectedKeyPrefix = key;
-        nodes.push(node);
-        nodeMap.set(key, node);
-        keyToPathIds.set(key, pathIds);
+        selectedKeyPrefix = textContainerNode.key;
+        selectedParentNode = textContainerNode;
+        selectedNodes = children;
       } else {
+        selectedKeyPrefix = nextKeyPrefix;
         selectedNodes = nextNodes;
+        selectedParentNode = nextParentNode;
       }
-      childrenGroup.children.forEach(child => {
+      const lastIndex = childrenGroup.children.length - 1;
+      childrenGroup.children.forEach((child, index) => {
         parseElement({
           element: child,
           pathName: getPathName(child),
           parent: nextParent,
+          parentNode: selectedParentNode,
           parentPathIds: pathIds,
           nodes: selectedNodes,
           tagHandlers,
@@ -282,13 +316,52 @@ export function parseElement({
           isWithinItalic: isWithinItalic || ITALIC_PATH_NAMES.has(pathName),
           isWithinStrikethrough: isWithinStrikethrough || STRIKETHROUGH_PATH_NAMES.has(pathName),
           isWithinUnderline: isWithinUnderline || UNDERLINE_PATH_NAMES.has(pathName),
-          isWithinLink: isWithinLink || LINK_NAMES.has(pathName),
+          isWithinLink:
+            isWithinLink || (LINK_NAMES.has(pathName) && !!getElementAttribute(element, 'href')),
           isWithinList: isWithinList || LIST_NAMES.has(pathName),
           keyPrefix: selectedKeyPrefix,
           nodeMap,
-          keyToPathIds,
+          domIdToKeys,
+          isTextContainerFirstChild: childrenGroup.isTextContainer ? index === 0 : undefined,
+          isTextContainerLastChild: childrenGroup.isTextContainer ? index === lastIndex : undefined,
         });
       });
     });
   }
 }
+
+interface AddNodeArgs {
+  keyPrefix: string;
+  node: NodeWithoutKey;
+  nodes: NodeBase[];
+  nodeMap: Map<string, NodeBase>;
+  pathIds: string[];
+  domIdToKeys: DomIdMap;
+  parentNode?: NodeBase;
+}
+
+const addNode = ({
+  keyPrefix,
+  node: nodeWithoutKey,
+  nodes,
+  nodeMap,
+  pathIds,
+  domIdToKeys,
+  parentNode,
+}: AddNodeArgs): NodeBase => {
+  const key = getNodeKey({ keyPrefix, index: nodes.length });
+  const node = { key, parentKey: parentNode?.key, ...nodeWithoutKey };
+  if (parentNode && nodes.length === 0 && isListItemNode(parentNode)) {
+    node.isFirstChildInListItem = true;
+  }
+  nodes.push(node);
+  nodeMap.set(key, node);
+  pathIds.forEach((domId, index) => {
+    const steps = index + 1;
+    const existingKey = domIdToKeys.get(domId);
+    if (!existingKey || existingKey.steps > steps) {
+      domIdToKeys.set(domId, { key, steps });
+    }
+  });
+  return node;
+};

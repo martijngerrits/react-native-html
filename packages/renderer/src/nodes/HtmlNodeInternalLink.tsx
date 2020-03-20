@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { onLayoutHandler } from './types';
+import { BasicStyle } from '../HtmlStyles';
 
 interface Props {
   node: InternalLinkNode;
@@ -15,9 +16,10 @@ interface Props {
   TouchableComponent: React.ElementType<TouchableWithoutFeedbackProps>;
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
-  scrollToY?: number;
-  scrollRef?: ScrollView;
+  offsetYs: Record<string, number>;
+  scrollRef?: ScrollView | null;
   onLayout?: onLayoutHandler;
+  firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
 export const HtmlNodeInternalLink = ({
@@ -27,8 +29,9 @@ export const HtmlNodeInternalLink = ({
   TextComponent,
   renderChildNode,
   scrollRef,
-  scrollToY,
+  offsetYs,
   onLayout,
+  firstChildInListItemStyle,
 }: Props) => {
   const children = node.children.map((child, childIndex) => renderChildNode(child, childIndex));
   if (!node.hasResolvedTarget) {
@@ -38,10 +41,10 @@ export const HtmlNodeInternalLink = ({
   const LinkComponent = node.isWithinTextContainer ? TextComponent : TouchableComponent;
   return (
     <LinkComponent
-      style={style}
+      style={[style, firstChildInListItemStyle]}
       onPress={() => {
-        if (scrollRef && typeof scrollToY === 'number') {
-          scrollRef.scrollTo({ y: scrollToY, animated: true });
+        if (scrollRef && typeof offsetYs[node.targetKey] === 'number') {
+          scrollRef.scrollTo({ y: offsetYs[node.targetKey], animated: true });
         }
       }}
       onLayout={onLayout}

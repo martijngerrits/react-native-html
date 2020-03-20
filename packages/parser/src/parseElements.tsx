@@ -5,6 +5,7 @@ import { createDefaultTagHandlers, TagHandler } from './parseTags';
 import { parseElement } from './parseElement';
 import { getPathName, NodeBase, InternalLinkNode } from './nodes';
 import { CustomParser } from './customParser';
+import { DomIdMap } from './domIdToKey';
 
 interface ParseElementsArgs {
   elements: DomElement[];
@@ -13,7 +14,7 @@ interface ParseElementsArgs {
   tagHandlers?: TagHandler[];
   customParser?: CustomParser;
   excludeTags: Set<string>;
-  keyToPathIds: Map<string, string[]>;
+  domIdToKeys: DomIdMap;
   nodeMap: Map<string, NodeBase>;
 }
 
@@ -24,7 +25,7 @@ export function parseElements({
   customParser,
   excludeTags,
   internalLinkNodes,
-  keyToPathIds,
+  domIdToKeys,
   nodeMap,
 }: ParseElementsArgs) {
   elements.forEach(element => {
@@ -38,7 +39,7 @@ export function parseElements({
         tagHandlers,
         customParser,
         excludeTags,
-        keyToPathIds,
+        domIdToKeys,
         nodeMap,
       });
     }
