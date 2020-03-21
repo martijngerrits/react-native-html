@@ -1,12 +1,13 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, ImageNode, TextNode, getNodeKey } from '../nodes';
+import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - image tests', () => {
   it('parse image', async () => {
     const source =
       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
     const rawHtml = `<img src="${source}" width="272" height="90" />`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -24,7 +25,7 @@ describe('parseHtml - image tests', () => {
       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
     const text = 'abc';
     const rawHtml = `<div>${text}<img src="${source}" width="272" height="90" />${text}</div>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -65,7 +66,7 @@ describe('parseHtml - image tests', () => {
     const source =
       'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
     const rawHtml = `<img src="${source}" />`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([

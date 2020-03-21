@@ -6,4 +6,6 @@ export type RootStackParamList = {
   InternalLinkExample: undefined;
   ArticleExample: undefined;
   CachedArticleExample: undefined;
+  ParseUrl: undefined;
+  ListExample: undefined;
 };

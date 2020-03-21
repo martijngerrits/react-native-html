@@ -17,6 +17,7 @@ export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
   scrollRef?: ScrollView | null;
+  parseFromCssClass?: string;
 }
 
 export const HtmlParseAndView = ({
@@ -26,6 +27,7 @@ export const HtmlParseAndView = ({
   excludeTags,
   containerStyle,
   scrollRef,
+  parseFromCssClass,
   ...options
 }: HtmlParseAndViewProps) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
@@ -36,14 +38,14 @@ export const HtmlParseAndView = ({
         customParser,
         tagHandlers,
         excludeTags: new Set(excludeTags),
+        parseFromCssClass,
       });
       if (result.type === ResultType.Success) {
-        console.log(result.nodes);
         setNodes(result.nodes);
       }
     };
     applyEffect();
-  }, [rawHtml, customParser, tagHandlers, excludeTags]);
+  }, [rawHtml, customParser, tagHandlers, excludeTags, parseFromCssClass]);
 
   if (!nodes) return null;
 

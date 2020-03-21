@@ -1,8 +1,7 @@
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
 
 import { TextNodeWithoutKey, NodeType, NodeBase, isTextContainerNode } from './nodes';
+import { DomElement } from './DomElement';
 
 interface ParseTextArgs {
   element: DomElement;

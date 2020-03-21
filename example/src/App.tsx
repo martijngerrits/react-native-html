@@ -9,6 +9,8 @@ import { CustomNodeExampleScreen } from './CustomNodeExampleScreen';
 import { InternalLinkExampleScreen } from './InternalLinkExampleScreen';
 import { ArticleExampleScreen } from './ArticleExampleScreen';
 import { CachedArticleExampleScreen } from './CachedArticleExampleScreen';
+import { ParseUrlScreen } from './ParseUrlScreen';
+import { ListExampleScreen } from './ListExampleScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -23,6 +25,8 @@ const App = () => {
         <Stack.Screen name="InternalLinkExample" component={InternalLinkExampleScreen} />
         <Stack.Screen name="ArticleExample" component={ArticleExampleScreen} />
         <Stack.Screen name="CachedArticleExample" component={CachedArticleExampleScreen} />
+        <Stack.Screen name="ParseUrl" component={ParseUrlScreen} />
+        <Stack.Screen name="ListExample" component={ListExampleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

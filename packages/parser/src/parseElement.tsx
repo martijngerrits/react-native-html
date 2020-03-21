@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
-
 import {
   NodeBase,
   NodeWithoutKey,
@@ -10,12 +7,14 @@ import {
   getPathName,
   isListItemNode,
   getElementAttribute,
+  hasElementClassName,
 } from './nodes';
 import { TagHandler, LINK_NAMES, LIST_NAMES } from './parseTags';
 import { parseText } from './parseText';
 import { parseTextContainer } from './parseTextContainer';
 import { CustomParser } from './customParser';
 import { DomIdMap } from './domIdToKey';
+import { DomElement } from './DomElement';
 
 const TEXT_FORMATTING_TAGS = [
   'b',
@@ -129,16 +128,8 @@ export function parseElement({
       isWithinItalic,
       isWithinLink,
       isWithinList,
-      hasClassName: (className: string) => {
-        if (element.type === 'tag') {
-          const classNames = getElementAttribute(element, 'class');
-          if (classNames) {
-            const regex = new RegExp(`(?:^| )${className}(?:$| )`);
-            return regex.test(classNames);
-          }
-        }
-        return false;
-      },
+      domElementId,
+      hasClassName: (className: string) => hasElementClassName(element, className),
     });
   if (customParseResult?.node) {
     parsedNode = customParseResult.node;

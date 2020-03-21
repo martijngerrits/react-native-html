@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
-
 import { NodeWithoutKey } from './nodes';
+import { DomElement } from './DomElement';
 
 export interface CustomParserArgs {
   element: DomElement;
@@ -13,6 +11,7 @@ export interface CustomParserArgs {
   isWithinItalic: boolean;
   isWithinLink: boolean;
   isWithinList: boolean;
+  domElementId?: string;
   hasClassName: (className: string) => boolean;
 }
 

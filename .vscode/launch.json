@@ -41,13 +41,14 @@
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand",
         "--detectOpenHandles",
-        "--config",
-        "${workspaceRoot}/jest.config.js",
+        // "--config",
+        // "${workspaceRoot}/jest.config.js",
         "${file}"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "port": 9229
+      // "cwd": "${fileDirname}"
     }
   ]
 }

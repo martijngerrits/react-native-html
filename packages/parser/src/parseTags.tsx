@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
 import { decodeHTML } from 'entities';
 
 import {
@@ -12,6 +10,7 @@ import {
   NodeWithoutKey,
   getElementAttribute,
 } from './nodes';
+import { DomElement } from './DomElement';
 
 export interface TagResolverArgs {
   element: DomElement;

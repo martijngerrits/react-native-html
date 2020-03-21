@@ -1,12 +1,13 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, TextNode, LinkNode, ImageNode, getNodeKey } from '../nodes';
+import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parserawHtml - link tests', () => {
   it('parse text link', async () => {
     const text = 'link';
     const source = 'https://www.google.com/';
     const rawHtml = `<a href="${source}">${text}</a>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 
@@ -21,6 +22,7 @@ describe('parserawHtml - link tests', () => {
           {
             type: NodeType.Text,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             content: text,
             hasStrikethrough: false,
             isUnderlined: false,
@@ -40,7 +42,7 @@ describe('parserawHtml - link tests', () => {
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
     const rawHtml = `<a href="${source}">${imageHtml}</a>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 
@@ -55,6 +57,7 @@ describe('parserawHtml - link tests', () => {
           {
             type: NodeType.Image,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             source: imageSource,
             width: 272,
             height: 90,
@@ -70,7 +73,7 @@ describe('parserawHtml - link tests', () => {
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
     const rawHtml = `<a href="${source}">${text}${imageHtml}</a>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 
@@ -86,6 +89,7 @@ describe('parserawHtml - link tests', () => {
             content: text,
             type: NodeType.Text,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -97,6 +101,7 @@ describe('parserawHtml - link tests', () => {
           {
             type: NodeType.Image,
             key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
             source: imageSource,
             width: 272,
             height: 90,

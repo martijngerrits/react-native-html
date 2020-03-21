@@ -13,6 +13,7 @@ const html = `<h1>Basic Example</h1>
 <h3>Kopje</h3>
 <p>Hier is een stukje tekst en een <a href="https://www.google.com">link</a>. Grappig he?</p>
 <ul><li>dubbel 1:<ul><li>a</li><li>b</li></ul></li><li>test 456</li></ul>
+<img src="https://media.oudersvannu.nl/m/1hru7a12ux9r_ovn_wide_750.jpg" />
 `;
 
 export const BasicExampleScreen = () => {

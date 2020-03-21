@@ -12,6 +12,10 @@ interface Props {
 export const MainScreen = ({ navigation }: Props) => {
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('ParseUrl')}>
+        <Text style={styles.touchableLabel}>Parse html by url</Text>
+      </TouchableOpacity>
+      <Text>Examples:</Text>
       <TouchableOpacity
         style={styles.touchable}
         onPress={() => navigation.navigate('BasicExample')}
@@ -47,6 +51,9 @@ export const MainScreen = ({ navigation }: Props) => {
         onPress={() => navigation.navigate('CachedArticleExample')}
       >
         <Text style={styles.touchableLabel}>Cached Article Example (Faster)</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('ListExample')}>
+        <Text style={styles.touchableLabel}>List Example</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -1,6 +1,7 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, NodeBase, IFrameNode, TextNode, getNodeKey } from '../nodes';
 import { CustomParser } from '../customParser';
+import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 const MyNodeTypes = {
   ...NodeType,
@@ -32,7 +33,11 @@ describe('parseHtml - custom parser tests', () => {
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
+    const result = (await parseHtml({
+      ...getDefaultParseHtmlArgs(),
+      rawHtml,
+      customParser,
+    })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
@@ -61,7 +66,11 @@ describe('parseHtml - custom parser tests', () => {
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
+    const result = (await parseHtml({
+      ...getDefaultParseHtmlArgs(),
+      rawHtml,
+      customParser,
+    })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
@@ -98,7 +107,11 @@ describe('parseHtml - custom parser tests', () => {
       return undefined;
     };
 
-    const result = (await parseHtml({ rawHtml, customParser })) as SuccessResult;
+    const result = (await parseHtml({
+      ...getDefaultParseHtmlArgs(),
+      rawHtml,
+      customParser,
+    })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 

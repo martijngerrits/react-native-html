@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
+import { DomElement } from './DomElement';
 
 export interface NodeBase {
   /**
@@ -156,4 +155,15 @@ export const getElementAttribute = (
     }
   }
   return undefined;
+};
+
+export const hasElementClassName = (element: DomElement, className: string) => {
+  if (element.type === 'tag') {
+    const classNames = getElementAttribute(element, 'class');
+    if (classNames) {
+      const regex = new RegExp(`(?:^| )${className}(?:$| )`);
+      return regex.test(classNames);
+    }
+  }
+  return false;
 };

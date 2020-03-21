@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, ScrollView } from 'react-native';
-import { HtmlParseAndViewProps, HtmlStyles, HtmlView } from '@react-native-html/renderer';
+import { HtmlParseAndViewProps, HtmlView } from '@react-native-html/renderer';
 import { parseHtml, NodeBase, ResultType } from '@react-native-html/parser';
 import { articleHtml } from './ArticleExampleScreen';
+import { htmlStyles } from './htmlStyles';
 
 interface Props {
   description?: string;
@@ -44,30 +45,3 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 });
-
-const htmlStyles: HtmlStyles = {
-  text: {
-    marginVertical: 5,
-  },
-  image: {
-    marginVertical: 5,
-  },
-  list: {
-    marginVertical: 5,
-  },
-  h1: {
-    fontSize: 28,
-    marginTop: 15,
-  },
-  h2: {
-    fontSize: 24,
-    marginTop: 15,
-  },
-  h3: {
-    fontSize: 20,
-    marginTop: 10,
-  },
-  listItem: {
-    marginVertical: 2,
-  },
-};

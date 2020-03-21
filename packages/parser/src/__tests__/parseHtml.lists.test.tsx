@@ -1,12 +1,13 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, TextNode, ListItemNode, ListNode, getNodeKey } from '../nodes';
+import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - list tests', () => {
   it('parse unordered list', async () => {
     const text1 = 'item 1';
     const text2 = 'item 2';
     const rawHtml = `<ul><li>${text1}</li><li>${text2}</li></ul>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
@@ -23,11 +24,13 @@ describe('parseHtml - list tests', () => {
           {
             type: NodeType.ListItem,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             children: [
               {
                 type: NodeType.Text,
                 content: text1,
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefix1 }),
+                parentKey: keyPrefix1,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -42,11 +45,13 @@ describe('parseHtml - list tests', () => {
           {
             type: NodeType.ListItem,
             key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
             children: [
               {
                 type: NodeType.Text,
                 content: text2,
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
+                parentKey: keyPrefix2,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -67,7 +72,7 @@ describe('parseHtml - list tests', () => {
     const text1 = 'item 1';
     const text2 = 'item 2';
     const rawHtml = `<ol><li>${text1}</li><li>${text2}</li></ol>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix1 = getNodeKey({ index: 0, keyPrefix });
@@ -84,11 +89,13 @@ describe('parseHtml - list tests', () => {
           {
             type: NodeType.ListItem,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             children: [
               {
                 type: NodeType.Text,
                 content: text1,
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefix1 }),
+                parentKey: keyPrefix1,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -103,11 +110,13 @@ describe('parseHtml - list tests', () => {
           {
             type: NodeType.ListItem,
             key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
             children: [
               {
                 type: NodeType.Text,
                 content: text2,
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
+                parentKey: keyPrefix2,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -128,7 +137,7 @@ describe('parseHtml - list tests', () => {
     const header1 = 'header 1';
     const text1 = 'item 1';
     const rawHtml = `<ul><li><h3>${header1}</h3><p>${text1}</p></li></ul>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix1 = getNodeKey({ index: 0, keyPrefix });
@@ -144,11 +153,13 @@ describe('parseHtml - list tests', () => {
           {
             type: NodeType.ListItem,
             key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
             children: [
               {
                 type: NodeType.Text,
                 content: header1,
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefix1 }),
+                parentKey: keyPrefix1,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,
@@ -163,6 +174,7 @@ describe('parseHtml - list tests', () => {
                 type: NodeType.Text,
                 content: text1,
                 key: getNodeKey({ index: 1, keyPrefix: keyPrefix1 }),
+                parentKey: keyPrefix1,
                 hasStrikethrough: false,
                 isUnderlined: false,
                 isItalic: false,

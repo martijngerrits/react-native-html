@@ -85,5 +85,7 @@ const styles = StyleSheet.create({
   },
   listItemContents: {
     flexDirection: 'column',
+    flexShrink: 1,
+    overflow: 'hidden',
   },
 });

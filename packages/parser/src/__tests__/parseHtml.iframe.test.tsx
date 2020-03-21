@@ -1,11 +1,12 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, IFrameNode, getNodeKey } from '../nodes';
+import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - iframe tests', () => {
   it('parse iframe', async () => {
     const source = 'http://www.google.com';
     const rawHtml = `<iframe src="${source}" height="200" width="300"></iframe>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 
@@ -22,7 +23,7 @@ describe('parseHtml - iframe tests', () => {
   it('will not parse iframe children', async () => {
     const source = 'http://www.google.com';
     const rawHtml = `<iframe src="${source}" height="200" width="300">this will not be parsed</iframe>`;
-    const result = (await parseHtml({ rawHtml })) as SuccessResult;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
 

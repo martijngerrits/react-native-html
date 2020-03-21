@@ -1,6 +1,7 @@
-import { DomHandler, Parser } from 'htmlparser2-without-node-native';
-// eslint-disable-next-line import/no-unresolved
-import { DomElement } from 'htmlparser2';
+import {
+  DomHandler as OriginalDomHandler,
+  Parser as OriginalParser,
+} from 'htmlparser2-without-node-native';
 
 import { NodeBase, InternalLinkNode } from './nodes';
 import { TagHandler } from './parseTags';
@@ -8,6 +9,7 @@ import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './customParser';
 import { parseElements } from './parseElements';
 import { DomIdMap } from './domIdToKey';
+import { DomElementBase } from './DomElement';
 
 export enum ResultType {
   Failure,
@@ -26,17 +28,21 @@ export interface Failureresult {
 
 export type ParseHtmlResult = SuccessResult | Failureresult;
 
-interface ParseHtmlArgs {
+export interface ParseHtmlArgs {
   rawHtml: string;
   customParser?: CustomParser;
   tagHandlers?: TagHandler[];
   excludeTags?: Set<string>;
+  parseFromCssClass?: string;
+  DomHandler?: typeof OriginalDomHandler;
+  Parser?: typeof OriginalParser;
 }
 
-export async function parseHtml({
+export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<S>>({
   rawHtml,
   customParser,
   tagHandlers,
+  parseFromCssClass,
   excludeTags = new Set([
     'input',
     'textarea',
@@ -55,14 +61,16 @@ export async function parseHtml({
     'option',
     'track',
   ]),
+  DomHandler = OriginalDomHandler,
+  Parser = OriginalParser,
 }: ParseHtmlArgs): Promise<ParseHtmlResult> {
   try {
-    const promise = new Promise<DomElement[]>((resolve, reject) => {
+    const promise = new Promise<DomElementBase<T>[]>((resolve, reject) => {
       const handler = new DomHandler((err, dom) => {
         if (err) {
           reject(err);
         } else {
-          resolve(dom);
+          resolve((dom as unknown) as DomElementBase<T>[]);
         }
       });
       const parser = new Parser(handler);
@@ -86,6 +94,7 @@ export async function parseHtml({
       internalLinkNodes,
       nodeMap,
       domIdToKeys,
+      parseFromCssClass,
     });
 
     resolveInternalLinks({
