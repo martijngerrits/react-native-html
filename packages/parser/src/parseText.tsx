@@ -1,7 +1,7 @@
 import { decodeHTML } from 'entities';
 
-import { TextNodeWithoutKey, NodeType, NodeBase, isTextContainerNode } from './nodes';
-import { DomElement } from './DomElement';
+import { TextNodeWithoutKey, NodeType, NodeBase, isTextContainerNode } from './types/nodes';
+import { DomElement, isOnlyWhiteSpaces } from './types/elements';
 
 interface ParseTextArgs {
   element: DomElement;
@@ -57,14 +57,20 @@ export const parseText = ({
     parentNode &&
     isTextContainerNode(parentNode);
 
-  if (!canBeSpaceWithinTextContainer && element.data.replace(/\s/g, '').length === 0) {
+  if (!canBeSpaceWithinTextContainer && isOnlyWhiteSpaces(element.data)) {
     return undefined;
   }
 
   /**
-   * @note It should replace any new lines by space and remove any duplicate spaces (has no effect in HTML but does in RN)
+   * @note It should replace any new lines by space
+   * and remove any duplicate spaces (has no effect in HTML but does in RN)
    */
-  const content = decodeHTML(element.data.replace(/[\r\n]/g, ' ').replace(/\s\s+/g, ' '));
+  let content = element.data.replace(/[\r\n]/g, ' ').replace(/\s\s+/g, ' ');
+  if (!isWithinTextContainer || isTextContainerFirstChild) {
+    // remove leading spaces
+    content = content.replace(/^\s+/, '');
+  }
+  content = decodeHTML(content);
 
   return {
     type: NodeType.Text,

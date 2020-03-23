@@ -153,8 +153,7 @@ const rawHtml = `<ol class="bullets">
                     </li>
                                     </ul>
              </div>
-        </div>
-`;
+        </div>`;
 
 export const ListExampleScreen = () => {
   return <HtmlScreenBase rawHtml={rawHtml} />;

@@ -1,4 +1,5 @@
-import { DomElement } from './DomElement';
+// eslint-disable-next-line prettier/prettier
+import type { DomIdMap } from './elements';
 
 export interface NodeBase {
   /**
@@ -130,40 +131,38 @@ interface GetNodeKeyArgs {
 export const getNodeKey = ({ index, keyPrefix = '' }: GetNodeKeyArgs) =>
   `${keyPrefix}${keyPrefix.length > 0 ? '_' : ''}${index}`;
 
-const TEXT_PATH_NAME = 'text';
+interface AddNodeArgs {
+  keyPrefix: string;
+  node: NodeWithoutKey;
+  nodes: NodeBase[];
+  nodeMap: Map<string, NodeBase>;
+  pathIds: string[];
+  domIdToKeys: DomIdMap;
+  parentNode?: NodeBase;
+}
 
-export const getPathName = (element: DomElement): string => {
-  const pathName = element.type === 'text' ? TEXT_PATH_NAME : element.name;
-  return pathName?.toLowerCase() ?? 'unknown';
-};
-
-export const getElementAttribute = (
-  element: DomElement,
-  attributeName: string
-): string | undefined => {
-  const attributes = element.attribs;
-  if (attributes) {
-    if (attributes[attributeName]) {
-      return attributes[attributeName];
-    }
-    // check case insenstive
-    const key = Object.keys(attributes).find(
-      propertyName => attributeName === propertyName.toLowerCase()
-    );
-    if (key) {
-      return attributes[key];
-    }
+export const addNode = ({
+  keyPrefix,
+  node: nodeWithoutKey,
+  nodes,
+  nodeMap,
+  pathIds,
+  domIdToKeys,
+  parentNode,
+}: AddNodeArgs): NodeBase => {
+  const key = getNodeKey({ keyPrefix, index: nodes.length });
+  const node = { key, parentKey: parentNode?.key, ...nodeWithoutKey };
+  if (parentNode && nodes.length === 0 && isListItemNode(parentNode)) {
+    node.isFirstChildInListItem = true;
   }
-  return undefined;
-};
-
-export const hasElementClassName = (element: DomElement, className: string) => {
-  if (element.type === 'tag') {
-    const classNames = getElementAttribute(element, 'class');
-    if (classNames) {
-      const regex = new RegExp(`(?:^| )${className}(?:$| )`);
-      return regex.test(classNames);
+  nodes.push(node);
+  nodeMap.set(key, node);
+  pathIds.forEach((domId, index) => {
+    const steps = index + 1;
+    const existingKey = domIdToKeys.get(domId);
+    if (!existingKey || existingKey.steps > steps) {
+      domIdToKeys.set(domId, { key, steps });
     }
-  }
-  return false;
+  });
+  return node;
 };

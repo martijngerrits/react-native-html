@@ -32,8 +32,17 @@ export const ParseUrlScreen = () => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>View and parse by url</Text>
       <View style={styles.inputContainer}>
-        <TextInput placeholder="url" onChangeText={setUrl} />
-        <TextInput placeholder="parse from css class" onChangeText={setCssClass} />
+        <TextInput
+          placeholder="url"
+          onChangeText={setUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+        />
+        <TextInput
+          placeholder="parse from css class"
+          onChangeText={setCssClass}
+          autoCapitalize="none"
+        />
         <TouchableOpacity onPress={fetchAndParse} style={styles.button}>
           <Text style={styles.buttonLabel}>Parse and View</Text>
         </TouchableOpacity>

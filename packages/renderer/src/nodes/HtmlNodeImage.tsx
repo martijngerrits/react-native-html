@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, ImageProperties, ImageStyle, StyleProp, View } from 'react-native';
+import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
 import { onLayoutHandler } from './types';
 import { BasicStyle } from '../HtmlStyles';
@@ -29,7 +29,7 @@ export const HtmlNodeImage = ({
   useEffect(() => {
     Image.getSize(
       uri,
-      (w, h) => adjustSize(w, h),
+      (w, h) => adjustSize(w, h, width, height, setScalableWidth, setScalableHeight, maxWidth),
       err => {
         if (__DEV__) {
           // eslint-disable-next-line no-console
@@ -37,50 +37,55 @@ export const HtmlNodeImage = ({
         }
       }
     );
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);
 
-  const adjustSize = (sourceWidth: number, sourceHeight: number) => {
-    let ratio = 1;
-
-    if (width && height) {
-      ratio = Math.min(width / sourceWidth, height / sourceHeight);
-    } else if (width) {
-      ratio = width / sourceWidth;
-    } else if (height) {
-      ratio = height / sourceHeight;
-    }
-
-    let computedWidth = sourceWidth * ratio;
-    let computedHeight = sourceHeight * ratio;
-    if (computedWidth > maxWidth) {
-      const aspectRatio = sourceWidth / sourceHeight;
-      computedHeight = maxWidth / aspectRatio;
-      computedWidth = maxWidth;
-    }
-
-    setScalableWidth(computedWidth);
-    setScalableHeight(computedHeight);
-  };
-
   if (!scalableHeight || !scalableWidth || !uri) return null;
 
-  const image = (
+  return (
     <ImageComponent
       source={{ uri }}
       style={[
         {
-          width: scalableWidth ?? 1,
-          height: scalableHeight ?? 1,
+          width: scalableWidth,
+          height: scalableHeight,
         },
+        style,
+        firstChildInListItemStyle,
       ]}
       onLayout={onLayout}
     />
   );
+};
 
-  if (style || firstChildInListItemStyle) {
-    return <View style={[firstChildInListItemStyle]}>{image}</View>;
+const adjustSize = (
+  sourceWidth: number,
+  sourceHeight: number,
+  width: number | undefined,
+  height: number | undefined,
+  setScalableWidth: (val: number) => void,
+  setScalableHeight: (val: number) => void,
+  maxWidth: number
+) => {
+  let ratio = 1;
+
+  if (width && height) {
+    ratio = Math.min(width / sourceWidth, height / sourceHeight);
+  } else if (width) {
+    ratio = width / sourceWidth;
+  } else if (height) {
+    ratio = height / sourceHeight;
   }
 
-  return image;
+  let computedWidth = sourceWidth * ratio;
+  let computedHeight = sourceHeight * ratio;
+  if (computedWidth > maxWidth) {
+    const aspectRatio = sourceWidth / sourceHeight;
+    computedHeight = maxWidth / aspectRatio;
+    computedWidth = maxWidth;
+  }
+
+  setScalableWidth(computedWidth);
+  setScalableHeight(computedHeight);
 };

@@ -41,6 +41,7 @@ export const HtmlParseAndView = ({
         parseFromCssClass,
       });
       if (result.type === ResultType.Success) {
+        // console.log(result.nodes);
         setNodes(result.nodes);
       }
     };

@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, LinkNode, ImageNode, getNodeKey } from '../nodes';
+import { NodeType, TextNode, LinkNode, ImageNode, getNodeKey } from '../types/nodes';
 import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parserawHtml - link tests', () => {

@@ -7,7 +7,8 @@ import {
   ListNode,
   ListItemNode,
   TextContainerNode,
-} from '../nodes';
+  ImageNode,
+} from '../types/nodes';
 import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - text container tests', () => {
@@ -507,6 +508,136 @@ describe('parseHtml - text container tests', () => {
           } as ListItemNode,
         ],
       } as ListNode,
+    ]);
+  });
+  it('can detect that leading spaces do not constitute text containers', async () => {
+    const rawHtml = `<div class="block__author--left">
+      <a href="https://www.wikipedia.org/">
+
+  <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png">
+
+      </a>
+  </div>`;
+
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+
+    const keyPrefix = getNodeKey({ index: 0 });
+
+    expect(result.nodes).toEqual([
+      {
+        type: NodeType.Link,
+        key: getNodeKey({ index: 0 }),
+        source: 'https://www.wikipedia.org/',
+        isWithinTextContainer: false,
+        children: [
+          {
+            type: NodeType.Image,
+            key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
+            source:
+              'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+          } as ImageNode,
+        ],
+      } as LinkNode,
+    ]);
+  });
+  it('can add spaces between text container elements', async () => {
+    const rawHtml = `<p>
+  <strong>test</strong>
+  <span>hallo</span>
+  <a href="https://www.wikipedia.org/">abc</a>
+</p>`;
+
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefixA = getNodeKey({ index: 4, keyPrefix });
+
+    expect(result.nodes).toEqual([
+      {
+        type: NodeType.TextContainer,
+        key: getNodeKey({ index: 0 }),
+        children: [
+          {
+            content: 'test',
+            type: NodeType.Text,
+            key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: true,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+          } as TextNode,
+          {
+            content: ' ',
+            type: NodeType.Text,
+            key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+          } as TextNode,
+          {
+            type: NodeType.Text,
+            key: getNodeKey({ index: 2, keyPrefix }),
+            parentKey: keyPrefix,
+            content: 'hallo',
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+          } as TextNode,
+          {
+            content: ' ',
+            type: NodeType.Text,
+            key: getNodeKey({ index: 3, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+          } as TextNode,
+          {
+            type: NodeType.Link,
+            key: getNodeKey({ index: 4, keyPrefix }),
+            parentKey: keyPrefix,
+            source: 'https://www.wikipedia.org/',
+            isWithinTextContainer: true,
+            children: [
+              {
+                content: 'abc',
+                type: NodeType.Text,
+                key: getNodeKey({ index: 0, keyPrefix: keyPrefixA }),
+                parentKey: keyPrefixA,
+                hasStrikethrough: false,
+                isUnderlined: false,
+                isItalic: false,
+                isBold: false,
+                isWithinTextContainer: true,
+                isWithinLink: true,
+                isWithinList: false,
+              } as TextNode,
+            ],
+          } as LinkNode,
+        ],
+      },
     ]);
   });
 });

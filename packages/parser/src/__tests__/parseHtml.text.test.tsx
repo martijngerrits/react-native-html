@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, getNodeKey } from '../nodes';
+import { NodeType, TextNode, getNodeKey } from '../types/nodes';
 import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - text tests', () => {
@@ -124,7 +124,7 @@ describe('parseHtml - text tests', () => {
       } as TextNode,
     ]);
   });
-  it('parse text and replace space by new line and remove duplicate spaces', async () => {
+  it('parse text and replace space by new line and remove duplicate spaces + remove leading spaces', async () => {
     const rawHtml = `<p>  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
     eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
@@ -133,7 +133,7 @@ describe('parseHtml - text tests', () => {
     expect(result.nodes).toEqual([
       {
         content:
-          ' Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         type: NodeType.Text,
         key: getNodeKey({ index: 0 }),
         hasStrikethrough: false,

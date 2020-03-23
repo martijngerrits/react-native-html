@@ -6,7 +6,7 @@ export const htmlStyles: HtmlStyles = {
     flexWrap: 'wrap',
   },
   image: {
-    marginVertical: 5,
+    marginVertical: 0,
   },
   list: {
     marginVertical: 5,

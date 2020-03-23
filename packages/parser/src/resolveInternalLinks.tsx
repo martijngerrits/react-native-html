@@ -1,5 +1,5 @@
-import { InternalLinkNode, NodeBase, isTextNode, NodeType } from './nodes';
-import { DomIdMap } from './domIdToKey';
+import { InternalLinkNode, NodeBase, isTextNode, NodeType } from './types/nodes';
+import { DomIdMap } from './types/elements';
 
 interface ResolveInternalLinkArgs {
   internalLinkNodes: InternalLinkNode[];

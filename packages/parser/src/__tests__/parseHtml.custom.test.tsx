@@ -1,6 +1,6 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, NodeBase, IFrameNode, TextNode, getNodeKey } from '../nodes';
-import { CustomParser } from '../customParser';
+import { NodeType, NodeBase, IFrameNode, TextNode, getNodeKey } from '../types/nodes';
+import { CustomParser } from '../types/customParser';
 import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 const MyNodeTypes = {

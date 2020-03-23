@@ -3,13 +3,12 @@ import {
   Parser as OriginalParser,
 } from 'htmlparser2-without-node-native';
 
-import { NodeBase, InternalLinkNode } from './nodes';
-import { TagHandler } from './parseTags';
+import { NodeBase, InternalLinkNode } from './types/nodes';
 import { resolveInternalLinks } from './resolveInternalLinks';
-import { CustomParser } from './customParser';
+import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
-import { DomIdMap } from './domIdToKey';
-import { DomElementBase } from './DomElement';
+import { TagHandler } from './types/tags';
+import { DomElementBase, DomIdMap } from './types/elements';
 
 export enum ResultType {
   Failure,

@@ -9,7 +9,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@react-native-html/parser": "^0.0.14"
+    "@react-native-html/parser": "^0.0.16"
   },
   "peerDependencies": {
     "react": "*",
@@ -27,6 +27,6 @@
   "scripts": {
     "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
     "declarations": "tsc --emitDeclarationOnly --outDir dist",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn --cwd ../../ lint && yarn build"
   }
 }

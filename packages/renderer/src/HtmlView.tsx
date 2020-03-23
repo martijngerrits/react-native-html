@@ -162,7 +162,7 @@ const renderNode = (
   const firstChildInListItemStyle: StyleProp<BasicStyle> =
     htmlStyles.firstChildInListItem && node.isFirstChildInListItem
       ? htmlStyles.firstChildInListItem
-      : { marginTop: 0 }; // default style
+      : { marginTop: 0, paddingTop: 0 }; // default style
 
   if (customRenderer) {
     const view = customRenderer({

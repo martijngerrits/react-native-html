@@ -1,5 +1,6 @@
-import { NodeWithoutKey } from './nodes';
-import { DomElement } from './DomElement';
+// eslint-disable-next-line prettier/prettier
+import type { NodeWithoutKey } from './nodes';
+import type { DomElement } from './elements';
 
 export interface CustomParserArgs {
   element: DomElement;

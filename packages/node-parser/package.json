@@ -9,7 +9,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@react-native-html/parser": "0.0.15",
+    "@react-native-html/parser": "0.0.16",
     "htmlparser2": "^4.1.0"
   },
   "devDependencies": {
@@ -18,7 +18,7 @@
   "scripts": {
     "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
     "declarations": "tsc --emitDeclarationOnly --outDir dist",
-    "prepublishOnly": "yarn test && yarn build",
+    "prepublishOnly": "yarn --cwd ../../ lint && yarn test && yarn build",
     "test": "yarn jest ../parser"
   }
 }

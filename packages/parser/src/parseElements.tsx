@@ -1,9 +1,10 @@
-import { createDefaultTagHandlers, TagHandler } from './parseTags';
+import { createDefaultTagHandlers } from './parseTags';
 import { parseElement } from './parseElement';
-import { getPathName, NodeBase, InternalLinkNode, hasElementClassName } from './nodes';
-import { CustomParser } from './customParser';
-import { DomIdMap } from './domIdToKey';
-import { DomElement } from './DomElement';
+import { NodeBase, InternalLinkNode } from './types/nodes';
+import { CustomParser } from './types/customParser';
+import { DomElement, hasElementClassName, DomIdMap } from './types/elements';
+import { TagHandler } from './types/tags';
+import { parseElementChildrenWith } from './parseElementChildrenWith';
 
 interface ParseElementsArgs {
   elements: DomElement[];
@@ -35,21 +36,14 @@ export function parseElements({
   } else {
     selectedElements = elements;
   }
-  selectedElements.forEach(element => {
-    const pathName = getPathName(element);
-    if (!excludeTags.has(pathName)) {
-      parseElement({
-        element,
-        pathName,
-        internalLinkNodes,
-        nodes,
-        tagHandlers,
-        customParser,
-        excludeTags,
-        domIdToKeys,
-        nodeMap,
-      });
-    }
+  parseElementChildrenWith(selectedElements, parseElement, {
+    internalLinkNodes,
+    nodes,
+    tagHandlers,
+    customParser,
+    excludeTags,
+    domIdToKeys,
+    nodeMap,
   });
 }
 

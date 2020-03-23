@@ -1,32 +1,8 @@
 import { decodeHTML } from 'entities';
 
-import {
-  NodeType,
-  NodeBase,
-  ListNode,
-  ImageNode,
-  ListItemNode,
-  IFrameNode,
-  NodeWithoutKey,
-  getElementAttribute,
-} from './nodes';
-import { DomElement } from './DomElement';
-
-export interface TagResolverArgs {
-  element: DomElement;
-  children: NodeBase[];
-  isWithinTextContainer: boolean;
-}
-
-export interface TagHandler {
-  names: Set<string>;
-  nodeType: NodeType;
-  resolver: (args: TagResolverArgs) => NodeWithoutKey | undefined;
-  canParseChildren: boolean;
-}
-
-export const LINK_NAMES = new Set(['a']);
-export const LIST_NAMES = new Set(['ol', 'ul']);
+import { NodeType, ListNode, ImageNode, ListItemNode, IFrameNode } from './types/nodes';
+import { getElementAttribute, DomElement } from './types/elements';
+import { TagHandler, TagResolverArgs, LINK_NAMES, LIST_NAMES } from './types/tags';
 
 const getWidthAndHeight = (element: DomElement) => {
   const width =
