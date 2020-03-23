@@ -33,15 +33,17 @@ export const ParseUrlScreen = () => {
       <Text style={styles.title}>View and parse by url</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="url"
+          placeholder="Enter url.."
           onChangeText={setUrl}
           autoCapitalize="none"
           keyboardType="url"
+          style={styles.input}
         />
         <TextInput
-          placeholder="parse from css class"
+          placeholder="Enter css class on html page (e.g., article__main)"
           onChangeText={setCssClass}
           autoCapitalize="none"
+          style={styles.input}
         />
         <TouchableOpacity onPress={fetchAndParse} style={styles.button}>
           <Text style={styles.buttonLabel}>Parse and View</Text>
@@ -60,9 +62,10 @@ export const ParseUrlScreen = () => {
             htmlStyles={htmlStyles}
             scrollRef={scrollRef.current}
             parseFromCssClass={cssClass || undefined}
+            containerStyle={styles.htmlContainer}
           />
         ) : (
-          <Text>No content yet</Text>
+          <Text style={styles.noContent}>No content yet</Text>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -73,20 +76,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  htmlContainer: {
+    marginHorizontal: 20,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    marginHorizontal: 20,
   },
   inputContainer: {
-    marginVertical: 20,
+    margin: 20,
+  },
+  input: {
+    marginVertical: 3,
   },
   button: {
     backgroundColor: 'lightblue',
     marginVertical: 10,
-    borderRadius: 10,
+    borderRadius: 5,
     padding: 5,
+    width: 150,
   },
   buttonLabel: {
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  noContent: {
+    marginHorizontal: 20,
   },
 });
