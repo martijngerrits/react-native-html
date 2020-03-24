@@ -99,6 +99,9 @@ export interface LinkNode extends NodeBase {
 export type LinkNodeWithoutKey = Omit<LinkNode, 'key'>;
 export const isLinkNode = (node: NodeBase): node is LinkNode => node.type === NodeType.Link;
 
+const linkTypes = new Set<string>([NodeType.Link, NodeType.InternalLink]);
+export const isLinkLikeNode = (node: NodeBase): node is (LinkNode | InternalLinkNode) => linkTypes.has(node.type);
+
 export interface InternalLinkNode extends NodeBase {
   type: NodeType.InternalLink;
   children: NodeBase[];

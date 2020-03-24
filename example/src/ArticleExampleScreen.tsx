@@ -11,28 +11,6 @@ export const articleHtml = `<fieldset class="mBottom" id="cnt">
     <a href="#translation">Translation</a>,
     <a href="#variantsInformation">Variants and technical information</a>
   </li>
-  <li>
-    <strong>Essay:
-    </strong>
-    <a href="#whenToUseIt">Lorem Ipsum--when, and when not to use it</a>
-  </li>
-  <li>
-    <h1>Plugins:</h1>
-  </li>
-  <li>
-    <strong>Content management systems (CMS):</strong>
-    <a href="#pluginsCmsJoomla">Joomla</a>,
-    <a href="#pluginsCmsWordpress">Wordpress</a>,
-    <a href="#pluginsCmsMagento">Magento</a>,
-    <a href="#pluginsCmsGoogleDocs">Google Docs</a>,
-    <a href="#pluginsCmsDrupal">Drupal</a>
-  </li>
-  <li>
-    <strong>Editors:</strong>
-    <a href="#pluginsEditorsNotepadPlus">Notepad++</a>,
-    <a href="#pluginsEditorsSublime">Sublime Text</a>,
-    <a href="#pluginsOfficeSuites">Office suites</a>
-  </li>
 </ul>
 <h2>
   <a id="loremIpsumUsage">Lorem Ipsum: usage</a>

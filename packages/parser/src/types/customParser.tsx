@@ -4,7 +4,6 @@ import type { DomElement } from './elements';
 
 export interface CustomParserArgs {
   element: DomElement;
-  parent?: DomElement;
   pathIds: string[];
   isWithinTextContainer: boolean;
   isWithinHeader?: number;

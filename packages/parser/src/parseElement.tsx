@@ -8,30 +8,29 @@ import {
 } from './types/elements';
 import { parseElementChildrenWith } from './parseElementChildrenWith';
 import { CustomParser } from './types/customParser';
+import {
+  shouldCreateTextContainer,
+  createTextContainerGroup,
+  shouldEndTextContainer,
+  closeTextContainerGroup,
+} from './parseTextContainer';
+import { ChildGroup } from './types/childGroups';
 
 export interface ParseElementArgs extends ParseElementArgsBase {
-  element: DomElement;
   pathName: string;
-  nodes: NodeBase[];
-  isTextContainerFirstChild?: boolean;
-  isTextContainerLastChild?: boolean;
-  parent?: DomElement;
-  parentNode?: NodeBase;
+  element: DomElement;
   parentPathIds?: string[];
   customParser?: CustomParser;
-  keyPrefix?: string;
+  childGroup: ChildGroup;
 }
 
 export function parseElement({
   element,
   pathName,
-  parent,
-  parentNode,
   parentPathIds = [],
-  nodes,
   tagHandlers,
   customParser,
-  isWithinTextContainer = false,
+  isWithinTextContainer,
   isWithinHeader,
   isWithinBold = false,
   isWithinItalic = false,
@@ -40,12 +39,10 @@ export function parseElement({
   isWithinLink = false,
   isWithinList = false,
   excludeTags,
-  keyPrefix = '',
   nodeMap,
   internalLinkNodes,
   domIdToKeys,
-  isTextContainerFirstChild,
-  isTextContainerLastChild,
+  childGroup,
 }: ParseElementArgs) {
   const domElementId = getElementAttribute(element, 'id');
   let pathIds = [...parentPathIds];
@@ -53,18 +50,31 @@ export function parseElement({
     pathIds.unshift(domElementId);
   }
 
-  let nextNodes = nodes;
   let canParseChildren = true;
   let parsedNode: NodeWithoutKey | null = null;
-  let nextKeyPrefix = keyPrefix;
+
+  if (shouldCreateTextContainer({ childGroup, element, pathName })) {
+    const textContainerGroup = createTextContainerGroup(childGroup);
+    childGroup.setTextContainerGroup(textContainerGroup);
+
+    addNode({
+      keyPrefix: childGroup.getKeyPrefixAtChildGroupLevel(),
+      nodes: childGroup.getNodesAtChildGroupLevel(),
+      node: textContainerGroup.textContainerNode,
+      pathIds,
+      domIdToKeys,
+      nodeMap,
+      parentNode: childGroup.getParentNodeAtChildGroupLevel(),
+    });
+    pathIds = [];
+  }
 
   const customParseResult =
     customParser &&
     customParser({
       element,
-      parent,
       pathIds,
-      isWithinTextContainer,
+      isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
       isWithinHeader,
       isWithinBold,
       isWithinItalic,
@@ -83,12 +93,11 @@ export function parseElement({
       isItalic: isWithinItalic,
       isUnderlined: isWithinUnderline,
       hasStrikethrough: isWithinStrikethrough,
-      isWithinTextContainer,
+      isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
       isWithinLink,
       isWithinList,
-      parentNode,
-      isTextContainerFirstChild,
-      isTextContainerLastChild,
+      parentNode: childGroup.getParentNode(),
+      isTextContainerFirstChild: childGroup.isTextContainerFirstChild(),
     });
     if (textNode) {
       parsedNode = textNode;
@@ -101,33 +110,31 @@ export function parseElement({
         const nodeWithoutKey = tagHandler.resolver({
           element,
           children,
-          isWithinTextContainer,
+          isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
         });
         if (nodeWithoutKey) {
           parsedNode = nodeWithoutKey;
-          if (nodeWithoutKey.children === children) {
-            nextNodes = children;
-          }
         }
       }
     });
   }
 
+  if (shouldEndTextContainer({ pathName, childGroup })) {
+    closeTextContainerGroup(childGroup);
+  }
+
   let node: NodeBase | undefined;
   if (parsedNode) {
     node = addNode({
-      keyPrefix,
-      nodes,
+      keyPrefix: childGroup.getKeyPrefix(),
+      nodes: childGroup.getNodes(),
       node: parsedNode,
       pathIds,
       domIdToKeys,
       nodeMap,
-      parentNode,
+      parentNode: childGroup.getParentNode(),
     });
-    // going a level deeper, update key prefix
-    if (nextNodes !== nodes) {
-      nextKeyPrefix = node.key;
-    }
+
     pathIds = [];
 
     if (isInternalLinkNode(node)) {
@@ -143,19 +150,21 @@ export function parseElement({
   if (canParseChildren) {
     // Note: one special node can be added in parseElmentChildren -> TextContainerNode
     parseElementChildrenWith(element.children, parseElement, {
-      parent: element,
-      parentNode: node ?? parentNode,
       parentPathName: pathName,
       excludeTags,
       domIdToKeys,
-      nodes: nextNodes,
-      keyPrefix: nextKeyPrefix,
+      parentNode: node?.children ? node : childGroup.getParentNode(),
+      nodes: node?.children ?? childGroup.getNodes(),
+      keyPrefix: node?.children ? node.key : childGroup.getKeyPrefix(),
+      parentChildGroup: childGroup,
+      shouldContinueAddingChildrenToTextContainer:
+        childGroup.isWithinTextContainer() && !node?.children,
       pathIds,
       nodeMap,
       tagHandlers,
       internalLinkNodes,
       customParser,
-      isWithinTextContainer,
+      isWithinTextContainer: childGroup.isWithinTextContainer(),
       isWithinHeader,
       isWithinBold,
       isWithinItalic,

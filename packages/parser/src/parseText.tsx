@@ -15,7 +15,6 @@ interface ParseTextArgs {
   isWithinLink: boolean;
   isWithinList: boolean;
   isTextContainerFirstChild?: boolean;
-  isTextContainerLastChild?: boolean;
 }
 
 export const parseText = ({
@@ -30,7 +29,6 @@ export const parseText = ({
   isWithinLink,
   isWithinList,
   isTextContainerFirstChild,
-  isTextContainerLastChild,
 }: ParseTextArgs): TextNodeWithoutKey | undefined => {
   if (element.type !== 'text' || !element.data) {
     return undefined;
@@ -52,8 +50,6 @@ export const parseText = ({
   const canBeSpaceWithinTextContainer =
     typeof isTextContainerFirstChild !== 'undefined' &&
     !isTextContainerFirstChild &&
-    typeof isTextContainerLastChild !== 'undefined' &&
-    !isTextContainerLastChild &&
     parentNode &&
     isTextContainerNode(parentNode);
 

@@ -37,8 +37,7 @@ describe('parserawHtml - link tests', () => {
     ]);
   });
   it('parse image link', async () => {
-    const imageSource =
-      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+    const imageSource = 'https://i.picsum.photos/id/250/272/92.jpg';
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
     const rawHtml = `<a href="${source}">${imageHtml}</a>`;
@@ -68,8 +67,7 @@ describe('parserawHtml - link tests', () => {
   });
   it('parse text & image link', async () => {
     const text = 'check this out';
-    const imageSource =
-      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+    const imageSource = 'https://i.picsum.photos/id/250/272/92.jpg';
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
     const rawHtml = `<a href="${source}">${text}${imageHtml}</a>`;

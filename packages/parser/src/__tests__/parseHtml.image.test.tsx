@@ -4,8 +4,7 @@ import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
 
 describe('parseHtml - image tests', () => {
   it('parse image', async () => {
-    const source =
-      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+    const source = 'https://i.picsum.photos/id/250/272/92.jpg';
     const rawHtml = `<img src="${source}" width="272" height="90" />`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
@@ -21,8 +20,7 @@ describe('parseHtml - image tests', () => {
     ]);
   });
   it('parse image between text as three separate list items', async () => {
-    const source =
-      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+    const source = 'https://i.picsum.photos/id/250/272/92.jpg';
     const text = 'abc';
     const rawHtml = `<div>${text}<img src="${source}" width="272" height="90" />${text}</div>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
@@ -63,8 +61,7 @@ describe('parseHtml - image tests', () => {
     ]);
   });
   it('parse image without width and height', async () => {
-    const source =
-      'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+    const source = 'https://i.picsum.photos/id/250/272/92.jpg';
     const rawHtml = `<img src="${source}" />`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
