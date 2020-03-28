@@ -110,7 +110,15 @@ export function parseElement({
         const nodeWithoutKey = tagHandler.resolver({
           element,
           children,
+          childGroup,
           isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
+          header: isWithinHeader,
+          isBold: isWithinBold,
+          isItalic: isWithinItalic,
+          hasStrikethrough: isWithinStrikethrough,
+          isUnderlined: isWithinUnderline,
+          isWithinLink,
+          isWithinList,
         });
         if (nodeWithoutKey) {
           parsedNode = nodeWithoutKey;

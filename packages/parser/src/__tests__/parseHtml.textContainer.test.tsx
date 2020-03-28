@@ -9,7 +9,7 @@ import {
   TextContainerNode,
   ImageNode,
 } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
+import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
 
 describe('parseHtml - text container tests', () => {
   it('parse text + a within p as text container', async () => {

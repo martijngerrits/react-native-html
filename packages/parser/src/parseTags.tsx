@@ -1,8 +1,39 @@
 import { decodeHTML } from 'entities';
 
-import { NodeType, ListNode, ImageNode, ListItemNode, IFrameNode } from './types/nodes';
+import {
+  NodeType,
+  ListNode,
+  ImageNode,
+  ListItemNode,
+  IFrameNode,
+  NodeBase,
+  NodeWithoutKey,
+  isTextNode,
+  TextNode,
+} from './types/nodes';
 import { getElementAttribute, DomElement } from './types/elements';
-import { TagHandler, TagResolverArgs, LINK_NAMES, LIST_NAMES } from './types/tags';
+import { LINK_NAMES, LIST_NAMES } from './types/tags';
+import { ChildGroup } from './types/childGroups';
+
+export interface TagHandler {
+  names: Set<string>;
+  resolver: (args: TagResolverArgs) => NodeWithoutKey | undefined;
+  canParseChildren: boolean;
+}
+
+export interface TagResolverArgs {
+  element: DomElement;
+  children: NodeBase[];
+  childGroup: ChildGroup;
+  header?: number;
+  isBold: boolean;
+  isItalic: boolean;
+  hasStrikethrough: boolean;
+  isUnderlined: boolean;
+  isWithinTextContainer: boolean;
+  isWithinLink: boolean;
+  isWithinList: boolean;
+}
 
 const getWidthAndHeight = (element: DomElement) => {
   const width =
@@ -20,7 +51,6 @@ const getWidthAndHeight = (element: DomElement) => {
 export const createDefaultTagHandlers = (): TagHandler[] => [
   {
     names: LINK_NAMES,
-    nodeType: NodeType.Link,
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
@@ -39,7 +69,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
   },
   {
     names: LINK_NAMES,
-    nodeType: NodeType.InternalLink,
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
@@ -59,7 +88,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
   },
   {
     names: new Set(['img']),
-    nodeType: NodeType.Image,
     canParseChildren: false,
     resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
@@ -77,7 +105,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
   },
   {
     names: new Set(['li']),
-    nodeType: NodeType.ListItem,
     canParseChildren: true,
     resolver: ({ children }: TagResolverArgs) => {
       return {
@@ -88,7 +115,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
   },
   {
     names: LIST_NAMES,
-    nodeType: NodeType.List,
     canParseChildren: true,
     resolver: ({ children, element }: TagResolverArgs) => {
       return {
@@ -99,8 +125,42 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     },
   },
   {
+    names: new Set(['br']),
+    canParseChildren: false,
+    resolver: ({
+      childGroup,
+      header,
+      isBold,
+      isItalic,
+      hasStrikethrough,
+      isUnderlined,
+      isWithinTextContainer,
+      isWithinLink,
+      isWithinList,
+    }: TagResolverArgs) => {
+      const nodes = childGroup.getNodes();
+      const previousChild = nodes[nodes.length - 1];
+      if (previousChild && isTextNode(previousChild)) {
+        // simply add \n to prev child
+        previousChild.content += '\n';
+        return undefined;
+      }
+      return {
+        type: NodeType.Text,
+        content: '\n',
+        header,
+        isBold,
+        isItalic,
+        hasStrikethrough,
+        isUnderlined,
+        isWithinTextContainer,
+        isWithinLink,
+        isWithinList,
+      } as TextNode;
+    },
+  },
+  {
     names: new Set(['iframe']),
-    nodeType: NodeType.IFrame,
     canParseChildren: false,
     resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'iframe' || !element.attribs) return undefined;

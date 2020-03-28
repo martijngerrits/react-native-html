@@ -2,21 +2,21 @@
   "name": "@react-native-html/renderer",
   "version": "0.0.1",
   "description": "Renders nodes from @react-native-html/parser in react native",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/typescript/index.d.ts",
   "react-native": "src/index.tsx",
   "author": "Derk Nolte",
   "license": "MIT",
   "private": false,
-  "dependencies": {
-    "@react-native-html/parser": "^0.0.16"
-  },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-webview": "*"
+    "react": ">= 16.8",
+    "react-native": ">= 59.0",
+    "react-native-webview": ">= 6.0",
+    "@react-native-html/parser": ">= 16.0"
   },
   "devDependencies": {
+    "@react-native-html/parser": "file:../parser",
     "@types/jest": "^25.1.4",
     "@types/react": "^16.9.23",
     "@types/react-native": "^0.61.20",
@@ -25,8 +25,30 @@
     "react-native-webview": "^8.1.2"
   },
   "scripts": {
-    "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
-    "declarations": "tsc --emitDeclarationOnly --outDir dist",
-    "prepublishOnly": "yarn --cwd ../../ lint && yarn build"
-  }
+    "build": "yarn bob build",
+    "prepublishOnly": "yarn --cwd ../../ lint && yarn build",
+    "prepare": "yarn --cwd ../../ patch-package"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "@react-native-community/bob": {
+    "source": "src",
+    "output": "dist",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "tsc": "../../node_modules/.bin/tsc"
+        }
+      ]
+    ]
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "dist/"
+  ]
 }

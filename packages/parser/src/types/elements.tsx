@@ -1,7 +1,7 @@
 // eslint-disable-next-line prettier/prettier
 import type { NodeBase, InternalLinkNode } from './nodes';
 import type { CustomParser } from './customParser';
-import type { TagHandler } from './tags';
+import type { TagHandler } from '../parseTags';
 
 export interface DomElementBase<T> {
   attribs?: { [s: string]: string };
@@ -25,6 +25,7 @@ export type DomIdMap = Map<string /* dom element id */, KeyInfo>;
 export type DomElement = DomElementBase<DomElement>;
 
 const TEXT_PATH_NAME = 'text';
+const BR_PATH_NAME = 'br';
 
 export const getPathName = (element: DomElement): string => {
   const pathName = element.type === 'text' ? TEXT_PATH_NAME : element.name;
@@ -35,6 +36,7 @@ const onlyWhiteSpacesRegex = /^\s+$/;
 export const isOnlyWhiteSpaces = (input: string) => onlyWhiteSpacesRegex.test(input);
 
 export const isElementText = (element: DomElement) => element.type === TEXT_PATH_NAME;
+export const isElementBreak = (element: DomElement) => element.name === BR_PATH_NAME;
 
 export const isElementNotATextOrNotAnEmptyText = (
   element: DomElement,

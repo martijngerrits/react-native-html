@@ -2,23 +2,49 @@
   "name": "@react-native-html/node-parser",
   "version": "0.0.1",
   "description": "Using htmlparser2 to parse the nodes",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/typescript/index.d.ts",
   "react-native": "src/index.tsx",
   "author": "Derk Nolte",
   "license": "MIT",
   "private": false,
+  "peerDependencies": {
+    "@react-native-html/parser": "*"
+  },
   "dependencies": {
-    "@react-native-html/parser": "0.0.16",
     "htmlparser2": "^4.1.0"
   },
   "devDependencies": {
+    "@react-native-html/parser": "file:../parser",
     "@types/jest": "^25.1.4"
   },
   "scripts": {
-    "build": "babel --extensions .ts,.tsx src --out-dir dist --ignore '**/__tests__/**' --source-maps --delete-dir-on-start && yarn declarations",
-    "declarations": "tsc --emitDeclarationOnly --outDir dist",
+    "build": "yarn bob build",
     "prepublishOnly": "yarn --cwd ../../ lint && yarn test && yarn build",
-    "test": "yarn jest ../parser"
-  }
+    "test": "yarn jest ../parser",
+    "prepare": "yarn --cwd ../../ patch-package"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "@react-native-community/bob": {
+    "source": "src",
+    "output": "dist",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "tsc": "../../node_modules/.bin/tsc"
+        }
+      ]
+    ]
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "dist/"
+  ]
 }

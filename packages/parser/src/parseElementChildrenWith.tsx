@@ -101,7 +101,7 @@ export const parseElementChildrenWith = (
     }
   });
 
-  if (childGroup.isWithinTextContainer()) {
+  if (!shouldContinueAddingChildrenToTextContainer && childGroup.isWithinTextContainer()) {
     closeTextContainerGroup(childGroup);
   }
 };

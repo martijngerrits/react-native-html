@@ -1,7 +1,3 @@
-// eslint-disable-next-line prettier/prettier
-import type { DomElement } from './elements';
-import type { NodeBase, NodeWithoutKey, NodeType } from './nodes';
-
 export const TEXT_FORMATTING_TAGS = [
   'b',
   'strong',
@@ -16,6 +12,75 @@ export const TEXT_FORMATTING_TAGS = [
   'strike',
   'u',
 ];
+/*
+const BLOCK_TAGS = new Set([
+  'address',
+  'article',
+  'aside',
+  'blockquote',
+  'canvas',
+  'dd',
+  'div',
+  'dl',
+  'dt',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1>-<h6',
+  'header',
+  'hr',
+  'li',
+  'main',
+  'nav',
+  'noscript',
+  'ol',
+  'p',
+  'pre',
+  'section',
+  'table',
+  'tfoot',
+  'ul',
+  'video',
+]);
+
+const INLINE_TAGS = new Set([
+  'a',
+  'abbr',
+  'acronym',
+  'b',
+  'bdo',
+  'big',
+  'br',
+  'button',
+  'cite',
+  'code',
+  'dfn',
+  'em',
+  'i',
+  'img',
+  'input',
+  'kbd',
+  'label',
+  'map',
+  'object',
+  'output',
+  'q',
+  'samp',
+  'script',
+  'select',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'sup',
+  'textarea',
+  'time',
+  'tt',
+  'var',
+]);
+*/
 
 export const BOLD_PATH_NAMES = new Set(['b', 'strong']);
 export const ITALIC_PATH_NAMES = new Set(['i', 'em']);
@@ -28,6 +93,8 @@ export const TEXT_CONTAINER_PATH_NAMES = new Set([
   'text',
   'br',
   'span',
+  'wbr',
+  'nobr',
 ]);
 
 export const LINK_NAMES = new Set(['a']);
@@ -43,16 +110,3 @@ export const getHeaderNumber = (pathName: string): number | undefined => {
   }
   return undefined;
 };
-
-export interface TagHandler {
-  names: Set<string>;
-  nodeType: NodeType;
-  resolver: (args: TagResolverArgs) => NodeWithoutKey | undefined;
-  canParseChildren: boolean;
-}
-
-export interface TagResolverArgs {
-  element: DomElement;
-  children: NodeBase[];
-  isWithinTextContainer: boolean;
-}

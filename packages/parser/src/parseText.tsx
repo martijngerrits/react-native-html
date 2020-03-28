@@ -38,20 +38,30 @@ export const parseText = ({
    * @note Texts containing only whitespace characters are only allowed if direct child
    * of TextContainer node except for the first and last texts. This is to accomodate html like:
    * <p>
-   *  <strong>test</stong>
+   *  <strong>test</strong>
    *  <span>hallo</span>
    *  <a href="#test">abc</a>
    * </p>
    *
    * This html would parse in a web browser as a single line with spaces between tags:
    * test hallo abc
+   *
+   * However, we don't want whitespaces between br tags e.g.,:
+   * <p>
+   *   Random text
+   *   <br />
+   *   <br />
+   * </p>
+   * should be parsed into -> Random text\n\n and not Random text\n\n\n\n
    */
 
   const canBeSpaceWithinTextContainer =
     typeof isTextContainerFirstChild !== 'undefined' &&
     !isTextContainerFirstChild &&
     parentNode &&
-    isTextContainerNode(parentNode);
+    isTextContainerNode(parentNode) &&
+    (!element.prev || element.prev.name !== 'br') &&
+    (!element.next || element.next.name !== 'br');
 
   if (!canBeSpaceWithinTextContainer && isOnlyWhiteSpaces(element.data)) {
     return undefined;
@@ -63,8 +73,12 @@ export const parseText = ({
    */
   let content = element.data.replace(/[\r\n]/g, ' ').replace(/\s\s+/g, ' ');
   if (!isWithinTextContainer || isTextContainerFirstChild) {
-    // remove leading spaces
+    // remove leading whitespaces
     content = content.replace(/^\s+/, '');
+  }
+  if (isWithinTextContainer && element.next?.name === 'br') {
+    // remove trailing whitespaces
+    content = content.replace(/\s+$/, '');
   }
   content = decodeHTML(content);
 

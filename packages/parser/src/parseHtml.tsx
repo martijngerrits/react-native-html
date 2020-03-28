@@ -1,3 +1,4 @@
+import './types/modules';
 import {
   DomHandler as OriginalDomHandler,
   Parser as OriginalParser,
@@ -7,8 +8,9 @@ import { NodeBase, InternalLinkNode } from './types/nodes';
 import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
-import { TagHandler } from './types/tags';
 import { DomElementBase, DomIdMap } from './types/elements';
+import { TagHandler } from './parseTags';
+// eslint-disable-next-line import/no-unresolved
 
 export enum ResultType {
   Failure,

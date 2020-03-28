@@ -5,6 +5,7 @@ import {
   isElementText,
   isOnlyWhiteSpaces,
   getPathName,
+  isElementBreak,
 } from './types/elements';
 import { TEXT_CONTAINER_PATH_NAMES } from './types/tags';
 import { ChildGroup, TextContainerGroup } from './types/childGroups';
@@ -45,7 +46,11 @@ export const shouldCreateTextContainer = ({
     // yes, but check if there valid element as well
     // if there is an empty text element, check the next one
     let nextChild = element.next;
-    while (nextChild && isElementText(nextChild) && isOnlyWhiteSpaces(nextChild.data)) {
+    const isFirstElementText = isElementText(element);
+    while (
+      nextChild &&
+      !canThisElementBeConsideredForCreatingTextContainer(isFirstElementText, nextChild)
+    ) {
       nextChild = nextChild.next;
     }
     // yes, next valid element found
@@ -53,6 +58,17 @@ export const shouldCreateTextContainer = ({
   }
 
   return false;
+};
+
+const canThisElementBeConsideredForCreatingTextContainer = (
+  isFirstElementText: boolean,
+  element: DomElement
+) => {
+  // ignore white spaces only texts and breaks (breaks will be added to previous text element as \n)
+  if (isElementText(element) && isOnlyWhiteSpaces(element.data)) return false;
+  if (isFirstElementText && isElementBreak(element)) return false;
+
+  return true;
 };
 
 interface ShouldEndTextContainerArgs {

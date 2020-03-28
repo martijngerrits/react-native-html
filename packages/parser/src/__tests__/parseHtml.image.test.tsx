@@ -1,6 +1,6 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, ImageNode, TextNode, getNodeKey } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
+import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
 
 describe('parseHtml - image tests', () => {
   it('parse image', async () => {

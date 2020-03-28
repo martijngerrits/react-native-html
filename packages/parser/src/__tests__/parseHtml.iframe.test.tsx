@@ -1,6 +1,6 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, IFrameNode, getNodeKey } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from '../__mock__/defaultHtmlParseArgs';
+import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
 
 describe('parseHtml - iframe tests', () => {
   it('parse iframe', async () => {
