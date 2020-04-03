@@ -31,6 +31,7 @@ describe('parserawHtml - link tests', () => {
             isWithinTextContainer: false,
             isWithinLink: true,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       } as LinkNode,
@@ -70,7 +71,7 @@ describe('parserawHtml - link tests', () => {
     const imageSource = 'https://i.picsum.photos/id/250/272/92.jpg';
     const imageHtml = `<img src="${imageSource}" width="272" height="90" />`;
     const source = 'https://www.google.com/';
-    const rawHtml = `<a href="${source}">${text}${imageHtml}</a>`;
+    const rawHtml = `<a href="${source}">${text}<div>${imageHtml}</div></a>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
@@ -95,6 +96,7 @@ describe('parserawHtml - link tests', () => {
             isWithinLink: true,
             isWithinTextContainer: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Image,
@@ -108,4 +110,9 @@ describe('parserawHtml - link tests', () => {
       } as LinkNode,
     ]);
   });
+  // TODO: test abc <a href="#">zyx<div>test</div>test 123 </a>abc
+  // that is valid html5. The div creates a new block, but is inside a link. This should split it into two link nodes
+  // 1) text container 1 -> 'test abc [link]zyx[/link]'
+  // 2) link -> 'test'
+  // 3) text container 2 -> '[link]test 123[/link] abc'
 });

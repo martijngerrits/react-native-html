@@ -12,8 +12,8 @@ export const TEXT_FORMATTING_TAGS = [
   'strike',
   'u',
 ];
-/*
-const BLOCK_TAGS = new Set([
+
+export const BLOCK_TAGS = new Set([
   'address',
   'article',
   'aside',
@@ -28,7 +28,12 @@ const BLOCK_TAGS = new Set([
   'figure',
   'footer',
   'form',
-  'h1>-<h6',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
   'header',
   'hr',
   'li',
@@ -37,7 +42,7 @@ const BLOCK_TAGS = new Set([
   'noscript',
   'ol',
   'p',
-  'pre',
+  'pre', // preserves both spaces and line breaks
   'section',
   'table',
   'tfoot',
@@ -45,7 +50,7 @@ const BLOCK_TAGS = new Set([
   'video',
 ]);
 
-const INLINE_TAGS = new Set([
+export const INLINE_TAGS = new Set([
   'a',
   'abbr',
   'acronym',
@@ -53,6 +58,8 @@ const INLINE_TAGS = new Set([
   'bdo',
   'big',
   'br',
+  'wbr',
+  'nobr',
   'button',
   'cite',
   'code',
@@ -80,28 +87,38 @@ const INLINE_TAGS = new Set([
   'tt',
   'var',
 ]);
-*/
 
-export const BOLD_PATH_NAMES = new Set(['b', 'strong']);
-export const ITALIC_PATH_NAMES = new Set(['i', 'em']);
-export const UNDERLINE_PATH_NAMES = new Set(['ins', 'u']);
-export const STRIKETHROUGH_PATH_NAMES = new Set(['strike', 'del']);
-export const HEADER_PATH_NAMES = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
-export const TEXT_CONTAINER_PATH_NAMES = new Set([
-  ...TEXT_FORMATTING_TAGS,
-  'a',
-  'text',
-  'br',
-  'span',
-  'wbr',
-  'nobr',
-]);
+export enum LayoutRenderingContext {
+  InlineFormattingContext,
+  BlockFormattingContext,
+}
 
-export const LINK_NAMES = new Set(['a']);
-export const LIST_NAMES = new Set(['ol', 'ul']);
+/**
+ * when a context is formed:
+ * - if any child is a block tag, it creates a block context.
+ * - if all children are inline tags or text nodes, it creates an inline formatting tag.
+ * - Within block formatting context, an inline tag or a text node or a group of inline tag and/or text node siblings will form together an anonymous block.
+ *   Within this anonymous block, the inline formatting context applies.
+ *
+ * Example:
+ * - <div><div>block 1</div><div>block 2</div></div>
+ *    --> root div contains two blocks (div, div)
+ * - <div><b>bold</b> test<div>block 2</div></div>
+ *    --> root div contains  two blocks (anonymous block --> '<b><b>bold</b> test', div)
+ *    --> anonymous block has inline formatting context
+ */
+
+export const BOLD_TAGS = new Set(['b', 'strong']);
+export const ITALIC_TAGS = new Set(['i', 'em']);
+export const UNDERLINE_TAGS = new Set(['ins', 'u']);
+export const STRIKETHROUGH_TAGS = new Set(['strike', 'del']);
+export const HEADER_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+export const LINK_TAGS = new Set(['a']);
+export const LIST_TAGS = new Set(['ol', 'ul']);
+export const BREAK_TAGS = new Set(['br']);
 
 export const getHeaderNumber = (pathName: string): number | undefined => {
-  if (HEADER_PATH_NAMES.has(pathName)) {
+  if (HEADER_TAGS.has(pathName)) {
     try {
       return parseInt(pathName.substr(1), 10);
     } catch (err) {

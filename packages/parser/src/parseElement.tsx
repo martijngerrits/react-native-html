@@ -5,45 +5,43 @@ import {
   hasElementClassName,
   ParseElementArgsBase,
   DomElement,
+  isTextElement,
 } from './types/elements';
 import { parseElementChildrenWith } from './parseElementChildrenWith';
 import { CustomParser } from './types/customParser';
-import {
-  shouldCreateTextContainer,
-  createTextContainerGroup,
-  shouldEndTextContainer,
-  closeTextContainerGroup,
-} from './parseTextContainer';
-import { ChildGroup } from './types/childGroups';
+import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
+import { isDefinedBlock } from './blocks/DefinedBlock';
+import { isAnonymousBlock } from './blocks/AnonymousBlock';
+import { BlockBase } from './blocks/BlockBase';
 
 export interface ParseElementArgs extends ParseElementArgsBase {
-  pathName: string;
   element: DomElement;
   parentPathIds?: string[];
   customParser?: CustomParser;
-  childGroup: ChildGroup;
+  nodeRelationshipManager: NodeRelationshipManager;
+  block: BlockBase;
 }
 
 export function parseElement({
   element,
-  pathName,
   parentPathIds = [],
   tagHandlers,
   customParser,
-  isWithinTextContainer,
-  isWithinHeader,
-  isWithinBold = false,
-  isWithinItalic = false,
-  isWithinStrikethrough = false,
-  isWithinUnderline = false,
-  isWithinLink = false,
-  isWithinList = false,
   excludeTags,
-  nodeMap,
-  internalLinkNodes,
-  domIdToKeys,
-  childGroup,
+  nodeReferences,
+  blockManager,
+  nodeRelationshipManager,
+  block,
 }: ParseElementArgs) {
+  const {
+    isWithinHeader,
+    isWithinBold = false,
+    isWithinItalic = false,
+    isWithinStrikethrough = false,
+    isWithinUnderline = false,
+    isWithinLink = false,
+    isWithinList = false,
+  } = nodeRelationshipManager.getParentFlags();
   const domElementId = getElementAttribute(element, 'id');
   let pathIds = [...parentPathIds];
   if (domElementId) {
@@ -53,20 +51,21 @@ export function parseElement({
   let canParseChildren = true;
   let parsedNode: NodeWithoutKey | null = null;
 
-  if (shouldCreateTextContainer({ childGroup, element, pathName })) {
-    const textContainerGroup = createTextContainerGroup(childGroup);
-    childGroup.setTextContainerGroup(textContainerGroup);
-
-    addNode({
-      keyPrefix: childGroup.getKeyPrefixAtChildGroupLevel(),
-      nodes: childGroup.getNodesAtChildGroupLevel(),
-      node: textContainerGroup.textContainerNode,
-      pathIds,
-      domIdToKeys,
-      nodeMap,
-      parentNode: childGroup.getParentNodeAtChildGroupLevel(),
-    });
-    pathIds = [];
+  if (isDefinedBlock(block) && nodeRelationshipManager.isWithinTextContainer()) {
+    nodeRelationshipManager.switchToTextContainerSiblings();
+  }
+  if (isAnonymousBlock(block)) {
+    const textContainer = block.getTextContainerIfItNeedsToBeAdded();
+    if (textContainer) {
+      addNode({
+        node: textContainer,
+        pathIds,
+        nodeReferences,
+        nodeRelationshipManager,
+      });
+      nodeRelationshipManager.setTextContainer(textContainer);
+      pathIds = [];
+    }
   }
 
   const customParseResult =
@@ -74,7 +73,7 @@ export function parseElement({
     customParser({
       element,
       pathIds,
-      isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
+      isWithinTextContainer: nodeRelationshipManager.isWithinTextContainer(),
       isWithinHeader,
       isWithinBold,
       isWithinItalic,
@@ -82,10 +81,12 @@ export function parseElement({
       isWithinList,
       domElementId,
       hasClassName: (className: string) => hasElementClassName(element, className),
+      block,
+      nodeRelationshipManager,
     });
   if (customParseResult?.node) {
     parsedNode = customParseResult.node;
-  } else if (element.type === 'text') {
+  } else if (isTextElement(element)) {
     const textNode = parseText({
       element,
       header: isWithinHeader,
@@ -93,11 +94,10 @@ export function parseElement({
       isItalic: isWithinItalic,
       isUnderlined: isWithinUnderline,
       hasStrikethrough: isWithinStrikethrough,
-      isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
+      isWithinTextContainer: nodeRelationshipManager.isWithinTextContainer(),
       isWithinLink,
       isWithinList,
-      parentNode: childGroup.getParentNode(),
-      isTextContainerFirstChild: childGroup.isTextContainerFirstChild(),
+      block,
     });
     if (textNode) {
       parsedNode = textNode;
@@ -110,8 +110,8 @@ export function parseElement({
         const nodeWithoutKey = tagHandler.resolver({
           element,
           children,
-          childGroup,
-          isWithinTextContainer: isWithinTextContainer || childGroup.isWithinTextContainer(),
+          nodeRelationshipManager,
+          isWithinTextContainer: nodeRelationshipManager.isWithinTextContainer(),
           header: isWithinHeader,
           isBold: isWithinBold,
           isItalic: isWithinItalic,
@@ -127,26 +127,19 @@ export function parseElement({
     });
   }
 
-  if (shouldEndTextContainer({ pathName, childGroup })) {
-    closeTextContainerGroup(childGroup);
-  }
-
   let node: NodeBase | undefined;
   if (parsedNode) {
     node = addNode({
-      keyPrefix: childGroup.getKeyPrefix(),
-      nodes: childGroup.getNodes(),
       node: parsedNode,
       pathIds,
-      domIdToKeys,
-      nodeMap,
-      parentNode: childGroup.getParentNode(),
+      nodeReferences,
+      nodeRelationshipManager,
     });
 
     pathIds = [];
 
     if (isInternalLinkNode(node)) {
-      internalLinkNodes.push(node);
+      nodeReferences.internalLinkNodes.push(node);
     }
   }
 
@@ -155,31 +148,30 @@ export function parseElement({
     canParseChildren = customParseResult.continueParsingChildren;
   }
 
-  if (canParseChildren) {
+  if (canParseChildren && element.children) {
+    const parentFlags = { ...nodeRelationshipManager.getParentFlags() };
+    const nodes = nodeRelationshipManager.getNodes();
+    if (node && node.children) {
+      nodeRelationshipManager.setParentNode(node);
+      nodeRelationshipManager.goDown(node.children);
+    }
+    nodeRelationshipManager.updateParentFlags(element);
     // Note: one special node can be added in parseElmentChildren -> TextContainerNode
     parseElementChildrenWith(element.children, parseElement, {
-      parentPathName: pathName,
       excludeTags,
-      domIdToKeys,
-      parentNode: node?.children ? node : childGroup.getParentNode(),
-      nodes: node?.children ?? childGroup.getNodes(),
-      keyPrefix: node?.children ? node.key : childGroup.getKeyPrefix(),
-      parentChildGroup: childGroup,
-      shouldContinueAddingChildrenToTextContainer:
-        childGroup.isWithinTextContainer() && !node?.children,
+      nodeRelationshipManager,
+      blockManager,
       pathIds,
-      nodeMap,
       tagHandlers,
-      internalLinkNodes,
+      nodeReferences,
       customParser,
-      isWithinTextContainer: childGroup.isWithinTextContainer(),
-      isWithinHeader,
-      isWithinBold,
-      isWithinItalic,
-      isWithinUnderline,
-      isWithinStrikethrough,
-      isWithinLink,
-      isWithinList,
     });
+    nodeRelationshipManager.setParentFlags(parentFlags);
+
+    if (node && node.children) {
+      const parentNode = node.parentKey && nodeReferences.nodeMap.get(node.parentKey);
+      nodeRelationshipManager.setParentNode(parentNode || null);
+      nodeRelationshipManager.goUp(nodes);
+    }
   }
 }

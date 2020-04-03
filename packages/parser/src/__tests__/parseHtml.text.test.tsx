@@ -20,6 +20,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
     ]);
   });
@@ -41,6 +42,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
     ]);
   });
@@ -61,6 +63,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: false,
       } as TextNode,
     ]);
   });
@@ -81,6 +84,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: false,
       } as TextNode,
     ]);
   });
@@ -101,6 +105,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: false,
       } as TextNode,
     ]);
   });
@@ -121,6 +126,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: false,
       } as TextNode,
     ]);
   });
@@ -143,6 +149,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
     ]);
   });

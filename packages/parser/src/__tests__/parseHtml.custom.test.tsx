@@ -127,6 +127,7 @@ describe('parseHtml - custom parser tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
       {
         type: MyNodeTypes.Magic,
@@ -143,6 +144,7 @@ describe('parseHtml - custom parser tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
     ]);
   });

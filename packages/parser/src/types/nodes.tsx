@@ -1,5 +1,6 @@
 // eslint-disable-next-line prettier/prettier
 import type { DomIdMap } from './elements';
+import type { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
 
 export interface NodeBase {
   /**
@@ -43,6 +44,7 @@ export interface TextNode extends NodeBase {
   isWithinTextContainer: boolean;
   isWithinLink: boolean;
   isWithinList: boolean;
+  canBeTextContainerBase: boolean;
 }
 export type TextNodeWithoutKey = Omit<TextNode, 'key'>;
 export const isTextNode = (node: NodeBase): node is TextNode => node.type === NodeType.Text;
@@ -135,37 +137,40 @@ export const getNodeKey = ({ index, keyPrefix = '' }: GetNodeKeyArgs) =>
   `${keyPrefix}${keyPrefix.length > 0 ? '_' : ''}${index}`;
 
 interface AddNodeArgs {
-  keyPrefix: string;
   node: NodeWithoutKey;
-  nodes: NodeBase[];
-  nodeMap: Map<string, NodeBase>;
   pathIds: string[];
-  domIdToKeys: DomIdMap;
-  parentNode?: NodeBase;
+  nodeReferences: NodeReferences;
+  nodeRelationshipManager: NodeRelationshipManager;
 }
 
 export const addNode = ({
-  keyPrefix,
   node: nodeWithoutKey,
-  nodes,
-  nodeMap,
   pathIds,
-  domIdToKeys,
-  parentNode,
+  nodeReferences,
+  nodeRelationshipManager,
 }: AddNodeArgs): NodeBase => {
-  const key = getNodeKey({ keyPrefix, index: nodes.length });
+  const nodes = nodeRelationshipManager.getNodes();
+  const key = getNodeKey({ keyPrefix: nodeRelationshipManager.getKeyPrefix(), index: nodes.length});
+  const parentNode = nodeRelationshipManager.getParentNode();
+
   const node = { key, parentKey: parentNode?.key, ...nodeWithoutKey };
   if (parentNode && nodes.length === 0 && isListItemNode(parentNode)) {
     node.isFirstChildInListItem = true;
   }
   nodes.push(node);
-  nodeMap.set(key, node);
+  nodeReferences.nodeMap.set(key, node);
   pathIds.forEach((domId, index) => {
     const steps = index + 1;
-    const existingKey = domIdToKeys.get(domId);
+    const existingKey = nodeReferences.domIdToKeys.get(domId);
     if (!existingKey || existingKey.steps > steps) {
-      domIdToKeys.set(domId, { key, steps });
+      nodeReferences.domIdToKeys.set(domId, { key, steps });
     }
   });
   return node;
 };
+
+export interface NodeReferences {
+  internalLinkNodes: InternalLinkNode[];
+  nodeMap: Map<string, NodeBase>;
+  domIdToKeys: DomIdMap;
+}

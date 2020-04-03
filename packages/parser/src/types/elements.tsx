@@ -1,7 +1,9 @@
 // eslint-disable-next-line prettier/prettier
-import type { NodeBase, InternalLinkNode } from './nodes';
+import type { NodeReferences } from './nodes';
 import type { CustomParser } from './customParser';
 import type { TagHandler } from '../parseTags';
+import type { BlockManager } from '../blocks/BlockManager';
+import type { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
 
 export interface DomElementBase<T> {
   attribs?: { [s: string]: string };
@@ -15,6 +17,23 @@ export interface DomElementBase<T> {
   type?: string;
 }
 
+export interface TextElement extends DomElementBase<DomElement> {
+  children: undefined;
+  attribs: undefined;
+  name: undefined;
+  data: string;
+  type: 'text';
+}
+export const isTextElement = (element: DomElement): element is TextElement => element.type === 'text';
+
+export interface TagElement extends DomElementBase<DomElement> {
+  attribs: { [s: string]: string };  
+  data: undefined;
+  name: string;
+  type: 'tag';
+}
+export const isTagElement = (element: DomElement): element is TagElement => element.type === 'tag';
+
 export interface KeyInfo {
   key: string;
   steps: number;
@@ -24,25 +43,16 @@ export type DomIdMap = Map<string /* dom element id */, KeyInfo>;
 
 export type DomElement = DomElementBase<DomElement>;
 
-const TEXT_PATH_NAME = 'text';
-const BR_PATH_NAME = 'br';
-
-export const getPathName = (element: DomElement): string => {
-  const pathName = element.type === 'text' ? TEXT_PATH_NAME : element.name;
-  return pathName?.toLowerCase() ?? 'unknown';
-};
-
 const onlyWhiteSpacesRegex = /^\s+$/;
 export const isOnlyWhiteSpaces = (input: string) => onlyWhiteSpacesRegex.test(input);
 
-export const isElementText = (element: DomElement) => element.type === TEXT_PATH_NAME;
-export const isElementBreak = (element: DomElement) => element.name === BR_PATH_NAME;
+// export const isElementText = (element: DomElement) => element.type === TEXT_PATH_NAME;
+// export const isElementBreak = (element: DomElement) => element.name === BR_PATH_NAME;
 
 export const isElementNotATextOrNotAnEmptyText = (
-  element: DomElement,
-  pathName: string
+  element: DomElement
 ): boolean => {
-  return pathName !== TEXT_PATH_NAME || (element.data && !isOnlyWhiteSpaces(element.data));
+  return isTextElement(element) || (element.data && !isOnlyWhiteSpaces(element.data));
 };
 
 export const getElementAttribute = (
@@ -76,14 +86,7 @@ export const hasElementClassName = (element: DomElement, className: string) => {
   return false;
 };
 
-export interface ParseElementArgsBase {
-  excludeTags: Set<string>;
-  domIdToKeys: DomIdMap;
-  nodeMap: Map<string, NodeBase>;
-  tagHandlers: TagHandler[];
-  customParser?: CustomParser;
-  internalLinkNodes: InternalLinkNode[];
-  isWithinTextContainer?: boolean;
+export interface ParentBasedFlags {
   isWithinHeader?: number;
   isWithinBold?: boolean;
   isWithinItalic?: boolean;
@@ -91,5 +94,14 @@ export interface ParseElementArgsBase {
   isWithinStrikethrough?: boolean;
   isWithinLink?: boolean;
   isWithinList?: boolean;
+}
+
+export interface ParseElementArgsBase {
+  excludeTags: Set<string>;
+  tagHandlers: TagHandler[];
+  customParser?: CustomParser;
+  nodeReferences: NodeReferences;
+  blockManager: BlockManager;
+  nodeRelationshipManager: NodeRelationshipManager;
 }
 

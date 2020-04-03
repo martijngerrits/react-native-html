@@ -1,6 +1,8 @@
 // eslint-disable-next-line prettier/prettier
 import type { NodeWithoutKey } from './nodes';
 import type { DomElement } from './elements';
+import { BlockBase } from '../blocks/BlockBase';
+import { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
 
 export interface CustomParserArgs {
   element: DomElement;
@@ -13,6 +15,8 @@ export interface CustomParserArgs {
   isWithinList: boolean;
   domElementId?: string;
   hasClassName: (className: string) => boolean;
+  block: BlockBase;
+  nodeRelationshipManager: NodeRelationshipManager;
 }
 
 export interface CustomParserResult {

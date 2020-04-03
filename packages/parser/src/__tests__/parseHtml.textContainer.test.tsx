@@ -12,73 +12,6 @@ import {
 import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
 
 describe('parseHtml - text container tests', () => {
-  it('parse text + a within p as text container', async () => {
-    const pretext = 'Check this ';
-    const link = 'link';
-    const subtext = ' out!';
-    const source = 'https://www.wikipedia.org';
-    const rawHtml = `<p>${pretext}<a href="${source}">${link}</a>${subtext}</p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
-    const keyPrefix = getNodeKey({ index: 0 });
-    const keyPrefix2 = getNodeKey({ index: 1, keyPrefix });
-    expect(result.type).toBe(ResultType.Success);
-    expect(result.nodes).toEqual([
-      {
-        type: NodeType.TextContainer,
-        key: getNodeKey({ index: 0 }),
-        children: [
-          {
-            content: pretext,
-            type: NodeType.Text,
-            key: getNodeKey({ index: 0, keyPrefix }),
-            parentKey: keyPrefix,
-            hasStrikethrough: false,
-            isUnderlined: false,
-            isItalic: false,
-            isBold: false,
-            isWithinTextContainer: true,
-            isWithinLink: false,
-            isWithinList: false,
-          } as TextNode,
-          {
-            type: NodeType.Link,
-            source,
-            isWithinTextContainer: true,
-            key: getNodeKey({ index: 1, keyPrefix }),
-            parentKey: keyPrefix,
-            children: [
-              {
-                content: link,
-                type: NodeType.Text,
-                key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
-                parentKey: keyPrefix2,
-                hasStrikethrough: false,
-                isUnderlined: false,
-                isItalic: false,
-                isBold: false,
-                isWithinTextContainer: true,
-                isWithinLink: true,
-                isWithinList: false,
-              } as TextNode,
-            ],
-          } as LinkNode,
-          {
-            content: subtext,
-            type: NodeType.Text,
-            key: getNodeKey({ index: 2, keyPrefix }),
-            parentKey: keyPrefix,
-            hasStrikethrough: false,
-            isUnderlined: false,
-            isItalic: false,
-            isBold: false,
-            isWithinTextContainer: true,
-            isWithinLink: false,
-            isWithinList: false,
-          } as TextNode,
-        ],
-      },
-    ]);
-  });
   it('parse text + <b> within p as text container', async () => {
     const pretext = 'Check this ';
     const link = 'bold';
@@ -104,6 +37,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -117,6 +51,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
             content: subtext,
@@ -130,6 +65,77 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+        ],
+      },
+    ]);
+  });
+  it('parse text + a within p as text container', async () => {
+    const pretext = 'Check this ';
+    const link = 'link';
+    const subtext = ' out!';
+    const source = 'https://www.wikipedia.org';
+    const rawHtml = `<p>${pretext}<a href="${source}">${link}</a>${subtext}</p>`;
+    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefixA = getNodeKey({ index: 1, keyPrefix });
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        type: NodeType.TextContainer,
+        key: getNodeKey({ index: 0 }),
+        children: [
+          {
+            content: pretext,
+            type: NodeType.Text,
+            key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+          {
+            type: NodeType.Link,
+            source,
+            isWithinTextContainer: true,
+            key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
+            children: [
+              {
+                content: link,
+                type: NodeType.Text,
+                key: getNodeKey({ index: 0, keyPrefix: keyPrefixA }),
+                parentKey: keyPrefixA,
+                hasStrikethrough: false,
+                isUnderlined: false,
+                isItalic: false,
+                isBold: false,
+                isWithinTextContainer: true,
+                isWithinLink: true,
+                isWithinList: false,
+                canBeTextContainerBase: true,
+              } as TextNode,
+            ],
+          } as LinkNode,
+          {
+            content: subtext,
+            type: NodeType.Text,
+            key: getNodeKey({ index: 2, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: false,
+            isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       },
@@ -164,6 +170,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -177,6 +184,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
             content: subtext,
@@ -190,6 +198,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -210,6 +219,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinTextContainer: true,
                 isWithinLink: true,
                 isWithinList: false,
+                canBeTextContainerBase: true,
               } as TextNode,
             ],
           } as LinkNode,
@@ -225,6 +235,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       },
@@ -255,6 +266,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -268,6 +280,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
             content: subtext,
@@ -281,6 +294,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       };
@@ -314,6 +328,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -334,6 +349,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinTextContainer: true,
                 isWithinLink: true,
                 isWithinList: false,
+                canBeTextContainerBase: true,
               } as TextNode,
             ],
           } as LinkNode,
@@ -349,6 +365,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       },
@@ -359,15 +376,15 @@ describe('parseHtml - text container tests', () => {
         <li>
           <strong>Lorem Ipsum:</strong>
           <a href="https://www.usage.com/">Usage</a>,
-          <a href="https://www.common-examples.com/">Common examples</a>,
+          <a href="https://www.common-examples.com/">Common examples</a>!
         </li>
       </ul>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefixLI = getNodeKey({ index: 0, keyPrefix });
     const keyPrefixTC = getNodeKey({ index: 0, keyPrefix: keyPrefixLI });
-    const keyPrefixA1 = getNodeKey({ index: 2, keyPrefix: keyPrefixTC });
-    const keyPrefixA2 = getNodeKey({ index: 4, keyPrefix: keyPrefixTC });
+    const keyPrefixA1 = getNodeKey({ index: 1, keyPrefix: keyPrefixTC });
+    const keyPrefixA2 = getNodeKey({ index: 3, keyPrefix: keyPrefixTC });
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
@@ -387,7 +404,7 @@ describe('parseHtml - text container tests', () => {
                 isFirstChildInListItem: true,
                 children: [
                   {
-                    content: 'Lorem Ipsum:',
+                    content: 'Lorem Ipsum: ',
                     type: NodeType.Text,
                     key: getNodeKey({ index: 0, keyPrefix: keyPrefixTC }),
                     parentKey: keyPrefixTC,
@@ -398,23 +415,11 @@ describe('parseHtml - text container tests', () => {
                     isWithinTextContainer: true,
                     isWithinLink: false,
                     isWithinList: true,
-                  } as TextNode,
-                  {
-                    content: ' ',
-                    type: NodeType.Text,
-                    key: getNodeKey({ index: 1, keyPrefix: keyPrefixTC }),
-                    parentKey: keyPrefixTC,
-                    hasStrikethrough: false,
-                    isUnderlined: false,
-                    isItalic: false,
-                    isBold: false,
-                    isWithinTextContainer: true,
-                    isWithinLink: false,
-                    isWithinList: true,
+                    canBeTextContainerBase: false,
                   } as TextNode,
                   {
                     type: NodeType.Link,
-                    key: getNodeKey({ index: 2, keyPrefix: keyPrefixTC }),
+                    key: getNodeKey({ index: 1, keyPrefix: keyPrefixTC }),
                     parentKey: keyPrefixTC,
                     source: 'https://www.usage.com/',
                     isWithinTextContainer: true,
@@ -430,6 +435,7 @@ describe('parseHtml - text container tests', () => {
                         isBold: false,
                         isWithinTextContainer: true,
                         isWithinLink: true,
+                        canBeTextContainerBase: true,
                         isWithinList: true,
                       } as TextNode,
                     ],
@@ -437,7 +443,7 @@ describe('parseHtml - text container tests', () => {
                   {
                     content: ', ',
                     type: NodeType.Text,
-                    key: getNodeKey({ index: 3, keyPrefix: keyPrefixTC }),
+                    key: getNodeKey({ index: 2, keyPrefix: keyPrefixTC }),
                     parentKey: keyPrefixTC,
                     hasStrikethrough: false,
                     isUnderlined: false,
@@ -446,10 +452,11 @@ describe('parseHtml - text container tests', () => {
                     isWithinTextContainer: true,
                     isWithinLink: false,
                     isWithinList: true,
+                    canBeTextContainerBase: true,
                   } as TextNode,
                   {
                     type: NodeType.Link,
-                    key: getNodeKey({ index: 4, keyPrefix: keyPrefixTC }),
+                    key: getNodeKey({ index: 3, keyPrefix: keyPrefixTC }),
                     parentKey: keyPrefixTC,
                     source: 'https://www.common-examples.com/',
                     isWithinTextContainer: true,
@@ -466,13 +473,14 @@ describe('parseHtml - text container tests', () => {
                         isWithinTextContainer: true,
                         isWithinLink: true,
                         isWithinList: true,
+                        canBeTextContainerBase: true,
                       } as TextNode,
                     ],
                   } as LinkNode,
                   {
-                    content: ', ',
+                    content: '!',
                     type: NodeType.Text,
-                    key: getNodeKey({ index: 5, keyPrefix: keyPrefixTC }),
+                    key: getNodeKey({ index: 4, keyPrefix: keyPrefixTC }),
                     parentKey: keyPrefixTC,
                     hasStrikethrough: false,
                     isUnderlined: false,
@@ -481,6 +489,7 @@ describe('parseHtml - text container tests', () => {
                     isWithinTextContainer: true,
                     isWithinLink: false,
                     isWithinList: true,
+                    canBeTextContainerBase: true,
                   } as TextNode,
                 ],
               } as TextContainerNode,
@@ -525,14 +534,14 @@ describe('parseHtml - text container tests', () => {
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
     const keyPrefix = getNodeKey({ index: 0 });
-    const keyPrefixA = getNodeKey({ index: 4, keyPrefix });
+    const keyPrefixA = getNodeKey({ index: 2, keyPrefix });
     expect(result.nodes).toEqual([
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
         children: [
           {
-            content: 'test',
+            content: 'test ', // merged because same flags/ only whitespace
             type: NodeType.Text,
             key: getNodeKey({ index: 0, keyPrefix }),
             parentKey: keyPrefix,
@@ -543,12 +552,13 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
-            content: ' ',
             type: NodeType.Text,
             key: getNodeKey({ index: 1, keyPrefix }),
             parentKey: keyPrefix,
+            content: 'hallo ', // merged because same flags/ only whitespace
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -556,36 +566,11 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
-          } as TextNode,
-          {
-            type: NodeType.Text,
-            key: getNodeKey({ index: 2, keyPrefix }),
-            parentKey: keyPrefix,
-            content: 'hallo',
-            hasStrikethrough: false,
-            isUnderlined: false,
-            isItalic: false,
-            isBold: false,
-            isWithinTextContainer: true,
-            isWithinLink: false,
-            isWithinList: false,
-          } as TextNode,
-          {
-            content: ' ',
-            type: NodeType.Text,
-            key: getNodeKey({ index: 3, keyPrefix }),
-            parentKey: keyPrefix,
-            hasStrikethrough: false,
-            isUnderlined: false,
-            isItalic: false,
-            isBold: false,
-            isWithinTextContainer: true,
-            isWithinLink: false,
-            isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Link,
-            key: getNodeKey({ index: 4, keyPrefix }),
+            key: getNodeKey({ index: 2, keyPrefix }),
             parentKey: keyPrefix,
             source: 'https://www.wikipedia.org/',
             isWithinTextContainer: true,
@@ -602,6 +587,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinTextContainer: true,
                 isWithinLink: true,
                 isWithinList: false,
+                canBeTextContainerBase: true,
               } as TextNode,
             ],
           } as LinkNode,
@@ -609,7 +595,6 @@ describe('parseHtml - text container tests', () => {
       },
     ]);
   });
-
   it('can combine nested text elements into a single text container', async () => {
     const pretext = 'Check this ';
     const link = 'bold';
@@ -635,6 +620,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -648,6 +634,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
             content: subtext,
@@ -661,23 +648,22 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       },
     ]);
   });
-
-  it('can split text container by nested image', async () => {
+  it('can split text container by nested div', async () => {
     const pretext = 'Check ';
-    const prelink = 'this ';
-    const link = 'link';
-    const subtext = ' out!';
-    const rawHtml = `<div>${pretext}<span>${prelink}<img src="test-url" /><b>${link}</b>${subtext}</span></div>`;
+    const prediv = 'prediv ';
+    const div = 'div';
+    const afterdiv = ' afterdiv ';
+    const subtext = ' out! ';
+    const rawHtml = `<div>${pretext}<span>${prediv}<div>${div}</div><b>${afterdiv}</b>${subtext}</span></div>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
-
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix2 = getNodeKey({ index: 2 });
-
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {
@@ -685,7 +671,7 @@ describe('parseHtml - text container tests', () => {
         key: getNodeKey({ index: 0 }),
         children: [
           {
-            content: pretext,
+            content: 'Check prediv', // merges same text
             type: NodeType.Text,
             key: getNodeKey({ index: 0, keyPrefix }),
             parentKey: keyPrefix,
@@ -696,27 +682,23 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
-          } as TextNode,
-          {
-            type: NodeType.Text,
-            key: getNodeKey({ index: 1, keyPrefix }),
-            parentKey: keyPrefix,
-            content: prelink,
-            hasStrikethrough: false,
-            isUnderlined: false,
-            isItalic: false,
-            isBold: false,
-            isWithinTextContainer: true,
-            isWithinLink: false,
-            isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       },
       {
-        type: NodeType.Image,
+        type: NodeType.Text,
         key: getNodeKey({ index: 1 }),
-        source: 'test-url',
-      } as ImageNode,
+        content: div,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+      } as TextNode,
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 2 }),
@@ -725,7 +707,7 @@ describe('parseHtml - text container tests', () => {
             type: NodeType.Text,
             key: getNodeKey({ index: 0, keyPrefix: keyPrefix2 }),
             parentKey: keyPrefix2,
-            content: link,
+            content: 'afterdiv ', // won't merge together as this is bold and the next text is not
             hasStrikethrough: false,
             isUnderlined: false,
             isItalic: false,
@@ -733,9 +715,10 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: false,
           } as TextNode,
           {
-            content: subtext,
+            content: 'out!',
             type: NodeType.Text,
             key: getNodeKey({ index: 1, keyPrefix: keyPrefix2 }),
             parentKey: keyPrefix2,
@@ -746,6 +729,7 @@ describe('parseHtml - text container tests', () => {
             isWithinTextContainer: true,
             isWithinLink: false,
             isWithinList: false,
+            canBeTextContainerBase: true,
           } as TextNode,
         ],
       } as TextContainerNode,

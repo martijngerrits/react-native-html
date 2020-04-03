@@ -8,12 +8,12 @@ import {
   IFrameNode,
   NodeBase,
   NodeWithoutKey,
-  isTextNode,
   TextNode,
+  isTextNode,
 } from './types/nodes';
 import { getElementAttribute, DomElement } from './types/elements';
-import { LINK_NAMES, LIST_NAMES } from './types/tags';
-import { ChildGroup } from './types/childGroups';
+import { LINK_TAGS, LIST_TAGS } from './types/tags';
+import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
 
 export interface TagHandler {
   names: Set<string>;
@@ -24,7 +24,7 @@ export interface TagHandler {
 export interface TagResolverArgs {
   element: DomElement;
   children: NodeBase[];
-  childGroup: ChildGroup;
+  nodeRelationshipManager: NodeRelationshipManager;
   header?: number;
   isBold: boolean;
   isItalic: boolean;
@@ -50,7 +50,7 @@ const getWidthAndHeight = (element: DomElement) => {
 
 export const createDefaultTagHandlers = (): TagHandler[] => [
   {
-    names: LINK_NAMES,
+    names: LINK_TAGS,
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
@@ -68,7 +68,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     },
   },
   {
-    names: LINK_NAMES,
+    names: LINK_TAGS,
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
@@ -114,7 +114,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     },
   },
   {
-    names: LIST_NAMES,
+    names: LIST_TAGS,
     canParseChildren: true,
     resolver: ({ children, element }: TagResolverArgs) => {
       return {
@@ -128,7 +128,6 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
     names: new Set(['br']),
     canParseChildren: false,
     resolver: ({
-      childGroup,
       header,
       isBold,
       isItalic,
@@ -137,13 +136,16 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
       isWithinTextContainer,
       isWithinLink,
       isWithinList,
+      nodeRelationshipManager,
     }: TagResolverArgs) => {
-      const nodes = childGroup.getNodes();
-      const previousChild = nodes[nodes.length - 1];
-      if (previousChild && isTextNode(previousChild)) {
-        // simply add \n to prev child
-        previousChild.content += '\n';
-        return undefined;
+      // try to add to previous text node if any
+      const nodes = nodeRelationshipManager.getNodes();
+      if (nodes.length > 0) {
+        const prevNode = nodes[nodes.length - 1];
+        if (isTextNode(prevNode)) {
+          prevNode.content += '\n';
+          return undefined;
+        }
       }
       return {
         type: NodeType.Text,
@@ -156,6 +158,7 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         isWithinTextContainer,
         isWithinLink,
         isWithinList,
+        canBeTextContainerBase: true,
       } as TextNode;
     },
   },

@@ -4,13 +4,14 @@ import {
   Parser as OriginalParser,
 } from 'htmlparser2-without-node-native';
 
-import { NodeBase, InternalLinkNode } from './types/nodes';
+import { NodeBase, NodeReferences } from './types/nodes';
 import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
-import { DomElementBase, DomIdMap } from './types/elements';
+import { DomElementBase } from './types/elements';
 import { TagHandler } from './parseTags';
-// eslint-disable-next-line import/no-unresolved
+import { createNodeRelationshipManager } from './nodes/NodeRelationshipManager';
+import { createBlockManager } from './blocks/BlockManager';
 
 export enum ResultType {
   Failure,
@@ -82,26 +83,27 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
     const elements = await promise;
 
     const nodes: NodeBase[] = [];
-    const internalLinkNodes: InternalLinkNode[] = [];
-    const nodeMap = new Map<string, NodeBase>();
-    const domIdToKeys: DomIdMap = new Map();
+    const nodeReferences: NodeReferences = {
+      internalLinkNodes: [],
+      nodeMap: new Map(),
+      domIdToKeys: new Map(),
+    };
+    const nodeRelationShipManager = createNodeRelationshipManager(nodes);
+    const blockManager = createBlockManager();
 
     parseElements({
       elements,
-      nodes,
       tagHandlers,
       customParser,
       excludeTags,
-      internalLinkNodes,
-      nodeMap,
-      domIdToKeys,
+      nodeReferences,
       parseFromCssClass,
+      nodeRelationshipManager: nodeRelationShipManager,
+      blockManager,
     });
 
     resolveInternalLinks({
-      internalLinkNodes,
-      nodeMap,
-      domIdToKeys,
+      nodeReferences,
     });
 
     return {

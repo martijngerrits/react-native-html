@@ -1,17 +1,12 @@
-import { InternalLinkNode, NodeBase, isTextNode, NodeType } from './types/nodes';
+import { InternalLinkNode, NodeBase, isTextNode, NodeType, NodeReferences } from './types/nodes';
 import { DomIdMap } from './types/elements';
 
 interface ResolveInternalLinkArgs {
-  internalLinkNodes: InternalLinkNode[];
-  nodeMap: Map<string, NodeBase>;
-  domIdToKeys: DomIdMap;
+  nodeReferences: NodeReferences;
 }
 
-export const resolveInternalLinks = ({
-  internalLinkNodes,
-  nodeMap,
-  domIdToKeys,
-}: ResolveInternalLinkArgs) => {
+export const resolveInternalLinks = ({ nodeReferences }: ResolveInternalLinkArgs) => {
+  const { internalLinkNodes, nodeMap, domIdToKeys } = nodeReferences;
   internalLinkNodes.forEach(referringNode => {
     const referredNode = findNodeByDomId(referringNode, nodeMap, domIdToKeys);
     if (referredNode) {

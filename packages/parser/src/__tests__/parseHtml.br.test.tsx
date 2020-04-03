@@ -1,6 +1,7 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, getNodeKey } from '../types/nodes';
+import { NodeType, TextNode, getNodeKey, isTextNode } from '../types/nodes';
 import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
+import { LinkNode } from '../../../renderer/src';
 
 describe('parseHtml - br tests', () => {
   it('parse br as \\n', async () => {
@@ -20,6 +21,7 @@ describe('parseHtml - br tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
       {
         content: 'hallo dit is een test',
@@ -32,26 +34,7 @@ describe('parseHtml - br tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
-      } as TextNode,
-    ]);
-  });
-  it('if previous node is text, add br as \\n and no text container is created', async () => {
-    const rawHtml = '<p>hallo dit is een test<br /></p>';
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
-
-    expect(result.type).toBe(ResultType.Success);
-    expect(result.nodes).toEqual([
-      {
-        content: 'hallo dit is een test\n',
-        type: NodeType.Text,
-        key: getNodeKey({ index: 0 }),
-        hasStrikethrough: false,
-        isUnderlined: false,
-        isItalic: false,
-        isBold: false,
-        isWithinTextContainer: false,
-        isWithinLink: false,
-        isWithinList: false,
+        canBeTextContainerBase: true,
       } as TextNode,
     ]);
   });
@@ -65,108 +48,115 @@ describe('parseHtml - br tests', () => {
 </p>`;
     const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
 
-    // const keyPrefix = getNodeKey({ index: 0 });
-    // // const keyPrefixA1 = getNodeKey({ index: 2, keyPrefix });
-    // // const keyPrefixA2 = getNodeKey({ index: 4, keyPrefix });
+    const keyPrefix = getNodeKey({ index: 0 });
+    const keyPrefixA1 = getNodeKey({ index: 2, keyPrefix });
+    const keyPrefixA2 = getNodeKey({ index: 4, keyPrefix });
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes[0].type).toEqual(NodeType.TextContainer);
 
-    // const children = result.nodes[0].children.map(child => {
-    //   const content = isTextNode(child) ? child.content.replace(/[\n\r]/g, '{newline}') : undefined;
-    //   return {
-    //     ...child,
-    //     content,
-    //   };
-    // });
-    // FIXME!
-    /* expect(children).toEqual([
-      [
-        {
-          content: 'Author name is job title and job description{newline}{newline}',
-          type: NodeType.Text,
-          key: getNodeKey({ index: 0, keyPrefix }),
-          parentKey: keyPrefix,
-          hasStrikethrough: false,
-          isUnderlined: false,
-          isItalic: false,
-          isBold: false,
-          isWithinTextContainer: true,
-          isWithinLink: false,
-          isWithinList: false,
-        } as TextNode,
-        {
-          content: 'Contact{newline}',
-          type: NodeType.Text,
-          key: getNodeKey({ index: 1, keyPrefix }),
-          parentKey: keyPrefix,
-          hasStrikethrough: false,
-          isUnderlined: false,
-          isItalic: false,
-          isBold: true,
-          isWithinTextContainer: true,
-          isWithinLink: false,
-          isWithinList: false,
-        } as TextNode,
-        {
-          source: 'https://www.wikipedia.org',
-          type: NodeType.Link,
-          key: getNodeKey({ index: 2, keyPrefix }),
-          parentKey: keyPrefix,
-          isWithinTextContainer: true,
-          children: [
-            {
-              content: 'Website',
-              type: NodeType.Text,
-              key: getNodeKey({ index: 0, keyPrefix: keyPrefixA1 }),
-              parentKey: keyPrefixA1,
-              hasStrikethrough: false,
-              isUnderlined: false,
-              isItalic: false,
-              isBold: false,
-              isWithinTextContainer: true,
-              isWithinLink: true,
-              isWithinList: false,
-            } as TextNode,
-          ],
-        } as LinkNode,
-        {
-          content: '{newline}',
-          type: NodeType.Text,
-          key: getNodeKey({ index: 3, keyPrefix }),
-          parentKey: keyPrefix,
-          hasStrikethrough: false,
-          isUnderlined: false,
-          isItalic: false,
-          isBold: false,
-          isWithinTextContainer: true,
-          isWithinLink: false,
-          isWithinList: false,
-        } as TextNode,
-        {
-          source: 'https://www.instagram.com',
-          type: NodeType.Link,
-          key: getNodeKey({ index: 4, keyPrefix }),
-          parentKey: keyPrefix,
-          isWithinTextContainer: true,
-          children: [
-            {
-              content: 'Instagram',
-              type: NodeType.Text,
-              key: getNodeKey({ index: 0, keyPrefix: keyPrefixA2 }),
-              parentKey: keyPrefixA2,
-              hasStrikethrough: false,
-              isUnderlined: false,
-              isItalic: false,
-              isBold: false,
-              isWithinTextContainer: true,
-              isWithinLink: true,
-              isWithinList: false,
-            } as TextNode,
-          ],
-        } as LinkNode,
-      ],
+    const children = result.nodes[0].children?.map(child => {
+      const content = isTextNode(child)
+        ? child.content.replace(/[\n\r]/g, '{newline}').replace(/\s/g, ' ')
+        : undefined;
+      if (content) {
+        return {
+          ...child,
+          content,
+        };
+      }
+      return child;
+    });
+
+    expect(children).toEqual([
+      {
+        content: 'Author name is job title and job description {newline}{newline}',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0, keyPrefix }),
+        parentKey: keyPrefix,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: true,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+      } as TextNode,
+      {
+        content: 'Contact {newline}',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 1, keyPrefix }),
+        parentKey: keyPrefix,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: true,
+        isWithinTextContainer: true,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: false,
+      } as TextNode,
+      {
+        source: 'https://www.wikipedia.org',
+        type: NodeType.Link,
+        key: getNodeKey({ index: 2, keyPrefix }),
+        parentKey: keyPrefix,
+        isWithinTextContainer: true,
+        children: [
+          {
+            content: 'Website',
+            type: NodeType.Text,
+            key: getNodeKey({ index: 0, keyPrefix: keyPrefixA1 }),
+            parentKey: keyPrefixA1,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: true,
+            isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+        ],
+      } as LinkNode,
+      {
+        content: ' {newline}',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 3, keyPrefix }),
+        parentKey: keyPrefix,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: true,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+      } as TextNode,
+      {
+        source: 'https://www.instagram.com',
+        type: NodeType.Link,
+        key: getNodeKey({ index: 4, keyPrefix }),
+        parentKey: keyPrefix,
+        isWithinTextContainer: true,
+        children: [
+          {
+            content: 'Instagram',
+            type: NodeType.Text,
+            key: getNodeKey({ index: 0, keyPrefix: keyPrefixA2 }),
+            parentKey: keyPrefixA2,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinTextContainer: true,
+            isWithinLink: true,
+            isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+        ],
+      } as LinkNode,
     ]);
-    */
   });
 });

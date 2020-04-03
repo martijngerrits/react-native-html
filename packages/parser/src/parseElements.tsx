@@ -1,32 +1,33 @@
 import { createDefaultTagHandlers, TagHandler } from './parseTags';
 import { parseElement } from './parseElement';
-import { NodeBase, InternalLinkNode } from './types/nodes';
+import { NodeReferences } from './types/nodes';
 import { CustomParser } from './types/customParser';
-import { DomElement, hasElementClassName, DomIdMap } from './types/elements';
+import { DomElement, hasElementClassName } from './types/elements';
 import { parseElementChildrenWith } from './parseElementChildrenWith';
+import { BlockManager } from './blocks/BlockManager';
+import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
+import { isAnonymousBlock } from './blocks/AnonymousBlock';
 
 interface ParseElementsArgs {
   elements: DomElement[];
-  nodes: NodeBase[];
-  internalLinkNodes: InternalLinkNode[];
   tagHandlers?: TagHandler[];
   customParser?: CustomParser;
   excludeTags: Set<string>;
-  domIdToKeys: DomIdMap;
-  nodeMap: Map<string, NodeBase>;
   parseFromCssClass?: string;
+  blockManager: BlockManager;
+  nodeRelationshipManager: NodeRelationshipManager;
+  nodeReferences: NodeReferences;
 }
 
 export function parseElements({
   elements,
-  nodes,
   tagHandlers = createDefaultTagHandlers(),
   customParser,
   excludeTags,
-  internalLinkNodes,
-  domIdToKeys,
-  nodeMap,
+  nodeReferences,
   parseFromCssClass,
+  blockManager,
+  nodeRelationshipManager,
 }: ParseElementsArgs) {
   let selectedElements: DomElement[];
   if (parseFromCssClass) {
@@ -36,14 +37,17 @@ export function parseElements({
     selectedElements = elements;
   }
   parseElementChildrenWith(selectedElements, parseElement, {
-    internalLinkNodes,
-    nodes,
     tagHandlers,
     customParser,
     excludeTags,
-    domIdToKeys,
-    nodeMap,
+    nodeReferences,
+    blockManager,
+    nodeRelationshipManager,
   });
+  const block = blockManager.getCurrentBlock();
+  if (block && isAnonymousBlock(block)) {
+    block.postProcess();
+  }
 }
 
 const getElementByCssClass = (elements: DomElement[], cssClass: string) => {
