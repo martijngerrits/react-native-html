@@ -13,7 +13,7 @@
     "react": ">= 16.8",
     "react-native": ">= 59.0",
     "react-native-webview": ">= 6.0",
-    "@react-native-html/parser": ">= 16.0"
+    "@react-native-html/parser": ">= 0.17"
   },
   "devDependencies": {
     "@react-native-html/parser": "file:../parser",

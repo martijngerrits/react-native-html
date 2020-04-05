@@ -10,7 +10,7 @@
   "license": "MIT",
   "private": false,
   "peerDependencies": {
-    "@react-native-html/parser": "*"
+    "@react-native-html/parser": ">= 0.17"
   },
   "dependencies": {
     "htmlparser2": "^4.1.0"
