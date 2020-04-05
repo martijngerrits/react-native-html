@@ -1,98 +1,88 @@
-export const TEXT_FORMATTING_TAGS = [
-  'b',
-  'strong',
-  'i',
-  'em',
-  'mark',
-  'small',
-  'del',
-  'ins',
-  'sub',
-  'sup',
-  'strike',
-  'u',
-];
+export const createBlockTagsSet = (treatImageAsBlockElement: boolean) => {
+  const tags = new Set([
+    'address',
+    'article',
+    'aside',
+    'blockquote',
+    'canvas',
+    'dd',
+    'div',
+    'dl',
+    'dt',
+    'fieldset',
+    'figcaption',
+    'figure',
+    'footer',
+    'form',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'header',
+    'hr',
+    'li',
+    'main',
+    'nav',
+    'noscript',
+    'ol',
+    'p',
+    'pre', // preserves both spaces and line breaks
+    'section',
+    'table',
+    'tfoot',
+    'ul',
+    'video',
+  ]);
+  if (treatImageAsBlockElement) {
+    tags.add('img');
+  }
+  return tags;
+};
 
-export const BLOCK_TAGS = new Set([
-  'address',
-  'article',
-  'aside',
-  'blockquote',
-  'canvas',
-  'dd',
-  'div',
-  'dl',
-  'dt',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'header',
-  'hr',
-  'li',
-  'main',
-  'nav',
-  'noscript',
-  'ol',
-  'p',
-  'pre', // preserves both spaces and line breaks
-  'section',
-  'table',
-  'tfoot',
-  'ul',
-  'video',
-]);
-
-export const INLINE_TAGS = new Set([
-  'a',
-  'abbr',
-  'acronym',
-  'b',
-  'bdo',
-  'big',
-  'br',
-  'wbr',
-  'nobr',
-  'button',
-  'cite',
-  'code',
-  'dfn',
-  'em',
-  'i',
-  'img',
-  'input',
-  'kbd',
-  'label',
-  'map',
-  'object',
-  'output',
-  'q',
-  'samp',
-  'script',
-  'select',
-  'small',
-  'span',
-  'strong',
-  'sub',
-  'sup',
-  'textarea',
-  'time',
-  'tt',
-  'var',
-]);
-
-export enum LayoutRenderingContext {
-  InlineFormattingContext,
-  BlockFormattingContext,
-}
-
+export const createInlineTagsSet = (treatImageAsBlockElement: boolean) => {
+  const tags = new Set([
+    'a',
+    'abbr',
+    'acronym',
+    'b',
+    'bdo',
+    'big',
+    'br',
+    'wbr',
+    'nobr',
+    'button',
+    'cite',
+    'code',
+    'dfn',
+    'em',
+    'i',
+    'input',
+    'kbd',
+    'label',
+    'map',
+    'object',
+    'output',
+    'q',
+    'samp',
+    'script',
+    'select',
+    'small',
+    'span',
+    'strong',
+    'sub',
+    'sup',
+    'textarea',
+    'time',
+    'tt',
+    'var',
+  ]);
+  if (!treatImageAsBlockElement) {
+    tags.add('img');
+  }
+  return tags;
+};
 /**
  * when a context is formed:
  * - if any child is a block tag, it creates a block context.
@@ -107,6 +97,10 @@ export enum LayoutRenderingContext {
  *    --> root div contains  two blocks (anonymous block --> '<b><b>bold</b> test', div)
  *    --> anonymous block has inline formatting context
  */
+export enum LayoutRenderingContext {
+  InlineFormattingContext,
+  BlockFormattingContext,
+}
 
 export const BOLD_TAGS = new Set(['b', 'strong']);
 export const ITALIC_TAGS = new Set(['i', 'em']);

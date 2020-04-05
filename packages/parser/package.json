@@ -10,13 +10,11 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@types/htmlparser2": "^3.10.1",
     "entities": "^2.0.0",
     "htmlparser2-without-node-native": "^3.9.2"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.4",
-    "htmlparser2": "^4.1.0"
+    "@types/jest": "^25.1.4"
   },
   "scripts": {
     "build": "yarn bob build",

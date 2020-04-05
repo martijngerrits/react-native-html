@@ -1,11 +1,25 @@
 import { Parser, DomHandler } from 'htmlparser2';
-import * as originalParser from '@react-native-html/parser';
+import * as original from '@react-native-html/parser';
 
-export const parseHtml = (args: originalParser.ParseHtmlArgs) => {
-  const nextArgs: originalParser.ParseHtmlArgs = {
-    ...args,
-    Parser: args.Parser ?? Parser,
-    DomHandler: args.DomHandler ?? DomHandler,
+export const customHtmlParser = (html: string) => {
+  return new Promise<original.DomElement[]>((resolve, reject) => {
+    const handler = new DomHandler((err, dom) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve((dom as unknown) as original.DomElement[]);
+      }
+    });
+    const parser = new Parser(handler, { lowerCaseTags: true });
+    parser.write(html);
+    parser.done();
+  });
+};
+
+export const parseHtml = (rawHtml: string, options: original.ParseHtmlOptions) => {
+  const nextOptions: original.ParseHtmlOptions = {
+    ...options,
+    customHtmlParser,
   };
-  return originalParser.parseHtml(nextArgs);
+  return original.parseHtml(rawHtml, nextOptions);
 };

@@ -2,12 +2,13 @@ import { DomElement, isTagElement, isTextElement, isOnlyWhiteSpaces } from '../t
 import { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
 import { AnonymousBlock, isAnonymousBlock } from './AnonymousBlock';
 import { DefinedBlock } from './DefinedBlock';
-import { INLINE_TAGS } from '../types/tags';
 import { BlockBase } from './BlockBase';
 import { BlockType } from './BlockType';
+import { createInlineTagsSet } from '../types/tags';
 
-export const createBlockManager = () => {
+export const createBlockManager = (treatImageAsBlockElement: boolean) => {
   let currentBlock: BlockBase | null = null;
+  const inlineTags = createInlineTagsSet(treatImageAsBlockElement);
 
   const createNewBlock = (
     element: DomElement,
@@ -26,7 +27,7 @@ export const createBlockManager = () => {
 
   const getBlockTypeForElement = (element: DomElement): BlockType => {
     if (
-      (isTagElement(element) && INLINE_TAGS.has(element.name)) ||
+      (isTagElement(element) && inlineTags.has(element.name)) ||
       (isTextElement(element) &&
         (currentBlock?.type === BlockType.Anonymous || !isOnlyWhiteSpaces(element.data)))
     ) {
@@ -42,7 +43,7 @@ export const createBlockManager = () => {
       if (
         nextElement &&
         (isTextElement(nextElement) ||
-          (isTagElement(nextElement) && INLINE_TAGS.has(nextElement.name)))
+          (isTagElement(nextElement) && inlineTags.has(nextElement.name)))
       )
         return BlockType.Anonymous;
     }

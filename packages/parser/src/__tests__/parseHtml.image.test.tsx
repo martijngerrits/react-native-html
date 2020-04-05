@@ -1,5 +1,5 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, ImageNode, getNodeKey } from '../types/nodes';
+import { NodeType, ImageNode, getNodeKey, TextNode, TextContainerNode } from '../types/nodes';
 import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 
 describe('parseHtml - image tests', () => {
@@ -31,6 +31,105 @@ describe('parseHtml - image tests', () => {
         key: getNodeKey({ index: 0 }),
         source,
       } as ImageNode,
+    ]);
+  });
+  it('with treatImageAsBlockElement = true, parse image between text as three separate nodes', async () => {
+    const source = 'https://i.picsum.photos/id/250/272/92.jpg';
+    const text = 'abc';
+    const rawHtml = `<div>${text}<img src="${source}" />${text}</div>`;
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
+      treatImageAsBlockElement: true,
+    })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        content: text,
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinLink: false,
+        isWithinTextContainer: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+      } as TextNode,
+      {
+        type: NodeType.Image,
+        key: getNodeKey({ index: 1 }),
+        source,
+      } as ImageNode,
+      {
+        content: text,
+        type: NodeType.Text,
+        key: getNodeKey({ index: 2 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinLink: false,
+        isWithinTextContainer: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+      } as TextNode,
+    ]);
+  });
+  it('with treatImageAsBlockElement = false, parse image as text container child', async () => {
+    const source = 'https://i.picsum.photos/id/250/272/92.jpg';
+    const text = 'abc';
+    const rawHtml = `<div>${text}<img src="${source}" />${text}</div>`;
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
+      treatImageAsBlockElement: false,
+    })) as SuccessResult;
+
+    const keyPrefix = getNodeKey({ index: 0 });
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        key: getNodeKey({ index: 0 }),
+        type: NodeType.TextContainer,
+        children: [
+          {
+            content: text,
+            type: NodeType.Text,
+            key: getNodeKey({ index: 0, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinLink: false,
+            isWithinTextContainer: true,
+            isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+          {
+            type: NodeType.Image,
+            key: getNodeKey({ index: 1, keyPrefix }),
+            parentKey: keyPrefix,
+            source,
+          } as ImageNode,
+          {
+            content: text,
+            type: NodeType.Text,
+            key: getNodeKey({ index: 2, keyPrefix }),
+            parentKey: keyPrefix,
+            hasStrikethrough: false,
+            isUnderlined: false,
+            isItalic: false,
+            isBold: false,
+            isWithinLink: false,
+            isWithinTextContainer: true,
+            isWithinList: false,
+            canBeTextContainerBase: true,
+          } as TextNode,
+        ],
+      } as TextContainerNode,
     ]);
   });
 });

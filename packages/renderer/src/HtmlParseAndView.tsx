@@ -33,8 +33,7 @@ export const HtmlParseAndView = ({
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
     const applyEffect = async () => {
-      const result = await parseHtml({
-        rawHtml,
+      const result = await parseHtml(rawHtml, {
         customParser,
         tagHandlers,
         excludeTags: new Set(excludeTags),

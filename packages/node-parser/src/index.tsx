@@ -1,1 +1,1 @@
-export * from './parseHtml';
+export { parseHtml } from './parseHtml';

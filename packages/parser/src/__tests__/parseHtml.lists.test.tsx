@@ -203,7 +203,10 @@ describe('parseHtml - list tests', () => {
     <li><b>Large Image 2:</b><span><img src="https://picsum.photos/seed/picsum/1200/800" /></span></li>
     </ol>
     `;
-    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
+      treatImageAsBlockElement: false,
+    })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
       {

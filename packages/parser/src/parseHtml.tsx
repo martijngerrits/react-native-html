@@ -1,14 +1,10 @@
-import './types/modules';
-import {
-  DomHandler as OriginalDomHandler,
-  Parser as OriginalParser,
-} from 'htmlparser2-without-node-native';
+import { DomHandler, Parser } from 'htmlparser2-without-node-native';
 
 import { NodeBase, NodeReferences } from './types/nodes';
 import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
-import { DomElementBase } from './types/elements';
+import { DomElementBase, DomElement } from './types/elements';
 import { createDefaultParserPerTag, ParserPerTag } from './parseTags';
 import { createNodeRelationshipManager } from './nodes/NodeRelationshipManager';
 import { createBlockManager } from './blocks/BlockManager';
@@ -36,17 +32,29 @@ export interface ParseHtmlOptions {
    */
   customParser?: CustomParser;
   /**
-   * Use the tag handlers to change how tags
+   * This defines how tags are converted to the corresponding node.
+   * You can extend the resulting object of createDefaultParserPerTag.
    */
   parserPerTag?: ParserPerTag;
+  /**
+   * Tags to be excluded from displaying
+   */
   excludeTags?: Set<string>;
+  /**
+   * if provided, it only parses the children of the first element with the provided css class (without '.')
+   */
   parseFromCssClass?: string;
-  DomHandler?: typeof OriginalDomHandler;
-  Parser?: typeof OriginalParser;
+  /**
+   * if provided, can customize how an html string gets parsed into DomElements
+   */
+  customHtmlParser?: (rawHtml: string) => Promise<DomElement[]>;
 
   /**
-   * If true, it treats images as blocks
+   * If true, it treats images as a block element and not as an inline element.
+   * As a block element, the image will be displayed on its own row.
+   * The default value is true.
    */
+  treatImageAsBlockElement?: boolean;
 }
 
 export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<S>>(
@@ -73,23 +81,25 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
       'option',
       'track',
     ]),
-    DomHandler = OriginalDomHandler,
-    Parser = OriginalParser,
+    customHtmlParser,
+    treatImageAsBlockElement = true,
   }: ParseHtmlOptions = {}
 ): Promise<ParseHtmlResult> {
   try {
-    const promise = new Promise<DomElementBase<T>[]>((resolve, reject) => {
-      const handler = new DomHandler((err, dom) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve((dom as unknown) as DomElementBase<T>[]);
-        }
-      });
-      const parser = new Parser(handler, { lowerCaseTags: true });
-      parser.write(rawHtml);
-      parser.done();
-    });
+    const promise = customHtmlParser
+      ? customHtmlParser(rawHtml)
+      : new Promise<DomElementBase<T>[]>((resolve, reject) => {
+          const handler = new DomHandler((err, dom) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(dom as DomElementBase<T>[]);
+            }
+          });
+          const parser = new Parser(handler, { lowerCaseTags: true });
+          parser.write(rawHtml);
+          parser.done();
+        });
 
     const elements = await promise;
 
@@ -100,7 +110,7 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
       domIdToKeys: new Map(),
     };
     const nodeRelationshipManager = createNodeRelationshipManager(nodes);
-    const blockManager = createBlockManager();
+    const blockManager = createBlockManager(treatImageAsBlockElement);
 
     parseElements({
       elements,
