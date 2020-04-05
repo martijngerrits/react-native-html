@@ -1,16 +1,15 @@
-import { createDefaultTagHandlers, TagHandler } from './parseTags';
+import { ParserPerTag } from './parseTags';
 import { parseElement } from './parseElement';
 import { NodeReferences } from './types/nodes';
 import { CustomParser } from './types/customParser';
 import { DomElement, hasElementClassName } from './types/elements';
-import { parseElementChildrenWith } from './parseElementChildrenWith';
 import { BlockManager } from './blocks/BlockManager';
 import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
 import { isAnonymousBlock } from './blocks/AnonymousBlock';
 
 interface ParseElementsArgs {
   elements: DomElement[];
-  tagHandlers?: TagHandler[];
+  parserPerTag: ParserPerTag;
   customParser?: CustomParser;
   excludeTags: Set<string>;
   parseFromCssClass?: string;
@@ -21,7 +20,7 @@ interface ParseElementsArgs {
 
 export function parseElements({
   elements,
-  tagHandlers = createDefaultTagHandlers(),
+  parserPerTag,
   customParser,
   excludeTags,
   nodeReferences,
@@ -36,14 +35,23 @@ export function parseElements({
   } else {
     selectedElements = elements;
   }
-  parseElementChildrenWith(selectedElements, parseElement, {
-    tagHandlers,
-    customParser,
-    excludeTags,
-    nodeReferences,
-    blockManager,
-    nodeRelationshipManager,
+  selectedElements.forEach(child => {
+    const nextBlock = blockManager.getBlockForNextElement(child, nodeRelationshipManager);
+    if (!child.name || !excludeTags.has(child.name)) {
+      parseElement({
+        element: child,
+        parserPerTag,
+        customParser,
+        excludeTags,
+        nodeReferences,
+        nodeRelationshipManager,
+        blockManager,
+        block: nextBlock,
+      });
+    }
   });
+
+  // if last block is anonymous, ensure it is closed for post processing
   const block = blockManager.getCurrentBlock();
   if (block && isAnonymousBlock(block)) {
     block.postProcess();

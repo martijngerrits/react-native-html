@@ -9,7 +9,7 @@ import {
   TextContainerNode,
   ImageNode,
 } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
+import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 
 describe('parseHtml - text container tests', () => {
   it('parse text + <b> within p as text container', async () => {
@@ -17,7 +17,7 @@ describe('parseHtml - text container tests', () => {
     const link = 'bold';
     const subtext = ' out!';
     const rawHtml = `<p>${pretext}<b>${link}</b>${subtext}</p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -77,7 +77,7 @@ describe('parseHtml - text container tests', () => {
     const subtext = ' out!';
     const source = 'https://www.wikipedia.org';
     const rawHtml = `<p>${pretext}<a href="${source}">${link}</a>${subtext}</p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefixA = getNodeKey({ index: 1, keyPrefix });
     expect(result.type).toBe(ResultType.Success);
@@ -149,7 +149,7 @@ describe('parseHtml - text container tests', () => {
     const source = 'https://www.wikipedia.org';
     const link = 'link';
     const rawHtml = `<p>${pretext}<b>${bold}</b>${subtext}<a href="${source}">${link}</a>${finaltext}</p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix2 = getNodeKey({ index: 3, keyPrefix });
     expect(result.type).toBe(ResultType.Success);
@@ -246,7 +246,7 @@ describe('parseHtml - text container tests', () => {
     const link = 'bold';
     const subtext = ' out!';
     const rawHtml = `<div>${pretext}<b>${link}</b>${subtext}<div></div>${pretext}<b>${link}</b>${subtext}</div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
     const createTextContainer = (index: number) => {
       const keyPrefix = getNodeKey({ index });
@@ -307,7 +307,7 @@ describe('parseHtml - text container tests', () => {
     const source = 'https://www.wikipedia.org';
     const link = 'link';
     const rawHtml = `<div><b>${bold}</b><a href="${source}">${link}</a>${finaltext}</div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix2 = getNodeKey({ index: 1, keyPrefix });
     expect(result.type).toBe(ResultType.Success);
@@ -379,7 +379,7 @@ describe('parseHtml - text container tests', () => {
           <a href="https://www.common-examples.com/">Common examples</a>!
         </li>
       </ul>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefixLI = getNodeKey({ index: 0, keyPrefix });
     const keyPrefixTC = getNodeKey({ index: 0, keyPrefix: keyPrefixLI });
@@ -505,7 +505,7 @@ describe('parseHtml - text container tests', () => {
     <img src="https://i.picsum.photos/id/250/272/92.jpg">
         </a>
     </div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
     const keyPrefix = getNodeKey({ index: 0 });
     expect(result.nodes).toEqual([
@@ -531,7 +531,7 @@ describe('parseHtml - text container tests', () => {
     <span>hallo</span>
     <a href="https://www.wikipedia.org/">abc</a>
   </p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefixA = getNodeKey({ index: 2, keyPrefix });
@@ -600,7 +600,7 @@ describe('parseHtml - text container tests', () => {
     const link = 'bold';
     const subtext = ' out!';
     const rawHtml = `<p>${pretext}<span><b>${link}</b>${subtext}</span></p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -661,7 +661,7 @@ describe('parseHtml - text container tests', () => {
     const afterdiv = ' afterdiv ';
     const subtext = ' out! ';
     const rawHtml = `<div>${pretext}<span>${prediv}<div>${div}</div><b>${afterdiv}</b>${subtext}</span></div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefix2 = getNodeKey({ index: 2 });
     expect(result.type).toBe(ResultType.Success);

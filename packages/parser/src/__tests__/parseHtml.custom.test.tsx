@@ -1,7 +1,7 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, NodeBase, IFrameNode, TextNode, getNodeKey } from '../types/nodes';
 import { CustomParser } from '../types/customParser';
-import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
+import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 
 const MyNodeTypes = {
   ...NodeType,
@@ -33,9 +33,8 @@ describe('parseHtml - custom parser tests', () => {
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({
-      ...getDefaultParseHtmlArgs(),
-      rawHtml,
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
       customParser,
     })) as SuccessResult;
 
@@ -66,9 +65,8 @@ describe('parseHtml - custom parser tests', () => {
       }
       return undefined; // default handlers
     };
-    const result = (await parseHtml({
-      ...getDefaultParseHtmlArgs(),
-      rawHtml,
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
       customParser,
     })) as SuccessResult;
 
@@ -107,9 +105,8 @@ describe('parseHtml - custom parser tests', () => {
       return undefined;
     };
 
-    const result = (await parseHtml({
-      ...getDefaultParseHtmlArgs(),
-      rawHtml,
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
       customParser,
     })) as SuccessResult;
 

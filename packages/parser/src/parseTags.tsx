@@ -12,11 +12,9 @@ import {
   isTextNode,
 } from './types/nodes';
 import { getElementAttribute, DomElement } from './types/elements';
-import { LINK_TAGS, LIST_TAGS } from './types/tags';
 import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
 
-export interface TagHandler {
-  names: Set<string>;
+export interface TagParser {
   resolver: (args: TagResolverArgs) => NodeWithoutKey | undefined;
   canParseChildren: boolean;
 }
@@ -48,14 +46,30 @@ const getWidthAndHeight = (element: DomElement) => {
   return { width, height };
 };
 
-export const createDefaultTagHandlers = (): TagHandler[] => [
-  {
-    names: LINK_TAGS,
+export interface ParserPerTag {
+  [tagName: string]: TagParser;
+}
+
+export const createDefaultParserPerTag = (): ParserPerTag => {
+  const parserPerTag: ParserPerTag = {};
+  const linkParser = {
     canParseChildren: true,
     resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
       if (element.name !== 'a' || !element.attribs) return undefined;
       let source = getElementAttribute(element, 'href');
-      if (!source || source.startsWith('#')) return undefined;
+      if (!source) return undefined;
+
+      if (source.startsWith('#')) {
+        const domId = source.substr(1);
+        return {
+          type: NodeType.InternalLink,
+          targetKey: '', // will be added later
+          hasResolvedTarget: false,
+          children,
+          domId,
+          isWithinTextContainer,
+        };
+      }
 
       source = decodeHTML(source);
 
@@ -66,28 +80,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         isWithinTextContainer,
       };
     },
-  },
-  {
-    names: LINK_TAGS,
-    canParseChildren: true,
-    resolver: ({ element, children, isWithinTextContainer }: TagResolverArgs) => {
-      if (element.name !== 'a' || !element.attribs) return undefined;
-      const source = getElementAttribute(element, 'href');
-      if (!source || !source.startsWith('#') || source.length < 2) return undefined;
+  };
+  parserPerTag.a = linkParser;
 
-      const domId = source.substr(1);
-      return {
-        type: NodeType.InternalLink,
-        targetKey: '', // will be added later
-        hasResolvedTarget: false,
-        children,
-        domId,
-        isWithinTextContainer,
-      };
-    },
-  },
-  {
-    names: new Set(['img']),
+  const imageParser = {
     canParseChildren: false,
     resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'img' || !element.attribs) return undefined;
@@ -102,9 +98,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         height,
       } as ImageNode;
     },
-  },
-  {
-    names: new Set(['li']),
+  };
+  parserPerTag.img = imageParser;
+
+  const listItemParser = {
     canParseChildren: true,
     resolver: ({ children }: TagResolverArgs) => {
       return {
@@ -112,9 +109,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         type: NodeType.ListItem,
       } as ListItemNode;
     },
-  },
-  {
-    names: LIST_TAGS,
+  };
+  parserPerTag.li = listItemParser;
+
+  const listParser = {
     canParseChildren: true,
     resolver: ({ children, element }: TagResolverArgs) => {
       return {
@@ -123,9 +121,11 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         type: NodeType.List,
       } as ListNode;
     },
-  },
-  {
-    names: new Set(['br']),
+  };
+  parserPerTag.ol = listParser;
+  parserPerTag.ul = listParser;
+
+  const breakParser = {
     canParseChildren: false,
     resolver: ({
       header,
@@ -161,9 +161,10 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         canBeTextContainerBase: true,
       } as TextNode;
     },
-  },
-  {
-    names: new Set(['iframe']),
+  };
+  parserPerTag.br = breakParser;
+
+  const iframeParser = {
     canParseChildren: false,
     resolver: ({ element }: TagResolverArgs) => {
       if (element.name !== 'iframe' || !element.attribs) return undefined;
@@ -178,5 +179,8 @@ export const createDefaultTagHandlers = (): TagHandler[] => [
         height,
       } as IFrameNode;
     },
-  },
-];
+  };
+  parserPerTag.iframe = iframeParser;
+
+  return parserPerTag;
+};

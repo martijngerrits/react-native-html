@@ -33,7 +33,7 @@ export const HtmlNodeImage = ({
       err => {
         if (__DEV__) {
           // eslint-disable-next-line no-console
-          console.error(err);
+          console.warn(err);
         }
       }
     );

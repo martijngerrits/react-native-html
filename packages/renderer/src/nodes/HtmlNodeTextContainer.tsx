@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextContainerNode, NodeBase } from '@react-native-html/parser';
+import { TextContainerNode, NodeBase, isTextNode } from '@react-native-html/parser';
 import { StyleProp, TextProperties, TextStyle } from 'react-native';
 import { onLayoutHandler } from './types';
 import { BasicStyle } from '../HtmlStyles';
@@ -23,7 +23,11 @@ export const HtmlNodeTextContainer = ({
 }: Props) => {
   return (
     <TextComponent style={[style, firstChildInListItemStyle]} onLayout={onLayout}>
-      {node.children.map((child, index) => renderChildNode(child, index))}
+      {node.children.map((child, index) =>
+        isTextNode(child) && child.canBeTextContainerBase
+          ? child.content
+          : renderChildNode(child, index)
+      )}
     </TextComponent>
   );
 };

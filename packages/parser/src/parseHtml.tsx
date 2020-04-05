@@ -9,7 +9,7 @@ import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
 import { DomElementBase } from './types/elements';
-import { TagHandler } from './parseTags';
+import { createDefaultParserPerTag, ParserPerTag } from './parseTags';
 import { createNodeRelationshipManager } from './nodes/NodeRelationshipManager';
 import { createBlockManager } from './blocks/BlockManager';
 
@@ -30,42 +30,53 @@ export interface Failureresult {
 
 export type ParseHtmlResult = SuccessResult | Failureresult;
 
-export interface ParseHtmlArgs {
-  rawHtml: string;
+export interface ParseHtmlOptions {
+  /**
+   * Use the custom parser to convert any element in a custom node
+   */
   customParser?: CustomParser;
-  tagHandlers?: TagHandler[];
+  /**
+   * Use the tag handlers to change how tags
+   */
+  parserPerTag?: ParserPerTag;
   excludeTags?: Set<string>;
   parseFromCssClass?: string;
   DomHandler?: typeof OriginalDomHandler;
   Parser?: typeof OriginalParser;
+
+  /**
+   * If true, it treats images as blocks
+   */
 }
 
-export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<S>>({
-  rawHtml,
-  customParser,
-  tagHandlers,
-  parseFromCssClass,
-  excludeTags = new Set([
-    'input',
-    'textarea',
-    'dl',
-    'table',
-    'audio',
-    'video',
-    'form',
-    'button',
-    'frame',
-    'frameset',
-    'noframes',
-    'script',
-    'noscript',
-    'object',
-    'option',
-    'track',
-  ]),
-  DomHandler = OriginalDomHandler,
-  Parser = OriginalParser,
-}: ParseHtmlArgs): Promise<ParseHtmlResult> {
+export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<S>>(
+  rawHtml: string,
+  {
+    customParser,
+    parserPerTag = createDefaultParserPerTag(),
+    parseFromCssClass,
+    excludeTags = new Set([
+      'input',
+      'textarea',
+      'dl',
+      'table',
+      'audio',
+      'video',
+      'form',
+      'button',
+      'frame',
+      'frameset',
+      'noframes',
+      'script',
+      'noscript',
+      'object',
+      'option',
+      'track',
+    ]),
+    DomHandler = OriginalDomHandler,
+    Parser = OriginalParser,
+  }: ParseHtmlOptions = {}
+): Promise<ParseHtmlResult> {
   try {
     const promise = new Promise<DomElementBase<T>[]>((resolve, reject) => {
       const handler = new DomHandler((err, dom) => {
@@ -75,7 +86,7 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
           resolve((dom as unknown) as DomElementBase<T>[]);
         }
       });
-      const parser = new Parser(handler);
+      const parser = new Parser(handler, { lowerCaseTags: true });
       parser.write(rawHtml);
       parser.done();
     });
@@ -88,17 +99,17 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
       nodeMap: new Map(),
       domIdToKeys: new Map(),
     };
-    const nodeRelationShipManager = createNodeRelationshipManager(nodes);
+    const nodeRelationshipManager = createNodeRelationshipManager(nodes);
     const blockManager = createBlockManager();
 
     parseElements({
       elements,
-      tagHandlers,
+      parserPerTag,
       customParser,
       excludeTags,
       nodeReferences,
       parseFromCssClass,
-      nodeRelationshipManager: nodeRelationShipManager,
+      nodeRelationshipManager,
       blockManager,
     });
 

@@ -1,10 +1,3 @@
-// eslint-disable-next-line prettier/prettier
-import type { NodeReferences } from './nodes';
-import type { CustomParser } from './customParser';
-import type { TagHandler } from '../parseTags';
-import type { BlockManager } from '../blocks/BlockManager';
-import type { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
-
 export interface DomElementBase<T> {
   attribs?: { [s: string]: string };
   children?: T[];
@@ -24,10 +17,11 @@ export interface TextElement extends DomElementBase<DomElement> {
   data: string;
   type: 'text';
 }
-export const isTextElement = (element: DomElement): element is TextElement => element.type === 'text';
+export const isTextElement = (element: DomElement): element is TextElement =>
+  element.type === 'text';
 
 export interface TagElement extends DomElementBase<DomElement> {
-  attribs: { [s: string]: string };  
+  attribs: { [s: string]: string };
   data: undefined;
   name: string;
   type: 'tag';
@@ -49,9 +43,7 @@ export const isOnlyWhiteSpaces = (input: string) => onlyWhiteSpacesRegex.test(in
 // export const isElementText = (element: DomElement) => element.type === TEXT_PATH_NAME;
 // export const isElementBreak = (element: DomElement) => element.name === BR_PATH_NAME;
 
-export const isElementNotATextOrNotAnEmptyText = (
-  element: DomElement
-): boolean => {
+export const isElementNotATextOrNotAnEmptyText = (element: DomElement): boolean => {
   return isTextElement(element) || (element.data && !isOnlyWhiteSpaces(element.data));
 };
 
@@ -95,13 +87,3 @@ export interface ParentBasedFlags {
   isWithinLink?: boolean;
   isWithinList?: boolean;
 }
-
-export interface ParseElementArgsBase {
-  excludeTags: Set<string>;
-  tagHandlers: TagHandler[];
-  customParser?: CustomParser;
-  nodeReferences: NodeReferences;
-  blockManager: BlockManager;
-  nodeRelationshipManager: NodeRelationshipManager;
-}
-

@@ -1,12 +1,12 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, TextNode, getNodeKey, isTextNode } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
+import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 import { LinkNode } from '../../../renderer/src';
 
 describe('parseHtml - br tests', () => {
   it('parse br as \\n', async () => {
     const rawHtml = '<p><br /></p><p>hallo dit is een test</p>';
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
 
     expect(result.type).toBe(ResultType.Success);
     expect(result.nodes).toEqual([
@@ -46,7 +46,7 @@ describe('parseHtml - br tests', () => {
 <br><a href="https://www.wikipedia.org" target="_blank" rel="noopener">Website</a>
 <br><a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>
 </p>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
     const keyPrefixA1 = getNodeKey({ index: 2, keyPrefix });

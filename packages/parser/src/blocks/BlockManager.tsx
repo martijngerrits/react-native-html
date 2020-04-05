@@ -55,26 +55,32 @@ export const createBlockManager = () => {
     nodeRelationshipManager: NodeRelationshipManager
   ): BlockBase => {
     let blockType: BlockType | undefined;
-    if (currentBlock) {
+    if (currentBlock && isAnonymousBlock(currentBlock)) {
       blockType = getBlockTypeForElement(element);
-      if (currentBlock.type === blockType) {
+      if (blockType === BlockType.Anonymous) {
         return currentBlock;
       }
-      // closing anonymous block -> do any post processing
-      if (isAnonymousBlock(currentBlock)) {
-        currentBlock.postProcess();
-      }
+      // closing current anonymous block -> do any post processing
+      currentBlock.postProcess();
     }
     return createNewBlock(element, nodeRelationshipManager, blockType);
   };
 
   const getCurrentBlock = (): BlockBase | null => currentBlock;
 
+  const setCurrentBlock = (block: BlockBase | null) => {
+    if (currentBlock && isAnonymousBlock(currentBlock)) {
+      currentBlock.postProcess();
+    }
+    currentBlock = block;
+  };
+
   return {
     createNewBlock,
     getBlockTypeForElement,
     getBlockForNextElement,
     getCurrentBlock,
+    setCurrentBlock,
   };
 };
 

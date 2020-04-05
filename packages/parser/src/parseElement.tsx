@@ -1,31 +1,42 @@
-import { NodeBase, NodeWithoutKey, isInternalLinkNode, addNode } from './types/nodes';
+import {
+  NodeBase,
+  NodeWithoutKey,
+  isInternalLinkNode,
+  addNode,
+  NodeReferences,
+} from './types/nodes';
 import { parseText } from './parseText';
 import {
   getElementAttribute,
   hasElementClassName,
-  ParseElementArgsBase,
   DomElement,
   isTextElement,
+  isTagElement,
 } from './types/elements';
-import { parseElementChildrenWith } from './parseElementChildrenWith';
 import { CustomParser } from './types/customParser';
 import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
 import { isDefinedBlock } from './blocks/DefinedBlock';
 import { isAnonymousBlock } from './blocks/AnonymousBlock';
 import { BlockBase } from './blocks/BlockBase';
+import { BlockManager } from './blocks/BlockManager';
+import { ParserPerTag } from './parseTags';
 
-export interface ParseElementArgs extends ParseElementArgsBase {
+export interface ParseElementArgs {
   element: DomElement;
   parentPathIds?: string[];
   customParser?: CustomParser;
-  nodeRelationshipManager: NodeRelationshipManager;
   block: BlockBase;
+  excludeTags: Set<string>;
+  parserPerTag: ParserPerTag;
+  nodeReferences: NodeReferences;
+  blockManager: BlockManager;
+  nodeRelationshipManager: NodeRelationshipManager;
 }
 
 export function parseElement({
   element,
   parentPathIds = [],
-  tagHandlers,
+  parserPerTag,
   customParser,
   excludeTags,
   nodeReferences,
@@ -51,6 +62,7 @@ export function parseElement({
   let canParseChildren = true;
   let parsedNode: NodeWithoutKey | null = null;
 
+  // a sibling or child is a defined block -> mark end of text container
   if (isDefinedBlock(block) && nodeRelationshipManager.isWithinTextContainer()) {
     nodeRelationshipManager.switchToTextContainerSiblings();
   }
@@ -102,29 +114,28 @@ export function parseElement({
     if (textNode) {
       parsedNode = textNode;
     }
-  } else if (element.type === 'tag') {
-    tagHandlers.forEach(tagHandler => {
-      if (element.name && tagHandler.names.has(element.name)) {
-        canParseChildren = tagHandler.canParseChildren;
-        const children: NodeBase[] = [];
-        const nodeWithoutKey = tagHandler.resolver({
-          element,
-          children,
-          nodeRelationshipManager,
-          isWithinTextContainer: nodeRelationshipManager.isWithinTextContainer(),
-          header: isWithinHeader,
-          isBold: isWithinBold,
-          isItalic: isWithinItalic,
-          hasStrikethrough: isWithinStrikethrough,
-          isUnderlined: isWithinUnderline,
-          isWithinLink,
-          isWithinList,
-        });
-        if (nodeWithoutKey) {
-          parsedNode = nodeWithoutKey;
-        }
+  } else if (isTagElement(element)) {
+    const tagParser = parserPerTag[element.name];
+    if (tagParser) {
+      canParseChildren = tagParser.canParseChildren;
+      const children: NodeBase[] = [];
+      const nodeWithoutKey = tagParser.resolver({
+        element,
+        children,
+        nodeRelationshipManager,
+        isWithinTextContainer: nodeRelationshipManager.isWithinTextContainer(),
+        header: isWithinHeader,
+        isBold: isWithinBold,
+        isItalic: isWithinItalic,
+        hasStrikethrough: isWithinStrikethrough,
+        isUnderlined: isWithinUnderline,
+        isWithinLink,
+        isWithinList,
+      });
+      if (nodeWithoutKey) {
+        parsedNode = nodeWithoutKey;
       }
-    });
+    }
   }
 
   let node: NodeBase | undefined;
@@ -156,17 +167,31 @@ export function parseElement({
       nodeRelationshipManager.goDown(node.children);
     }
     nodeRelationshipManager.updateParentFlags(element);
-    // Note: one special node can be added in parseElmentChildren -> TextContainerNode
-    parseElementChildrenWith(element.children, parseElement, {
-      excludeTags,
-      nodeRelationshipManager,
-      blockManager,
-      pathIds,
-      tagHandlers,
-      nodeReferences,
-      customParser,
+
+    element.children.forEach(child => {
+      const nextBlock = blockManager.getBlockForNextElement(child, nodeRelationshipManager);
+      if (!child.name || !excludeTags.has(child.name)) {
+        parseElement({
+          element: child,
+          parentPathIds: pathIds,
+          parserPerTag,
+          customParser,
+          excludeTags,
+          nodeReferences,
+          nodeRelationshipManager,
+          blockManager,
+          block: nextBlock,
+        });
+      }
     });
+
     nodeRelationshipManager.setParentFlags(parentFlags);
+
+    // the parent is a defined block -> mark end of text container
+    if (isDefinedBlock(block) && nodeRelationshipManager.isWithinTextContainer()) {
+      nodeRelationshipManager.switchToTextContainerSiblings();
+      blockManager.setCurrentBlock(block);
+    }
 
     if (node && node.children) {
       const parentNode = node.parentKey && nodeReferences.nodeMap.get(node.parentKey);

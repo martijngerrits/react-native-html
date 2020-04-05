@@ -1,13 +1,13 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
 import { NodeType, TextNode, getNodeKey, InternalLinkNode } from '../types/nodes';
-import { getDefaultParseHtmlArgs } from './defaultHtmlParseArgs';
+import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 
 describe('parserawHtml - internal link tests', () => {
   it('parse internal link', async () => {
     const text = 'internal link';
     const domId = 'my-element';
     const rawHtml = `<a href="#${domId}">${text}</a><div id="${domId}">Check this out</div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 
@@ -57,7 +57,7 @@ describe('parserawHtml - internal link tests', () => {
     const text = 'internal link';
     const domId = 'my-element';
     const rawHtml = `<a href="#${domId}">${text}</a><div id="${domId}"><p><div>Check this out</div></p></div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 
@@ -107,7 +107,7 @@ describe('parserawHtml - internal link tests', () => {
     const text = 'internal link';
     const domId = 'my-element';
     const rawHtml = `<a href="#${domId}">${text}</a><div id="${domId}"></div>`;
-    const result = (await parseHtml({ ...getDefaultParseHtmlArgs(), rawHtml })) as SuccessResult;
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
 
     const keyPrefix = getNodeKey({ index: 0 });
 

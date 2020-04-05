@@ -113,9 +113,7 @@ export const ITALIC_TAGS = new Set(['i', 'em']);
 export const UNDERLINE_TAGS = new Set(['ins', 'u']);
 export const STRIKETHROUGH_TAGS = new Set(['strike', 'del']);
 export const HEADER_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
-export const LINK_TAGS = new Set(['a']);
 export const LIST_TAGS = new Set(['ol', 'ul']);
-export const BREAK_TAGS = new Set(['br']);
 
 export const getHeaderNumber = (pathName: string): number | undefined => {
   if (HEADER_TAGS.has(pathName)) {

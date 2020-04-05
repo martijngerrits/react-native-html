@@ -5,5 +5,5 @@ module.exports = {
   setupFilesAfterEnv: ['./jest.setup.js'],
   roots: ['./', '../parser'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'node'],
-  testPathIgnorePatterns: ['/node_modules/', 'defaultHtmlParseArgs'],
+  testPathIgnorePatterns: ['/node_modules/', 'defaultHtmlParseOptions'],
 };
