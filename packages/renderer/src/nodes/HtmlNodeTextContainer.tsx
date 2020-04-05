@@ -6,7 +6,8 @@ import { BasicStyle } from '../HtmlStyles';
 
 interface Props {
   node: TextContainerNode;
-  style?: StyleProp<TextStyle>;
+  textStyle: StyleProp<TextStyle>;
+  paragraphStyle: StyleProp<TextStyle>;
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
@@ -17,12 +18,16 @@ export const HtmlNodeTextContainer = ({
   node,
   TextComponent,
   renderChildNode,
-  style,
+  textStyle,
+  paragraphStyle,
   onLayout,
   firstChildInListItemStyle,
 }: Props) => {
   return (
-    <TextComponent style={[style, firstChildInListItemStyle]} onLayout={onLayout}>
+    <TextComponent
+      style={[textStyle, paragraphStyle, firstChildInListItemStyle]}
+      onLayout={onLayout}
+    >
       {node.children.map((child, index) =>
         isTextNode(child) && child.canBeTextContainerBase
           ? child.content

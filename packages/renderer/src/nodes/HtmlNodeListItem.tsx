@@ -10,6 +10,7 @@ interface Props {
   number: number;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   styles: HtmlListStyles;
+  textStyle: StyleProp<TextStyle>;
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
   onLayout?: onLayoutHandler;
@@ -26,6 +27,7 @@ export const HtmlNodeListItem = ({
   UnorderedListItemIndicator: unorderedListItemIndicator,
   onLayout,
   firstChildInListItemStyle,
+  textStyle,
 }: Props) => {
   const listItemStyles = [styles.listItem, providedStyles.listItem];
   if (isOrdered && providedStyles.orderedListItem) {
@@ -52,9 +54,13 @@ export const HtmlNodeListItem = ({
   return (
     <View style={listItemStyles} onLayout={onLayout}>
       {isOrdered ? (
-        <NumberIndicator number={number} style={providedStyles.listItemNumber} />
+        <NumberIndicator
+          number={number}
+          style={providedStyles.listItemNumber}
+          textStyle={textStyle}
+        />
       ) : (
-        <BulletIndicator style={providedStyles.listItemBullet} />
+        <BulletIndicator style={providedStyles.listItemBullet} textStyle={textStyle} />
       )}
       <View style={listItemContentStyles}>
         {node.children.map((child, index) => renderChildNode(child, index))}
@@ -66,17 +72,19 @@ export const HtmlNodeListItem = ({
 export interface HtmlNodeListItemNumberProps {
   number: number;
   style?: StyleProp<TextStyle>;
+  textStyle: StyleProp<TextStyle>;
 }
 
-const HtmlNodeListItemNumber = ({ number, style }: HtmlNodeListItemNumberProps) => {
-  return <Text style={style}>{number}. </Text>;
+const HtmlNodeListItemNumber = ({ number, textStyle, style }: HtmlNodeListItemNumberProps) => {
+  return <Text style={[textStyle, style]}>{number}. </Text>;
 };
 
 export interface HtmlNodeListItemBulletProps {
   style?: StyleProp<TextStyle>;
+  textStyle: StyleProp<TextStyle>;
 }
-const HtmlNodeListItemBullet = ({ style }: HtmlNodeListItemBulletProps) => {
-  return <Text style={style}>{'\u2022'} </Text>;
+const HtmlNodeListItemBullet = ({ textStyle, style }: HtmlNodeListItemBulletProps) => {
+  return <Text style={[textStyle, style]}>{'\u2022'} </Text>;
 };
 
 const styles = StyleSheet.create({

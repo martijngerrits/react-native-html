@@ -3,9 +3,9 @@ import { ViewStyle, StyleProp, ScrollView } from 'react-native';
 import {
   NodeBase,
   parseHtml,
-  TagHandler,
   CustomParser,
   ResultType,
+  ParserPerTag,
 } from '@react-native-html/parser';
 
 import { HtmlViewOptions, HtmlView } from './HtmlView';
@@ -13,21 +13,23 @@ import { HtmlViewOptions, HtmlView } from './HtmlView';
 export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   rawHtml: string;
   customParser?: CustomParser;
-  tagHandlers?: TagHandler[];
+  parserPerTag?: ParserPerTag;
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
   scrollRef?: ScrollView | null;
   parseFromCssClass?: string;
+  treatImageAsBlockElement?: boolean;
 }
 
 export const HtmlParseAndView = ({
   rawHtml,
   customParser,
-  tagHandlers,
+  parserPerTag,
   excludeTags,
   containerStyle,
   scrollRef,
   parseFromCssClass,
+  treatImageAsBlockElement,
   ...options
 }: HtmlParseAndViewProps) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
@@ -35,17 +37,31 @@ export const HtmlParseAndView = ({
     const applyEffect = async () => {
       const result = await parseHtml(rawHtml, {
         customParser,
-        tagHandlers,
+        parserPerTag,
         excludeTags: new Set(excludeTags),
         parseFromCssClass,
+        treatImageAsBlockElement,
       });
       if (result.type === ResultType.Success) {
         // console.log(result.nodes);
         setNodes(result.nodes);
+      } else {
+        if (__DEV__) {
+          // eslint-disable-next-line no-console
+          console.warn(result.error);
+        }
+        setNodes([]);
       }
     };
     applyEffect();
-  }, [rawHtml, customParser, tagHandlers, excludeTags, parseFromCssClass]);
+  }, [
+    rawHtml,
+    customParser,
+    parserPerTag,
+    excludeTags,
+    parseFromCssClass,
+    treatImageAsBlockElement,
+  ]);
 
   if (!nodes) return null;
 

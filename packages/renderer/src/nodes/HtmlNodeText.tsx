@@ -8,7 +8,7 @@ interface Props {
   node: TextNode;
   TextComponent: React.ElementType<TextProperties>;
   textStyle?: StyleProp<TextStyle>;
-  nestedTextStyle?: StyleProp<TextStyle>;
+  paragraphStyle?: StyleProp<TextStyle>;
   linkStyle?: StyleProp<TextStyle>;
   headerStyles: HtmlHeaderStyles;
   onLayout?: onLayoutHandler;
@@ -19,13 +19,13 @@ export const HtmlNodeText = ({
   node,
   TextComponent,
   textStyle,
-  nestedTextStyle,
+  paragraphStyle,
   linkStyle,
   headerStyles,
   onLayout,
   firstChildInListItemStyle,
 }: Props) => {
-  const combinedStyles: StyleProp<TextStyle>[] = [];
+  const combinedStyles: StyleProp<TextStyle>[] = [textStyle];
   if (node.isBold) {
     combinedStyles.push(styles.bold);
   }
@@ -39,12 +39,8 @@ export const HtmlNodeText = ({
     combinedStyles.push(styles.strike);
   }
 
-  if (node.isWithinTextContainer || node.isWithinList) {
-    if (nestedTextStyle) {
-      combinedStyles.push(nestedTextStyle);
-    }
-  } else if (textStyle) {
-    combinedStyles.push(textStyle);
+  if (!node.isWithinTextContainer) {
+    combinedStyles.push(paragraphStyle);
   }
 
   if (node.isWithinLink) {

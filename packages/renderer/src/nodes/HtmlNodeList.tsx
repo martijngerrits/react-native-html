@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleProp } from 'react-native';
+import { View, StyleProp, TextStyle } from 'react-native';
 import { ListNode, NodeBase } from '@react-native-html/parser';
 import {
   HtmlNodeListItem,
@@ -12,6 +12,7 @@ import { onLayoutHandler } from './types';
 interface Props {
   node: ListNode;
   styles: HtmlListStyles;
+  textStyle: StyleProp<TextStyle>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
@@ -27,6 +28,7 @@ export const HtmlNodeList = ({
   UnorderedListItemIndicator,
   onLayout,
   firstChildInListItemStyle,
+  textStyle,
 }: Props) => {
   const listStyles = [styles.list];
   if (node.isOrdered) {
@@ -48,6 +50,7 @@ export const HtmlNodeList = ({
           renderChildNode={renderChildNode}
           isOrdered={node.isOrdered}
           number={listItemIndex + 1}
+          textStyle={textStyle}
           styles={styles}
           OrderedListItemIndicator={OrderedListItemIndicator}
           UnorderedListItemIndicator={UnorderedListItemIndicator}

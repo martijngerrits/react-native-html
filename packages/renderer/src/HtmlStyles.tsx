@@ -26,9 +26,8 @@ export interface HtmlHeaderStyles {
 }
 
 export interface HtmlStyles extends HtmlListStyles, HtmlHeaderStyles {
-  paragraph?: StyleProp<TextStyle>;
+  paragraph?: StyleProp<TextStyle>; // stand-alone text or text container
   text?: StyleProp<TextStyle>;
-  nestedText?: StyleProp<TextStyle>; // if contained in text container
   image?: StyleProp<ImageStyle>;
   link?: StyleProp<TextStyle>;
   touchable?: StyleProp<ViewStyle>;

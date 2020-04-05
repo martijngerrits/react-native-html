@@ -13,7 +13,7 @@ interface Props {
 
 let parsedNodes: NodeBase[] = [];
 const init = async () => {
-  const result = await parseHtml({ rawHtml: articleHtml });
+  const result = await parseHtml(articleHtml);
   if (result.type === ResultType.Success) {
     parsedNodes = result.nodes;
   }

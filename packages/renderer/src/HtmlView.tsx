@@ -159,10 +159,9 @@ const renderNode = (
         }
       : undefined;
 
-  const firstChildInListItemStyle: StyleProp<BasicStyle> =
-    htmlStyles.firstChildInListItem && node.isFirstChildInListItem
-      ? htmlStyles.firstChildInListItem
-      : { marginTop: 0, paddingTop: 0 }; // default style
+  const firstChildInListItemStyle: StyleProp<BasicStyle> = node.isFirstChildInListItem
+    ? htmlStyles.firstChildInListItem ?? { marginTop: 0, paddingTop: 0 } // default style
+    : undefined;
 
   if (customRenderer) {
     const view = customRenderer({
@@ -183,7 +182,7 @@ const renderNode = (
         key={key}
         node={node}
         textStyle={htmlStyles.text}
-        nestedTextStyle={htmlStyles.nestedText}
+        paragraphStyle={htmlStyles.paragraph}
         linkStyle={htmlStyles.link}
         TextComponent={TextComponent}
         headerStyles={{
@@ -204,7 +203,8 @@ const renderNode = (
       <HtmlNodeTextContainer
         key={key}
         node={node}
-        style={htmlStyles.text}
+        textStyle={htmlStyles.text}
+        paragraphStyle={htmlStyles.paragraph}
         TextComponent={TextComponent}
         renderChildNode={renderChildNode}
         onLayout={onLayout}
@@ -270,6 +270,7 @@ const renderNode = (
         key={key}
         node={node}
         renderChildNode={renderChildNode}
+        textStyle={htmlStyles.text}
         styles={{
           list: htmlStyles.list,
           orderedList: htmlStyles.orderedList,
