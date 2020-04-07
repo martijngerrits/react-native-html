@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "yarn bob build",
-    "prepublishOnly": "yarn --cwd ../../ lint && yarn test && yarn build",
+    "prepublishOnly": "yarn --cwd ../../ lint && yarn build && cp ../../README.md ./README.md",
     "test": "yarn jest ../parser",
     "prepare": "yarn --cwd ../../ patch-package"
   },

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useRef } from 'react';
+import React, { FunctionComponent, useState, useRef, RefObject } from 'react';
 import {
   NodeBase,
   isTextNode,
@@ -57,7 +57,7 @@ export interface HtmlViewOptions {
 export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   nodes: NodeBase[];
   containerStyle?: StyleProp<ViewStyle>;
-  scrollRef?: ScrollView | null;
+  scrollRef?: RefObject<ScrollView | null>;
 }
 
 export const HtmlView: FunctionComponent<HtmlViewProps> = ({
@@ -123,7 +123,7 @@ const renderNodes = (
   options: HtmlViewOptions,
   maxWidth: number,
   offsetYs: Record<string, number>,
-  scrollRef?: ScrollView | null
+  scrollRef?: RefObject<ScrollView | null>
 ) => {
   const renderChildNode = (node: NodeBase) =>
     renderNode(node, options, maxWidth, renderChildNode, offsetYs, scrollRef);
@@ -138,7 +138,7 @@ const renderNode = (
   maxWidth: number,
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode,
   offsetYs: Record<string, number>,
-  scrollRef?: ScrollView | null
+  scrollRef?: RefObject<ScrollView | null>
 ): React.ReactNode => {
   const {
     customRenderer,

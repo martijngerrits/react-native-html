@@ -40,7 +40,7 @@ export const HtmlNodeList = ({
     listStyles.push(firstChildInListItemStyle);
   }
   return (
-    <View style={listStyles} onLayout={onLayout}>
+    <View style={listStyles} onLayout={onLayout} collapsable={!onLayout}>
       {node.children.map((listItemNode, listItemIndex) => (
         <HtmlNodeListItem
           key={

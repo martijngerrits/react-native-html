@@ -52,7 +52,7 @@ export const HtmlNodeListItem = ({
   const BulletIndicator = unorderedListItemIndicator ?? HtmlNodeListItemBullet;
 
   return (
-    <View style={listItemStyles} onLayout={onLayout}>
+    <View style={listItemStyles} onLayout={onLayout} collapsable={!onLayout}>
       {isOrdered ? (
         <NumberIndicator
           number={number}

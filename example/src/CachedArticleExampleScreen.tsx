@@ -33,7 +33,7 @@ export const CachedArticleExampleScreen = () => {
         }}
       >
         {hasScrollViewRef && (
-          <HtmlView nodes={parsedNodes} htmlStyles={htmlStyles} scrollRef={scrollRef.current} />
+          <HtmlView nodes={parsedNodes} htmlStyles={htmlStyles} scrollRef={scrollRef} />
         )}
       </ScrollView>
     </SafeAreaView>

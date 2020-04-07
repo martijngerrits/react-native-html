@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, RefObject } from 'react';
 import { ViewStyle, StyleProp, ScrollView } from 'react-native';
 import {
   NodeBase,
@@ -16,7 +16,7 @@ export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   parserPerTag?: ParserPerTag;
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
-  scrollRef?: ScrollView | null;
+  scrollRef?: RefObject<ScrollView | null>;
   parseFromCssClass?: string;
   treatImageAsBlockElement?: boolean;
 }

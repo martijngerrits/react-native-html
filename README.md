@@ -1,19 +1,28 @@
 # react-native-html
 
 ## install
+
 `yarn add @react-native-html/parser @react-native-html/renderer`
 
 ## basic example (typescript)
+
 ```
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, ScrollView } from 'react-native';
 import { HtmlParseAndView, HtmlParseAndViewProps, HtmlStyles } from '@react-native-html/renderer';
 
-const rawHtml = `<p>Hello, how are you?</p>`
-
+const rawHtml = `<div>
+  <ul id="top">
+    <li>top</li>
+    <li><a href="#bottom">go to bottom</a></li>
+  </ul>
+  <p>Hello, how are you?</p>
+  <div id="bottom">bottom</div>`
+  <a href="#top">go to top</a>
+</div>
+`;
 
 export const Example = ({ rawHtml, htmlViewProps, children }: Props) => {
-  const [hasScrollViewRef, setHasScrollViewRef] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
 
   return (
@@ -25,7 +34,6 @@ export const Example = ({ rawHtml, htmlViewProps, children }: Props) => {
           scrollRef.current = instance;
         }}
       >
-        {hasScrollViewRef && (
           <HtmlParseAndView
             rawHtml={rawHtml}
             htmlStyles={htmlStyles}
@@ -85,12 +93,14 @@ const styles = StyleSheet.create({
 });
 ```
 
-
 ## more examples
+
 See example app for more examples
 
 ## why?
+
 Other packages exist but:
+
 - minimizing the number of views needed to display the html (not every dom element is a view)
 - more control on what gets wrapped inside a <Text /> component
 - parsing white spaces as per html specs

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { NodeBase, InternalLinkNode } from '@react-native-html/parser';
 import {
   StyleProp,
@@ -17,7 +17,7 @@ interface Props {
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   offsetYs: Record<string, number>;
-  scrollRef?: ScrollView | null;
+  scrollRef?: RefObject<ScrollView | null>;
   onLayout?: onLayoutHandler;
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
@@ -43,8 +43,8 @@ export const HtmlNodeInternalLink = ({
     <LinkComponent
       style={[style, firstChildInListItemStyle]}
       onPress={() => {
-        if (scrollRef && typeof offsetYs[node.targetKey] === 'number') {
-          scrollRef.scrollTo({ y: offsetYs[node.targetKey], animated: true });
+        if (scrollRef?.current && typeof offsetYs[node.targetKey] === 'number') {
+          scrollRef.current.scrollTo({ y: offsetYs[node.targetKey], animated: true });
         }
       }}
       onLayout={onLayout}
