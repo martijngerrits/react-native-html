@@ -1,6 +1,6 @@
 {
   "name": "@react-native-html/parser",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Parses html into data nodes that are structured for easy rendering in react native",
   "main": "dist/commonjs/index.js",
   "module": "dist/module/index.js",
