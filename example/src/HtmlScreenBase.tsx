@@ -1,6 +1,12 @@
-import React, { useRef } from 'react';
-import { SafeAreaView, StyleSheet, ScrollView } from 'react-native';
-import { HtmlParseAndView, HtmlParseAndViewProps } from '@react-native-html/renderer';
+import React, { useRef, MutableRefObject } from 'react';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import {
+  HtmlParseAndView,
+  HtmlParseAndViewProps,
+  MinimalScrollView,
+} from '@react-native-html/renderer';
+import { ScrollView } from 'react-native-gesture-handler';
+
 import { htmlStyles } from './htmlStyles';
 
 interface Props {
@@ -9,7 +15,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export const HtmlScreenBase = ({ rawHtml, htmlViewProps, children }: Props) => {
+export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps, children }) => {
   // const [hasScrollViewRef, setHasScrollViewRef] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
 
@@ -21,7 +27,7 @@ export const HtmlScreenBase = ({ rawHtml, htmlViewProps, children }: Props) => {
           rawHtml={rawHtml}
           htmlStyles={htmlStyles}
           containerStyle={styles.container}
-          scrollRef={scrollRef}
+          scrollRef={(scrollRef as unknown) as MutableRefObject<MinimalScrollView | null>}
           // eslint-disable-next-line react/jsx-props-no-spreading
           {...htmlViewProps}
         />

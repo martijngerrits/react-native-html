@@ -20,7 +20,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeList = ({
+export const HtmlNodeList: React.FC<Props> = ({
   node,
   renderChildNode,
   styles,
@@ -29,7 +29,7 @@ export const HtmlNodeList = ({
   onLayout,
   firstChildInListItemStyle,
   textStyle,
-}: Props) => {
+}) => {
   const listStyles = [styles.list];
   if (node.isOrdered) {
     listStyles.push(styles.orderedList);

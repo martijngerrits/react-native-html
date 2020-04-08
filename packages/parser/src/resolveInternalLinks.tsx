@@ -5,7 +5,7 @@ interface ResolveInternalLinkArgs {
   nodeReferences: NodeReferences;
 }
 
-export const resolveInternalLinks = ({ nodeReferences }: ResolveInternalLinkArgs) => {
+export const resolveInternalLinks = ({ nodeReferences }: ResolveInternalLinkArgs): void => {
   const { internalLinkNodes, nodeMap, domIdToKeys } = nodeReferences;
   internalLinkNodes.forEach(referringNode => {
     const referredNode = findNodeByDomId(referringNode, nodeMap, domIdToKeys);
@@ -44,7 +44,7 @@ const findNodeByDomId = (
 
 const linkTypes = new Set<string>([NodeType.Link, NodeType.InternalLink]);
 
-const unflagWithinLink = (node: NodeBase) => {
+const unflagWithinLink = (node: NodeBase): void => {
   if (isTextNode(node)) {
     // eslint-disable-next-line no-param-reassign
     node.isWithinLink = false;

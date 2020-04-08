@@ -19,7 +19,7 @@ interface ParseTextArgs {
   isWithinList: boolean;
 }
 
-const newLinesWithAdjacentSpaceRegex = /[ \t]*(\n)[ \t]*/g;
+const newLinesWithAdjacentSpaceRegex = /[\t ]*(\n)[\t ]*/g;
 const tabsAndLineBreaksRegex = /[\t\n\r]/g;
 const duplicateSpaceRegex = /\s\s+/g;
 
@@ -89,9 +89,10 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
      *
      * The final space will be removed in the post processing of anonymous block when the last node is known.
      */
+    /* eslint-disable unicorn/prefer-text-content */
     const isFirstText = anonymousBlock.innerText.length === 0;
     if (isFirstText && content.startsWith(' ')) {
-      content = content.substring(1);
+      content = content.slice(1);
     }
 
     /**
@@ -99,7 +100,7 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
      * Check if previous text ended with space. If so, remove the leading space here.
      */
     if (content.startsWith(' ') && anonymousBlock.innerText.endsWith(' ')) {
-      content = content.substring(1);
+      content = content.slice(1);
     }
 
     if (content.length === 0) {
@@ -107,6 +108,7 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
     }
 
     anonymousBlock.innerText += content;
+    /* eslint-enable unicorn/prefer-text-content */
 
     // check if this text can be added to previous node if formatting is the same
     if (anonymousBlock.textContainerNode.children.length > 0) {
@@ -140,7 +142,7 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
   };
 };
 
-const willBeSameTextNodes = (prevNode: TextNode, flags: ParseTextArgs) => {
+const willBeSameTextNodes = (prevNode: TextNode, flags: ParseTextArgs): boolean => {
   return (
     prevNode.header === flags.header &&
     prevNode.isWithinLink === flags.isWithinLink &&

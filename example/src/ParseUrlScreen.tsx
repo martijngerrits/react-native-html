@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { HtmlParseAndView } from '@react-native-html/renderer';
+import { HtmlParseAndView, MinimalScrollView } from '@react-native-html/renderer';
 
 import { htmlStyles } from './htmlStyles';
 
-export const ParseUrlScreen = () => {
+export const ParseUrlScreen: React.FC = () => {
   const [url, setUrl] = useState('');
   const [cssClass, setCssClass] = useState<string | undefined>();
   const [rawHtml, setRawHtml] = useState('');
@@ -14,15 +14,15 @@ export const ParseUrlScreen = () => {
   const [hasScrollViewRef, setHasScrollViewRef] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
 
-  const fetchAndParse = async () => {
+  const fetchAndParse = async (): Promise<void> => {
     try {
       setLoading(true);
       const response = await fetch(url);
       const content = await response.text();
 
       setRawHtml(content);
-    } catch (err) {
-      Alert.alert('Error', err);
+    } catch (error) {
+      Alert.alert('Error', error);
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export const ParseUrlScreen = () => {
           <HtmlParseAndView
             rawHtml={rawHtml}
             htmlStyles={htmlStyles}
-            scrollRef={scrollRef.current}
+            scrollRef={(scrollRef as unknown) as RefObject<MinimalScrollView>}
             parseFromCssClass={cssClass || undefined}
             containerStyle={styles.htmlContainer}
           />

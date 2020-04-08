@@ -14,7 +14,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeTextContainer = ({
+export const HtmlNodeTextContainer: React.FC<Props> = ({
   node,
   TextComponent,
   renderChildNode,
@@ -22,7 +22,7 @@ export const HtmlNodeTextContainer = ({
   paragraphStyle,
   onLayout,
   firstChildInListItemStyle,
-}: Props) => {
+}) => {
   return (
     <TextComponent
       style={[textStyle, paragraphStyle, firstChildInListItemStyle]}

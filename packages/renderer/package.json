@@ -1,6 +1,6 @@
 {
   "name": "@react-native-html/renderer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Renders nodes from @react-native-html/parser in react native",
   "main": "dist/commonjs/index.js",
   "module": "dist/module/index.js",

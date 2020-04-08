@@ -10,7 +10,7 @@ const html = `<h1>Custom List Indicators</h1>
 <ul><li>dubbel 1:<ul><li>a</li><li>b</li></ul></li><li>test 456</li></ul>
 `;
 
-export const ListIndicatorExampleScreen = () => {
+export const ListIndicatorExampleScreen: React.FC = () => {
   return (
     <HtmlScreenBase
       rawHtml={html}
@@ -22,7 +22,7 @@ export const ListIndicatorExampleScreen = () => {
   );
 };
 
-const ListItemBullet = () => {
+const ListItemBullet: React.FC = () => {
   return (
     <View>
       <View style={styles.listItemBulletContainer}>
@@ -31,7 +31,7 @@ const ListItemBullet = () => {
     </View>
   );
 };
-const ListItemNumber = ({ number }: HtmlNodeListItemNumberProps) => {
+const ListItemNumber: React.FC<HtmlNodeListItemNumberProps> = ({ number }) => {
   return (
     <View>
       <View style={styles.listItemNumberContainer}>

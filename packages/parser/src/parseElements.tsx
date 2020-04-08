@@ -27,7 +27,7 @@ export function parseElements({
   parseFromCssClass,
   blockManager,
   nodeRelationshipManager,
-}: ParseElementsArgs) {
+}: ParseElementsArgs): void {
   let selectedElements: DomElement[];
   if (parseFromCssClass) {
     const element = getElementByCssClass(elements, parseFromCssClass);
@@ -58,7 +58,7 @@ export function parseElements({
   }
 }
 
-const getElementByCssClass = (elements: DomElement[], cssClass: string) => {
+const getElementByCssClass = (elements: DomElement[], cssClass: string): DomElement | undefined => {
   // eslint-disable-next-line prefer-const
   const result: { element?: DomElement } = {};
   // eslint-disable-next-line no-restricted-syntax
@@ -72,7 +72,11 @@ const getElementByCssClass = (elements: DomElement[], cssClass: string) => {
   return result.element ? result.element : undefined;
 };
 
-const visitElements = (element: DomElement, cssClass: string, result: { element?: DomElement }) => {
+const visitElements = (
+  element: DomElement,
+  cssClass: string,
+  result: { element?: DomElement }
+): void => {
   if (hasElementClassName(element, cssClass)) {
     // eslint-disable-next-line no-param-reassign
     result.element = element;

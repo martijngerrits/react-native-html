@@ -1,7 +1,7 @@
 import { Parser, DomHandler } from 'htmlparser2';
 import * as original from '@react-native-html/parser';
 
-export const customHtmlParser = (html: string) => {
+export const customHtmlParser = (html: string): Promise<original.DomElement[]> => {
   return new Promise<original.DomElement[]>((resolve, reject) => {
     const handler = new DomHandler((err, dom) => {
       if (err) {
@@ -16,7 +16,10 @@ export const customHtmlParser = (html: string) => {
   });
 };
 
-export const parseHtml = (rawHtml: string, options: original.ParseHtmlOptions) => {
+export const parseHtml = (
+  rawHtml: string,
+  options: original.ParseHtmlOptions
+): Promise<original.ParseHtmlResult> => {
   const nextOptions: original.ParseHtmlOptions = {
     ...options,
     customHtmlParser,

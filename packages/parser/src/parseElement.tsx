@@ -43,7 +43,7 @@ export function parseElement({
   blockManager,
   nodeRelationshipManager,
   block,
-}: ParseElementArgs) {
+}: ParseElementArgs): void {
   const {
     isWithinHeader,
     isWithinBold = false,

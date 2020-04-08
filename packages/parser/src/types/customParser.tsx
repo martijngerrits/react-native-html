@@ -1,4 +1,3 @@
-// eslint-disable-next-line prettier/prettier
 import type { NodeWithoutKey } from './nodes';
 import type { DomElement } from './elements';
 import { BlockBase } from '../blocks/BlockBase';

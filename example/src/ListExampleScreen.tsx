@@ -50,6 +50,6 @@ const rawHtml = `<ol class="bullets">
 </div>
 `;
 
-export const ListExampleScreen = () => {
+export const ListExampleScreen: React.FC = () => {
   return <HtmlScreenBase rawHtml={rawHtml} />;
 };

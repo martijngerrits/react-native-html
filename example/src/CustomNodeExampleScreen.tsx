@@ -10,7 +10,7 @@ const html = `<h1>Custom Node Parser & Renderer</h1>
 <p>Normal text again!</p>
 `;
 
-export const CustomNodeExampleScreen = () => {
+export const CustomNodeExampleScreen: React.FC = () => {
   return (
     <HtmlScreenBase
       rawHtml={html}
@@ -39,14 +39,14 @@ const customParser: CustomParser = ({ hasClassName }) => {
   return undefined;
 };
 
-const customRenderer = ({ node, key }: CustomRendererArgs) => {
+const customRenderer = ({ node, key }: CustomRendererArgs): React.ReactNode => {
   if (isMagicNode(node)) {
     return <MagicView key={key} />;
   }
   return undefined;
 };
 
-const MagicView = () => {
+const MagicView: React.FC = () => {
   return (
     <View style={styles.magic}>
       <Text>Acracadabra, hide the text inside the div and render this instead!</Text>

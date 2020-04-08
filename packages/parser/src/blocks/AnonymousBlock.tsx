@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-text-content */
 import { BlockBase } from './BlockBase';
 import { TextContainerNode, getNodeKey, NodeType, isTextNode } from '../types/nodes';
 import { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
@@ -24,7 +25,7 @@ export class AnonymousBlock extends BlockBase {
     this.shouldAddTextContainer = true;
   }
 
-  getTextContainerIfItNeedsToBeAdded() {
+  getTextContainerIfItNeedsToBeAdded(): TextContainerNode | null {
     if (this.shouldAddTextContainer) {
       this.shouldAddTextContainer = false;
       return this.textContainerNode;
@@ -32,7 +33,7 @@ export class AnonymousBlock extends BlockBase {
     return null;
   }
 
-  postProcess() {
+  postProcess(): void {
     // remove any trailing spaces
     // remove empty last node if needed
     let lastChild = this.textContainerNode.children[this.textContainerNode.children.length - 1];
@@ -51,3 +52,5 @@ export class AnonymousBlock extends BlockBase {
 }
 export const isAnonymousBlock = (block: BlockBase): block is AnonymousBlock =>
   block.type === BlockType.Anonymous;
+
+/* eslint-enable unicorn/prefer-text-content */

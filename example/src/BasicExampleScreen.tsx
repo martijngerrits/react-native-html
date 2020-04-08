@@ -16,6 +16,6 @@ const html = `<h1>Basic Example</h1>
 <img src="https://picsum.photos/seed/picsum/1200/800" />
 `;
 
-export const BasicExampleScreen = () => {
+export const BasicExampleScreen: React.FC = () => {
   return <HtmlScreenBase rawHtml={html} />;
 };

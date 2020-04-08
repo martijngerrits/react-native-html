@@ -14,7 +14,23 @@ import {
  * - should always be able to point to the list of current nodes to which new nodes must be added
  */
 
-export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
+export interface NodeRelationshipManager {
+  setTextContainer: (tc: TextContainerNode) => void;
+  switchToTextContainerSiblings: () => void;
+  goDown: (children: NodeBase[]) => void;
+  goUp: (oneLevelHigherNodes: NodeBase[]) => void;
+  isWithinTextContainer: () => boolean;
+  getCurrentTextContainer: () => TextContainerNode | null;
+  getNodes: () => NodeBase[];
+  getKeyPrefix: () => string;
+  getParentNode: () => NodeBase | null;
+  setParentNode: (node: NodeBase | null) => void;
+  updateParentFlags: (element: DomElement | undefined) => void;
+  getParentFlags: () => ParentBasedFlags;
+  setParentFlags: (flags: ParentBasedFlags) => void;
+}
+
+export const createNodeRelationshipManager = (nodes: NodeBase[]): NodeRelationshipManager => {
   let currentNodes = nodes;
   let parentNode: NodeBase | null = null;
   let parentNodeOfTextContainer: NodeBase | null = null;
@@ -22,7 +38,7 @@ export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
   let textContainer: TextContainerNode | null = null;
   let parentFlags: ParentBasedFlags = {};
 
-  const setTextContainer = (tc: TextContainerNode) => {
+  const setTextContainer = (tc: TextContainerNode): void => {
     textContainer = tc;
     textContainerSiblings = currentNodes;
     currentNodes = textContainer.children;
@@ -30,7 +46,7 @@ export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
     parentNode = textContainer;
   };
 
-  const switchToTextContainerSiblings = () => {
+  const switchToTextContainerSiblings = (): void => {
     textContainer = null;
     currentNodes = textContainerSiblings as NodeBase[];
     textContainerSiblings = null;
@@ -38,31 +54,31 @@ export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
     parentNodeOfTextContainer = null;
   };
 
-  const goDown = (children: NodeBase[]) => {
+  const goDown = (children: NodeBase[]): void => {
     currentNodes = children;
   };
 
-  const goUp = (oneLevelHigherNodes: NodeBase[]) => {
+  const goUp = (oneLevelHigherNodes: NodeBase[]): void => {
     currentNodes = oneLevelHigherNodes;
   };
 
-  const isWithinTextContainer = () => textContainer !== null;
+  const isWithinTextContainer = (): boolean => textContainer !== null;
 
-  const getCurrentTextContainer = () => textContainer;
+  const getCurrentTextContainer = (): TextContainerNode | null => textContainer;
 
-  const getNodes = () => currentNodes;
+  const getNodes = (): NodeBase[] => currentNodes;
 
-  const getKeyPrefix = () => {
+  const getKeyPrefix = (): string => {
     return parentNode?.key ?? '';
   };
 
-  const getParentNode = () => parentNode;
+  const getParentNode = (): NodeBase | null => parentNode;
 
-  const setParentNode = (node: NodeBase | null) => {
+  const setParentNode = (node: NodeBase | null): void => {
     parentNode = node;
   };
 
-  const updateParentFlags = (element: DomElement | undefined) => {
+  const updateParentFlags = (element: DomElement | undefined): void => {
     if (element && element.name) {
       const {
         isWithinBold,
@@ -85,8 +101,8 @@ export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
     }
   };
 
-  const getParentFlags = () => parentFlags;
-  const setParentFlags = (flags: ParentBasedFlags) => {
+  const getParentFlags = (): ParentBasedFlags => parentFlags;
+  const setParentFlags = (flags: ParentBasedFlags): void => {
     parentFlags = flags;
   };
 
@@ -106,5 +122,3 @@ export const createNodeRelationshipManager = (nodes: NodeBase[]) => {
     setParentFlags,
   };
 };
-
-export type NodeRelationshipManager = ReturnType<typeof createNodeRelationshipManager>;

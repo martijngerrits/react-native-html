@@ -16,3 +16,4 @@ export {
   Node,
   NodeType,
 } from '@react-native-html/parser';
+export { MinimalScrollView } from './nodes/types';

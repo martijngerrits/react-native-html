@@ -92,6 +92,7 @@ describe('parseHtml - custom parser tests', () => {
     <div class="magic">stuff you don't want to render but show something else in stead</div>
     <p>Normal text again!</p>`;
 
+    // eslint-disable-next-line unicorn/consistent-function-scoping
     const customParser: CustomParser = ({ hasClassName }) => {
       if (hasClassName('magic')) {
         return {

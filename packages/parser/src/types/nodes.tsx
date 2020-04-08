@@ -1,4 +1,3 @@
-// eslint-disable-next-line prettier/prettier
 import type { DomIdMap } from './elements';
 import type { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
 
@@ -102,7 +101,8 @@ export type LinkNodeWithoutKey = Omit<LinkNode, 'key'>;
 export const isLinkNode = (node: NodeBase): node is LinkNode => node.type === NodeType.Link;
 
 const linkTypes = new Set<string>([NodeType.Link, NodeType.InternalLink]);
-export const isLinkLikeNode = (node: NodeBase): node is (LinkNode | InternalLinkNode) => linkTypes.has(node.type);
+export const isLinkLikeNode = (node: NodeBase): node is LinkNode | InternalLinkNode =>
+  linkTypes.has(node.type);
 
 export interface InternalLinkNode extends NodeBase {
   type: NodeType.InternalLink;
@@ -133,7 +133,7 @@ interface GetNodeKeyArgs {
   index: number;
 }
 
-export const getNodeKey = ({ index, keyPrefix = '' }: GetNodeKeyArgs) =>
+export const getNodeKey = ({ index, keyPrefix = '' }: GetNodeKeyArgs): string =>
   `${keyPrefix}${keyPrefix.length > 0 ? '_' : ''}${index}`;
 
 interface AddNodeArgs {
@@ -150,7 +150,10 @@ export const addNode = ({
   nodeRelationshipManager,
 }: AddNodeArgs): NodeBase => {
   const nodes = nodeRelationshipManager.getNodes();
-  const key = getNodeKey({ keyPrefix: nodeRelationshipManager.getKeyPrefix(), index: nodes.length});
+  const key = getNodeKey({
+    keyPrefix: nodeRelationshipManager.getKeyPrefix(),
+    index: nodes.length,
+  });
   const parentNode = nodeRelationshipManager.getParentNode();
 
   const node = { key, parentKey: parentNode?.key, ...nodeWithoutKey };

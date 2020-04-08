@@ -70,6 +70,6 @@ culpa qui officia deserunt mollit anim id est laborum.</p>
 <a href="#top">go back to top</a>
 `;
 
-export const InternalLinkExampleScreen = () => {
+export const InternalLinkExampleScreen: React.FC = () => {
   return <HtmlScreenBase rawHtml={html} />;
 };

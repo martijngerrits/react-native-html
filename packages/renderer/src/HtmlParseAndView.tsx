@@ -1,5 +1,5 @@
 import React, { useEffect, useState, RefObject } from 'react';
-import { ViewStyle, StyleProp, ScrollView } from 'react-native';
+import { ViewStyle, StyleProp } from 'react-native';
 import {
   NodeBase,
   parseHtml,
@@ -9,6 +9,7 @@ import {
 } from '@react-native-html/parser';
 
 import { HtmlViewOptions, HtmlView } from './HtmlView';
+import { MinimalScrollView } from './nodes/types';
 
 export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   rawHtml: string;
@@ -16,12 +17,12 @@ export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   parserPerTag?: ParserPerTag;
   excludeTags?: string[];
   containerStyle?: StyleProp<ViewStyle>;
-  scrollRef?: RefObject<ScrollView | null>;
+  scrollRef?: RefObject<MinimalScrollView | null>;
   parseFromCssClass?: string;
   treatImageAsBlockElement?: boolean;
 }
 
-export const HtmlParseAndView = ({
+export const HtmlParseAndView = <TScrollView,>({
   rawHtml,
   customParser,
   parserPerTag,
@@ -31,10 +32,10 @@ export const HtmlParseAndView = ({
   parseFromCssClass,
   treatImageAsBlockElement,
   ...options
-}: HtmlParseAndViewProps) => {
+}: HtmlParseAndViewProps): React.ReactNode => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
-    const applyEffect = async () => {
+    const applyEffect = async (): Promise<void> => {
       const result = await parseHtml(rawHtml, {
         customParser,
         parserPerTag,

@@ -13,27 +13,32 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeImage = ({
+export const HtmlNodeImage: React.FC<Props> = ({
   node,
   ImageComponent,
   style,
   maxWidth,
   onLayout,
   firstChildInListItemStyle,
-}: Props) => {
+}) => {
   const { source: uri, width, height } = node;
 
-  const [scalableWidth, setScalableWidth] = useState<number | null>(null);
-  const [scalableHeight, setScalableHeight] = useState<number | null>(null);
+  const [scaledSize, setScaledSize] = useState<{ width: number | null; height: number | null }>({
+    width: null,
+    height: null,
+  });
 
   useEffect(() => {
     Image.getSize(
       uri,
-      (w, h) => adjustSize(w, h, width, height, setScalableWidth, setScalableHeight, maxWidth),
-      err => {
+      (w, h) => {
+        const nextSize = getScaledSize(w, h, width, height, maxWidth);
+        setScaledSize(nextSize);
+      },
+      error => {
         if (__DEV__) {
           // eslint-disable-next-line no-console
-          console.warn(err);
+          console.warn(error);
         }
       }
     );
@@ -41,15 +46,15 @@ export const HtmlNodeImage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);
 
-  if (!scalableHeight || !scalableWidth || !uri) return null;
+  if (!scaledSize.height || !scaledSize.width || !uri) return null;
 
   return (
     <ImageComponent
       source={{ uri }}
       style={[
         {
-          width: scalableWidth,
-          height: scalableHeight,
+          width: scaledSize.width,
+          height: scaledSize.height,
         },
         style,
         firstChildInListItemStyle,
@@ -59,15 +64,13 @@ export const HtmlNodeImage = ({
   );
 };
 
-const adjustSize = (
+const getScaledSize = (
   sourceWidth: number,
   sourceHeight: number,
   width: number | undefined,
   height: number | undefined,
-  setScalableWidth: (val: number) => void,
-  setScalableHeight: (val: number) => void,
   maxWidth: number
-) => {
+): { width: number; height: number } => {
   let ratio = 1;
 
   if (width && height) {
@@ -86,6 +89,8 @@ const adjustSize = (
     computedWidth = maxWidth;
   }
 
-  setScalableWidth(computedWidth);
-  setScalableHeight(computedHeight);
+  return {
+    width: computedWidth,
+    height: computedHeight,
+  };
 };

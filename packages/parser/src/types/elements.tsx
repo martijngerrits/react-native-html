@@ -38,7 +38,7 @@ export type DomIdMap = Map<string /* dom element id */, KeyInfo>;
 export type DomElement = DomElementBase<DomElement>;
 
 const onlyWhiteSpacesRegex = /^\s+$/;
-export const isOnlyWhiteSpaces = (input: string) => onlyWhiteSpacesRegex.test(input);
+export const isOnlyWhiteSpaces = (input: string): boolean => onlyWhiteSpacesRegex.test(input);
 
 // export const isElementText = (element: DomElement) => element.type === TEXT_PATH_NAME;
 // export const isElementBreak = (element: DomElement) => element.name === BR_PATH_NAME;
@@ -67,7 +67,7 @@ export const getElementAttribute = (
   return undefined;
 };
 
-export const hasElementClassName = (element: DomElement, className: string) => {
+export const hasElementClassName = (element: DomElement, className: string): boolean => {
   if (element.type === 'tag') {
     const classNames = getElementAttribute(element, 'class');
     if (classNames) {

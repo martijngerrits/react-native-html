@@ -17,7 +17,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeListItem = ({
+export const HtmlNodeListItem: React.FC<Props> = ({
   node,
   isOrdered,
   number,
@@ -28,7 +28,7 @@ export const HtmlNodeListItem = ({
   onLayout,
   firstChildInListItemStyle,
   textStyle,
-}: Props) => {
+}) => {
   const listItemStyles = [styles.listItem, providedStyles.listItem];
   if (isOrdered && providedStyles.orderedListItem) {
     listItemStyles.push(providedStyles.orderedListItem);
@@ -75,7 +75,11 @@ export interface HtmlNodeListItemNumberProps {
   textStyle: StyleProp<TextStyle>;
 }
 
-const HtmlNodeListItemNumber = ({ number, textStyle, style }: HtmlNodeListItemNumberProps) => {
+const HtmlNodeListItemNumber: React.FC<HtmlNodeListItemNumberProps> = ({
+  number,
+  textStyle,
+  style,
+}) => {
   return <Text style={[textStyle, style]}>{number}. </Text>;
 };
 
@@ -83,7 +87,7 @@ export interface HtmlNodeListItemBulletProps {
   style?: StyleProp<TextStyle>;
   textStyle: StyleProp<TextStyle>;
 }
-const HtmlNodeListItemBullet = ({ textStyle, style }: HtmlNodeListItemBulletProps) => {
+const HtmlNodeListItemBullet: React.FC<HtmlNodeListItemBulletProps> = ({ textStyle, style }) => {
   return <Text style={[textStyle, style]}>{'\u2022'} </Text>;
 };
 

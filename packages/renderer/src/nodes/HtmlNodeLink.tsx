@@ -20,7 +20,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeLink = ({
+export const HtmlNodeLink: React.FC<Props> = ({
   node,
   style,
   TouchableComponent,
@@ -28,7 +28,7 @@ export const HtmlNodeLink = ({
   renderChildNode,
   onLayout,
   firstChildInListItemStyle,
-}: Props) => {
+}) => {
   const LinkComponent = node.isWithinTextContainer ? TextComponent : TouchableComponent;
   return (
     <LinkComponent
@@ -41,7 +41,7 @@ export const HtmlNodeLink = ({
   );
 };
 
-const onPress = (uri: string, customHandler?: (uri: string) => void) => {
+const onPress = (uri: string, customHandler?: (uri: string) => void): void => {
   if (customHandler) {
     customHandler(uri);
   } else {

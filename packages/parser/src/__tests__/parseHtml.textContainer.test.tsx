@@ -248,7 +248,7 @@ describe('parseHtml - text container tests', () => {
     const rawHtml = `<div>${pretext}<b>${link}</b>${subtext}<div></div>${pretext}<b>${link}</b>${subtext}</div>`;
     const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
     expect(result.type).toBe(ResultType.Success);
-    const createTextContainer = (index: number) => {
+    const createTextContainer = (index: number): TextContainerNode => {
       const keyPrefix = getNodeKey({ index });
       return {
         type: NodeType.TextContainer,

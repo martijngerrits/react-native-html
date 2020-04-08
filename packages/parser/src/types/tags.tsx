@@ -1,4 +1,4 @@
-export const createBlockTagsSet = (treatImageAsBlockElement: boolean) => {
+export const createBlockTagsSet = (treatImageAsBlockElement: boolean): Set<string> => {
   const tags = new Set([
     'address',
     'article',
@@ -41,7 +41,7 @@ export const createBlockTagsSet = (treatImageAsBlockElement: boolean) => {
   return tags;
 };
 
-export const createInlineTagsSet = (treatImageAsBlockElement: boolean) => {
+export const createInlineTagsSet = (treatImageAsBlockElement: boolean): Set<string> => {
   const tags = new Set([
     'a',
     'abbr',
@@ -112,8 +112,8 @@ export const LIST_TAGS = new Set(['ol', 'ul']);
 export const getHeaderNumber = (pathName: string): number | undefined => {
   if (HEADER_TAGS.has(pathName)) {
     try {
-      return parseInt(pathName.substr(1), 10);
-    } catch (err) {
+      return Number.parseInt(pathName.slice(1), 10);
+    } catch (error) {
       // do nothing
     }
   }

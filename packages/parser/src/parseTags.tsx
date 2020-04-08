@@ -33,14 +33,14 @@ export interface TagResolverArgs {
   isWithinList: boolean;
 }
 
-const getWidthAndHeight = (element: DomElement) => {
+const getWidthAndHeight = (element: DomElement): { width?: number; height?: number } => {
   const width =
-    parseInt(getElementAttribute(element, 'width') ?? '0', 10) ||
-    parseInt(getElementAttribute(element, 'data-width') ?? '0', 10) ||
+    Number.parseInt(getElementAttribute(element, 'width') ?? '0', 10) ||
+    Number.parseInt(getElementAttribute(element, 'data-width') ?? '0', 10) ||
     undefined;
   const height =
-    parseInt(getElementAttribute(element, 'height') ?? '0', 10) ||
-    parseInt(getElementAttribute(element, 'data-height') ?? '0', 10) ||
+    Number.parseInt(getElementAttribute(element, 'height') ?? '0', 10) ||
+    Number.parseInt(getElementAttribute(element, 'data-height') ?? '0', 10) ||
     undefined;
 
   return { width, height };
@@ -60,7 +60,7 @@ export const createDefaultParserPerTag = (): ParserPerTag => {
       if (!source) return undefined;
 
       if (source.startsWith('#')) {
-        const domId = source.substr(1);
+        const domId = source.slice(1);
         return {
           type: NodeType.InternalLink,
           targetKey: '', // will be added later

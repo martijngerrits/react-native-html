@@ -1,13 +1,7 @@
 import React, { RefObject } from 'react';
 import { NodeBase, InternalLinkNode } from '@react-native-html/parser';
-import {
-  StyleProp,
-  ViewStyle,
-  TouchableWithoutFeedbackProps,
-  TextProperties,
-  ScrollView,
-} from 'react-native';
-import { onLayoutHandler } from './types';
+import { StyleProp, ViewStyle, TouchableWithoutFeedbackProps, TextProperties } from 'react-native';
+import { onLayoutHandler, MinimalScrollView } from './types';
 import { BasicStyle } from '../HtmlStyles';
 
 interface Props {
@@ -17,12 +11,12 @@ interface Props {
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   offsetYs: Record<string, number>;
-  scrollRef?: RefObject<ScrollView | null>;
+  scrollRef?: RefObject<MinimalScrollView | null>;
   onLayout?: onLayoutHandler;
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeInternalLink = ({
+export const HtmlNodeInternalLink: React.FC<Props> = ({
   node,
   style,
   TouchableComponent,
@@ -32,7 +26,7 @@ export const HtmlNodeInternalLink = ({
   offsetYs,
   onLayout,
   firstChildInListItemStyle,
-}: Props) => {
+}) => {
   const children = node.children.map((child, childIndex) => renderChildNode(child, childIndex));
   if (!node.hasResolvedTarget) {
     return <>{children}</>;

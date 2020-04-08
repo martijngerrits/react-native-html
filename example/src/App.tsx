@@ -14,7 +14,7 @@ import { ListExampleScreen } from './ListExampleScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const App = () => {
+export const App: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Main">
@@ -31,5 +31,3 @@ const App = () => {
     </NavigationContainer>
   );
 };
-
-export default App;

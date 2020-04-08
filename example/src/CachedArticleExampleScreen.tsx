@@ -12,7 +12,7 @@ interface Props {
 }
 
 let parsedNodes: NodeBase[] = [];
-const init = async () => {
+const init = async (): Promise<void> => {
   const result = await parseHtml(articleHtml);
   if (result.type === ResultType.Success) {
     parsedNodes = result.nodes;
@@ -20,7 +20,7 @@ const init = async () => {
 };
 init();
 
-export const CachedArticleExampleScreen = () => {
+export const CachedArticleExampleScreen: React.FC = () => {
   const [hasScrollViewRef, setHasScrollViewRef] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
 

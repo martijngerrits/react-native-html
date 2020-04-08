@@ -15,7 +15,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
-export const HtmlNodeText = ({
+export const HtmlNodeText: React.FC<Props> = ({
   node,
   TextComponent,
   textStyle,
@@ -24,7 +24,7 @@ export const HtmlNodeText = ({
   headerStyles,
   onLayout,
   firstChildInListItemStyle,
-}: Props) => {
+}) => {
   const combinedStyles: StyleProp<TextStyle>[] = [textStyle];
   if (node.isBold) {
     combinedStyles.push(styles.bold);

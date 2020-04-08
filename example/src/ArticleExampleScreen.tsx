@@ -108,6 +108,6 @@ export const articleHtml = `<fieldset class="mBottom" id="cnt">
 <hr class="clear"></fieldset>
 `;
 
-export const ArticleExampleScreen = () => {
+export const ArticleExampleScreen: React.FC = () => {
   return <HtmlScreenBase rawHtml={articleHtml} />;
 };

@@ -6,7 +6,22 @@ import { BlockBase } from './BlockBase';
 import { BlockType } from './BlockType';
 import { createInlineTagsSet } from '../types/tags';
 
-export const createBlockManager = (treatImageAsBlockElement: boolean) => {
+export interface BlockManager {
+  createNewBlock: (
+    element: DomElement,
+    nodeRelationshipManager: NodeRelationshipManager,
+    providedType?: BlockType | undefined
+  ) => BlockBase;
+  getBlockTypeForElement: (element: DomElement) => BlockType;
+  getBlockForNextElement: (
+    element: DomElement,
+    nodeRelationshipManager: NodeRelationshipManager
+  ) => BlockBase;
+  getCurrentBlock: () => BlockBase | null;
+  setCurrentBlock: (block: BlockBase | null) => void;
+}
+
+export const createBlockManager = (treatImageAsBlockElement: boolean): BlockManager => {
   let currentBlock: BlockBase | null = null;
   const inlineTags = createInlineTagsSet(treatImageAsBlockElement);
 
@@ -69,7 +84,7 @@ export const createBlockManager = (treatImageAsBlockElement: boolean) => {
 
   const getCurrentBlock = (): BlockBase | null => currentBlock;
 
-  const setCurrentBlock = (block: BlockBase | null) => {
+  const setCurrentBlock = (block: BlockBase | null): void => {
     if (currentBlock && isAnonymousBlock(currentBlock)) {
       currentBlock.postProcess();
     }
@@ -84,5 +99,3 @@ export const createBlockManager = (treatImageAsBlockElement: boolean) => {
     setCurrentBlock,
   };
 };
-
-export type BlockManager = ReturnType<typeof createBlockManager>;

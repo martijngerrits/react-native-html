@@ -9,7 +9,7 @@ interface Props {
   navigation: StackNavigationProp<RootStackParamList, 'Main'>;
 }
 
-export const MainScreen = ({ navigation }: Props) => {
+export const MainScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('ParseUrl')}>
