@@ -1582,7 +1582,7 @@
   integrity sha512-GLhSN8dRt4lpixPQh+8prSCy6PYk/MT/mvji/ojAd5yshowDo6HFsimCSTD/uWAdjpUq91XK9tVdTNWfGRlKQA==
 
 "@react-native-html/parser@file:packages/parser":
-  version "0.0.17"
+  version "0.0.18"
   dependencies:
     entities "^2.0.0"
     htmlparser2-without-node-native "^3.9.2"
@@ -3392,10 +3392,10 @@ eslint-config-airbnb@^18.1.0:
     object.assign "^4.1.0"
     object.entries "^1.1.1"
 
-eslint-config-derk@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/eslint-config-derk/-/eslint-config-derk-0.0.8.tgz#dc0a41b09b90cce36741d8247d863b74318ec9b1"
-  integrity sha512-e5lWDU8KO9AibcHV4i6B5vDZjVOC10xurXD8OzT6fRxSfOz7WXd3MTviyMsLrLNFgr9gMuozNvFjOz9MpAvfVg==
+eslint-config-derk@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/eslint-config-derk/-/eslint-config-derk-0.0.9.tgz#b33eccd50b5ddadd74767f2cb799a9f34f46482a"
+  integrity sha512-/UflZptXpawIVKy60yV45LMcaUlFKPTofmCz/zNM+lbGXGqn4QeUMfRSBDiXauIf/sCE2TMDjgZoPtZQgDhz9w==
   dependencies:
     "@react-native-community/eslint-plugin" "^1.0.0"
     "@typescript-eslint/eslint-plugin" "^2.27.0"
