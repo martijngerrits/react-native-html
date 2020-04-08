@@ -22,7 +22,7 @@ export interface HtmlParseAndViewProps extends Partial<HtmlViewOptions> {
   treatImageAsBlockElement?: boolean;
 }
 
-export const HtmlParseAndView = <TScrollView,>({
+export const HtmlParseAndView: React.FC<HtmlParseAndViewProps> = ({
   rawHtml,
   customParser,
   parserPerTag,
@@ -32,7 +32,7 @@ export const HtmlParseAndView = <TScrollView,>({
   parseFromCssClass,
   treatImageAsBlockElement,
   ...options
-}: HtmlParseAndViewProps): React.ReactNode => {
+}) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   useEffect(() => {
     const applyEffect = async (): Promise<void> => {

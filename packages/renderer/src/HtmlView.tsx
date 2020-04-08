@@ -1,5 +1,5 @@
 // eslint-disable-next-line unicorn/filename-case
-import React, { FunctionComponent, useState, useRef, RefObject } from 'react';
+import React, { useState, useRef, RefObject } from 'react';
 import { NodeBase } from '@react-native-html/parser';
 import {
   Text,
@@ -46,7 +46,7 @@ export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   scrollRef?: RefObject<MinimalScrollView | null>;
 }
 
-export const HtmlView: FunctionComponent<HtmlViewProps> = ({
+export const HtmlView: React.FC<HtmlViewProps> = ({
   nodes,
   customRenderer,
   TextComponent = Text,
@@ -58,7 +58,7 @@ export const HtmlView: FunctionComponent<HtmlViewProps> = ({
   UnorderedListItemIndicator,
   containerStyle,
   scrollRef,
-}: HtmlViewProps) => {
+}) => {
   const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
   const [hasSetMaxWidth, setHasSetMaxWidth] = useState(false);
   const offsetYsRef = useRef<Record<string, number>>({});

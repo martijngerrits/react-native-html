@@ -9,6 +9,7 @@
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typeCheck": "yarn tsc --noEmit --skipLibCheck --project tsconfig.json",
+    "postinstall": "yarn patch-package",
     "test": "jest"
   },
   "devDependencies": {
