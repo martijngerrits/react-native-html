@@ -32,6 +32,7 @@ describe('parserawHtml - link tests', () => {
             isWithinLink: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as LinkNode,
@@ -97,6 +98,7 @@ describe('parserawHtml - link tests', () => {
             isWithinTextContainer: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Image,

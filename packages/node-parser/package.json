@@ -1,6 +1,6 @@
 {
   "name": "@react-native-html/node-parser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Using htmlparser2 to parse the nodes",
   "main": "dist/commonjs/index.js",
   "module": "dist/module/index.js",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "private": false,
   "peerDependencies": {
-    "@react-native-html/parser": ">= 0.18"
+    "@react-native-html/parser": ">= 0.19"
   },
   "dependencies": {
     "htmlparser2": "^4.1.0"

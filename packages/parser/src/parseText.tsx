@@ -1,6 +1,6 @@
 import { decodeHTML } from 'entities';
 
-import { TextNodeWithoutKey, NodeType, isTextNode, TextNode } from './types/nodes';
+import { TextNodeWithoutKey, NodeType, isTextNode, TextNode, NodeBase } from './types/nodes';
 import { isOnlyWhiteSpaces, TextElement } from './types/elements';
 import { BlockBase } from './blocks/BlockBase';
 import { isDefinedBlock } from './blocks/DefinedBlock';
@@ -17,6 +17,7 @@ interface ParseTextArgs {
   isWithinTextContainer: boolean;
   isWithinLink: boolean;
   isWithinList: boolean;
+  nodes: NodeBase[];
 }
 
 const newLinesWithAdjacentSpaceRegex = /[\t ]*(\n)[\t ]*/g;
@@ -35,6 +36,7 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
     isWithinTextContainer,
     isWithinLink,
     isWithinList,
+    nodes,
   } = parseTextArgs;
   /**
    * @note Texts containing only whitespace characters are only allowed if direct child
@@ -127,6 +129,8 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
   }
   content = decodeHTML(content);
 
+  const previousSibling = nodes.length > 0 && nodes[nodes.length - 1];
+
   return {
     type: NodeType.Text,
     content,
@@ -139,6 +143,10 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
     isWithinLink,
     isWithinList,
     canBeTextContainerBase: !isBold && !isItalic && !hasStrikethrough && !isUnderlined,
+    isAfterHeader:
+      previousSibling &&
+      isTextNode(previousSibling) &&
+      typeof previousSibling.header !== 'undefined',
   };
 };
 

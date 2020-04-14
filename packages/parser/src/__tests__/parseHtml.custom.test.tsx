@@ -126,6 +126,7 @@ describe('parseHtml - custom parser tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         type: MyNodeTypes.Magic,
@@ -143,6 +144,60 @@ describe('parseHtml - custom parser tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
+      } as TextNode,
+    ]);
+  });
+  it('ignore element', async () => {
+    const rawHtml = `<p>Below the custom node 'ignore':</p>
+    <div class="ignore">stuff you don't want to render</div>
+    <p>Normal text again!</p>`;
+
+    // eslint-disable-next-line unicorn/consistent-function-scoping
+    const customParser: CustomParser = ({ hasClassName }) => {
+      if (hasClassName('ignore')) {
+        return {
+          continueParsing: false,
+        };
+      }
+      return undefined;
+    };
+
+    const result = (await parseHtml(rawHtml, {
+      ...getDefaultParseHtmlOptions(),
+      customParser,
+    })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+
+    expect(result.nodes).toEqual([
+      {
+        content: "Below the custom node 'ignore':",
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+        isAfterHeader: false,
+      } as TextNode,
+      {
+        content: 'Normal text again!',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 1 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });

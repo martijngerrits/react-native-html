@@ -17,10 +17,16 @@ export class AnonymousBlock extends BlockBase {
     this.innerText = '';
     const keyPrefix = childGroup.getParentNode()?.key ?? '';
 
+    const nodes = childGroup.getNodes();
+    const previousSibling = nodes.length > 0 && nodes[nodes.length - 1];
     this.textContainerNode = {
       type: NodeType.TextContainer,
       children: [],
-      key: getNodeKey({ keyPrefix, index: childGroup.getNodes().length }),
+      key: getNodeKey({ keyPrefix, index: nodes.length }),
+      isAfterHeader:
+        previousSibling &&
+        isTextNode(previousSibling) &&
+        typeof previousSibling.header !== 'undefined',
     };
     this.shouldAddTextContainer = true;
   }

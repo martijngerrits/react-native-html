@@ -34,6 +34,7 @@ describe('parserawHtml - internal link tests', () => {
             isWithinLink: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as InternalLinkNode,
@@ -50,6 +51,7 @@ describe('parserawHtml - internal link tests', () => {
         isWithinList: false,
         isLinkedTo: true,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -84,6 +86,7 @@ describe('parserawHtml - internal link tests', () => {
             isWithinLink: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as InternalLinkNode,
@@ -100,6 +103,7 @@ describe('parserawHtml - internal link tests', () => {
         isWithinList: false,
         isLinkedTo: true,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -134,6 +138,7 @@ describe('parserawHtml - internal link tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as InternalLinkNode,

@@ -56,6 +56,7 @@ describe('parseHtml - image tests', () => {
         isWithinTextContainer: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         type: NodeType.Image,
@@ -74,6 +75,7 @@ describe('parseHtml - image tests', () => {
         isWithinTextContainer: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -93,6 +95,7 @@ describe('parseHtml - image tests', () => {
       {
         key: getNodeKey({ index: 0 }),
         type: NodeType.TextContainer,
+        isAfterHeader: false,
         children: [
           {
             content: text,
@@ -107,6 +110,7 @@ describe('parseHtml - image tests', () => {
             isWithinTextContainer: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Image,
@@ -127,6 +131,7 @@ describe('parseHtml - image tests', () => {
             isWithinTextContainer: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as TextContainerNode,

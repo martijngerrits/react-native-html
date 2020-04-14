@@ -159,6 +159,7 @@ export const createDefaultParserPerTag = (): ParserPerTag => {
         isWithinLink,
         isWithinList,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode;
     },
   };

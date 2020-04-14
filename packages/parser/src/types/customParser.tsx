@@ -21,6 +21,7 @@ export interface CustomParserArgs {
 export interface CustomParserResult {
   node?: NodeWithoutKey;
   continueParsingChildren?: boolean;
+  continueParsing?: boolean;
 }
 
 export type CustomParser = (args: CustomParserArgs) => CustomParserResult | undefined;

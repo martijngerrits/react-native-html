@@ -24,6 +24,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: pretext,
@@ -38,6 +39,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -52,6 +54,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             content: subtext,
@@ -66,6 +69,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -85,6 +89,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: pretext,
@@ -99,6 +104,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -120,6 +126,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinLink: true,
                 isWithinList: false,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as LinkNode,
@@ -136,6 +143,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -157,6 +165,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: pretext,
@@ -171,6 +180,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -185,6 +195,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             content: subtext,
@@ -199,6 +210,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -220,6 +232,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinLink: true,
                 isWithinList: false,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as LinkNode,
@@ -236,6 +249,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -253,6 +267,7 @@ describe('parseHtml - text container tests', () => {
       return {
         type: NodeType.TextContainer,
         key: keyPrefix,
+        isAfterHeader: false,
         children: [
           {
             content: pretext,
@@ -267,6 +282,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -281,6 +297,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             content: subtext,
@@ -295,6 +312,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       };
@@ -315,6 +333,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             type: NodeType.Text,
@@ -329,6 +348,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -350,6 +370,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinLink: true,
                 isWithinList: false,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as LinkNode,
@@ -366,6 +387,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -402,6 +424,7 @@ describe('parseHtml - text container tests', () => {
                 key: getNodeKey({ index: 0, keyPrefix: keyPrefixLI }),
                 parentKey: keyPrefixLI,
                 isFirstChildInListItem: true,
+                isAfterHeader: false,
                 children: [
                   {
                     content: 'Lorem Ipsum: ',
@@ -416,6 +439,7 @@ describe('parseHtml - text container tests', () => {
                     isWithinLink: false,
                     isWithinList: true,
                     canBeTextContainerBase: false,
+                    isAfterHeader: false,
                   } as TextNode,
                   {
                     type: NodeType.Link,
@@ -437,6 +461,7 @@ describe('parseHtml - text container tests', () => {
                         isWithinLink: true,
                         canBeTextContainerBase: true,
                         isWithinList: true,
+                        isAfterHeader: false,
                       } as TextNode,
                     ],
                   } as LinkNode,
@@ -453,6 +478,7 @@ describe('parseHtml - text container tests', () => {
                     isWithinLink: false,
                     isWithinList: true,
                     canBeTextContainerBase: true,
+                    isAfterHeader: false,
                   } as TextNode,
                   {
                     type: NodeType.Link,
@@ -474,6 +500,7 @@ describe('parseHtml - text container tests', () => {
                         isWithinLink: true,
                         isWithinList: true,
                         canBeTextContainerBase: true,
+                        isAfterHeader: false,
                       } as TextNode,
                     ],
                   } as LinkNode,
@@ -490,6 +517,7 @@ describe('parseHtml - text container tests', () => {
                     isWithinLink: false,
                     isWithinList: true,
                     canBeTextContainerBase: true,
+                    isAfterHeader: false,
                   } as TextNode,
                 ],
               } as TextContainerNode,
@@ -539,6 +567,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: 'test ', // merged because same flags/ only whitespace
@@ -553,6 +582,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -567,6 +597,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Link,
@@ -588,6 +619,7 @@ describe('parseHtml - text container tests', () => {
                 isWithinLink: true,
                 isWithinList: false,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as LinkNode,
@@ -607,6 +639,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: pretext,
@@ -621,6 +654,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
           {
             type: NodeType.Text,
@@ -635,6 +669,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             content: subtext,
@@ -649,6 +684,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -669,6 +705,7 @@ describe('parseHtml - text container tests', () => {
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 0 }),
+        isAfterHeader: false,
         children: [
           {
             content: 'Check prediv', // merges same text
@@ -683,6 +720,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       },
@@ -698,10 +736,12 @@ describe('parseHtml - text container tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         type: NodeType.TextContainer,
         key: getNodeKey({ index: 2 }),
+        isAfterHeader: false,
         children: [
           {
             type: NodeType.Text,
@@ -716,6 +756,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: false,
+            isAfterHeader: false,
           } as TextNode,
           {
             content: 'out!',
@@ -730,6 +771,7 @@ describe('parseHtml - text container tests', () => {
             isWithinLink: false,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as TextContainerNode,

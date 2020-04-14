@@ -9,6 +9,7 @@ interface Props {
   TextComponent: React.ElementType<TextProperties>;
   textStyle?: StyleProp<TextStyle>;
   paragraphStyle?: StyleProp<TextStyle>;
+  paragraphAfterHeaderStyle?: StyleProp<TextStyle>;
   linkStyle?: StyleProp<TextStyle>;
   headerStyles: HtmlHeaderStyles;
   onLayout?: onLayoutHandler;
@@ -20,6 +21,7 @@ export const HtmlNodeText: React.FC<Props> = ({
   TextComponent,
   textStyle,
   paragraphStyle,
+  paragraphAfterHeaderStyle,
   linkStyle,
   headerStyles,
   onLayout,
@@ -41,6 +43,9 @@ export const HtmlNodeText: React.FC<Props> = ({
 
   if (!node.isWithinTextContainer) {
     combinedStyles.push(paragraphStyle);
+    if (node.isAfterHeader) {
+      combinedStyles.push(paragraphAfterHeaderStyle);
+    }
   }
 
   if (node.isWithinLink) {

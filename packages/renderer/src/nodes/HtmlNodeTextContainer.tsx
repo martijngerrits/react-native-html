@@ -8,6 +8,7 @@ interface Props {
   node: TextContainerNode;
   textStyle: StyleProp<TextStyle>;
   paragraphStyle: StyleProp<TextStyle>;
+  paragraphAfterHeaderStyle?: StyleProp<TextStyle>;
   TextComponent: React.ElementType<TextProperties>;
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
@@ -20,12 +21,18 @@ export const HtmlNodeTextContainer: React.FC<Props> = ({
   renderChildNode,
   textStyle,
   paragraphStyle,
+  paragraphAfterHeaderStyle,
   onLayout,
   firstChildInListItemStyle,
 }) => {
   return (
     <TextComponent
-      style={[textStyle, paragraphStyle, firstChildInListItemStyle]}
+      style={[
+        textStyle,
+        paragraphStyle,
+        node.isAfterHeader && paragraphAfterHeaderStyle,
+        firstChildInListItemStyle,
+      ]}
       onLayout={onLayout}
     >
       {node.children.map((child, index) =>

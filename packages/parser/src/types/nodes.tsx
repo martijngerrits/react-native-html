@@ -44,6 +44,7 @@ export interface TextNode extends NodeBase {
   isWithinLink: boolean;
   isWithinList: boolean;
   canBeTextContainerBase: boolean;
+  isAfterHeader: boolean;
 }
 export type TextNodeWithoutKey = Omit<TextNode, 'key'>;
 export const isTextNode = (node: NodeBase): node is TextNode => node.type === NodeType.Text;
@@ -51,6 +52,7 @@ export const isTextNode = (node: NodeBase): node is TextNode => node.type === No
 export interface TextContainerNode extends NodeBase {
   type: NodeType.TextContainer;
   children: NodeBase[];
+  isAfterHeader: boolean;
 }
 export type TextContainerNodeWithoutKey = Omit<TextContainerNode, 'key'>;
 export const isTextContainerNode = (node: NodeBase): node is TextContainerNode =>

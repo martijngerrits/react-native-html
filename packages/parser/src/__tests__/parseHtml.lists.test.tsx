@@ -1,5 +1,13 @@
 import { parseHtml, ResultType, SuccessResult } from '../parseHtml';
-import { NodeType, TextNode, ListItemNode, ListNode, getNodeKey, ImageNode } from '../types/nodes';
+import {
+  NodeType,
+  TextNode,
+  ListItemNode,
+  ListNode,
+  getNodeKey,
+  ImageNode,
+  TextContainerNode,
+} from '../types/nodes';
 import { getDefaultParseHtmlOptions } from './defaultHtmlParseOptions';
 
 describe('parseHtml - list tests', () => {
@@ -40,6 +48,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           },
@@ -62,6 +71,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -107,6 +117,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -129,6 +140,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -174,6 +186,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
               {
                 type: NodeType.Text,
@@ -188,6 +201,7 @@ describe('parseHtml - list tests', () => {
                 isWithinTextContainer: false,
                 isWithinList: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: true,
               } as TextNode,
             ],
           } as ListItemNode,
@@ -233,6 +247,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: false,
+                isAfterHeader: false,
               } as TextNode,
               {
                 type: NodeType.Image,
@@ -252,6 +267,7 @@ describe('parseHtml - list tests', () => {
                 key: '0_1_0',
                 parentKey: '0_1',
                 isFirstChildInListItem: true,
+                isAfterHeader: false,
                 children: [
                   {
                     type: NodeType.Text,
@@ -266,6 +282,7 @@ describe('parseHtml - list tests', () => {
                     isWithinTextContainer: true,
                     isWithinList: true,
                     canBeTextContainerBase: false,
+                    isAfterHeader: false,
                   } as TextNode,
                   {
                     type: NodeType.Image,
@@ -274,7 +291,7 @@ describe('parseHtml - list tests', () => {
                     source: 'https://picsum.photos/seed/picsum/1200/800',
                   } as ImageNode,
                 ],
-              },
+              } as TextContainerNode,
             ],
           } as ListItemNode,
         ],
@@ -313,6 +330,7 @@ describe('parseHtml - list tests', () => {
                 key: '0_0_0',
                 parentKey: '0_0',
                 isFirstChildInListItem: true,
+                isAfterHeader: false,
                 children: [
                   {
                     type: NodeType.Text,
@@ -327,6 +345,7 @@ describe('parseHtml - list tests', () => {
                     isWithinTextContainer: true,
                     isWithinList: true,
                     canBeTextContainerBase: false,
+                    isAfterHeader: false,
                   } as TextNode,
 
                   {
@@ -342,9 +361,10 @@ describe('parseHtml - list tests', () => {
                     isWithinTextContainer: true,
                     isWithinList: true,
                     canBeTextContainerBase: true,
+                    isAfterHeader: false,
                   } as TextNode,
                 ],
-              },
+              } as TextContainerNode,
             ],
           } as ListItemNode,
           {
@@ -357,6 +377,7 @@ describe('parseHtml - list tests', () => {
                 key: '0_1_0',
                 parentKey: '0_1',
                 isFirstChildInListItem: true,
+                isAfterHeader: false,
                 children: [
                   {
                     type: NodeType.Text,
@@ -371,6 +392,7 @@ describe('parseHtml - list tests', () => {
                     isWithinTextContainer: true,
                     isWithinList: true,
                     canBeTextContainerBase: false,
+                    isAfterHeader: false,
                   } as TextNode,
 
                   {
@@ -386,9 +408,10 @@ describe('parseHtml - list tests', () => {
                     isWithinTextContainer: true,
                     isWithinList: true,
                     canBeTextContainerBase: true,
+                    isAfterHeader: false,
                   } as TextNode,
                 ],
-              },
+              } as TextContainerNode,
             ],
           } as ListItemNode,
           {
@@ -410,6 +433,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: false,
+                isAfterHeader: false,
               } as TextNode,
               {
                 type: NodeType.Image,
@@ -439,6 +463,7 @@ describe('parseHtml - list tests', () => {
                 isWithinList: true,
                 isFirstChildInListItem: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: false,
               } as TextNode,
               {
                 type: NodeType.Text,
@@ -453,6 +478,7 @@ describe('parseHtml - list tests', () => {
                 isWithinTextContainer: false,
                 isWithinList: true,
                 canBeTextContainerBase: true,
+                isAfterHeader: true,
               } as TextNode,
             ],
           } as ListItemNode,

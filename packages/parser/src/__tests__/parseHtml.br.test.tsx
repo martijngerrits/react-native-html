@@ -22,6 +22,7 @@ describe('parseHtml - br tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         content: 'hallo dit is een test',
@@ -35,6 +36,7 @@ describe('parseHtml - br tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -82,6 +84,7 @@ describe('parseHtml - br tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         content: 'Contact {newline}',
@@ -96,6 +99,7 @@ describe('parseHtml - br tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: false,
+        isAfterHeader: false,
       } as TextNode,
       {
         source: 'https://www.wikipedia.org',
@@ -117,6 +121,7 @@ describe('parseHtml - br tests', () => {
             isWithinLink: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as LinkNode,
@@ -133,6 +138,7 @@ describe('parseHtml - br tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
       {
         source: 'https://www.instagram.com',
@@ -154,6 +160,7 @@ describe('parseHtml - br tests', () => {
             isWithinLink: true,
             isWithinList: false,
             canBeTextContainerBase: true,
+            isAfterHeader: false,
           } as TextNode,
         ],
       } as LinkNode,

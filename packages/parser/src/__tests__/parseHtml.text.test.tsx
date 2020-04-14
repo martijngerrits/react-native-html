@@ -21,6 +21,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -43,6 +44,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -64,6 +66,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: false,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -85,6 +88,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: false,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -106,6 +110,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: false,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -127,6 +132,7 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: false,
+        isAfterHeader: false,
       } as TextNode,
     ]);
   });
@@ -150,6 +156,67 @@ describe('parseHtml - text tests', () => {
         isWithinLink: false,
         isWithinList: false,
         canBeTextContainerBase: true,
+        isAfterHeader: false,
+      } as TextNode,
+    ]);
+  });
+  it('parse text within h1 and within strong with header number', async () => {
+    const rawHtml = '<h2><strong>Foliumzuur</strong></h2>';
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        content: 'Foliumzuur',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0 }),
+        header: 2,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: true,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: false,
+        isAfterHeader: false,
+      } as TextNode,
+    ]);
+  });
+  it('parse text with isAfterHeader', async () => {
+    const rawHtml = '<h2><strong>Foliumzuur</strong></h2><p>alinea 1</p>';
+    const result = (await parseHtml(rawHtml, { ...getDefaultParseHtmlOptions() })) as SuccessResult;
+
+    expect(result.type).toBe(ResultType.Success);
+    expect(result.nodes).toEqual([
+      {
+        content: 'Foliumzuur',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 0 }),
+        header: 2,
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: true,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: false,
+        isAfterHeader: false,
+      } as TextNode,
+      {
+        content: 'alinea 1',
+        type: NodeType.Text,
+        key: getNodeKey({ index: 1 }),
+        hasStrikethrough: false,
+        isUnderlined: false,
+        isItalic: false,
+        isBold: false,
+        isWithinTextContainer: false,
+        isWithinLink: false,
+        isWithinList: false,
+        canBeTextContainerBase: true,
+        isAfterHeader: true,
       } as TextNode,
     ]);
   });

@@ -96,6 +96,10 @@ export function parseElement({
       block,
       nodeRelationshipManager,
     });
+  if (customParseResult?.continueParsing === false) {
+    return;
+  }
+
   if (customParseResult?.node) {
     parsedNode = customParseResult.node;
   } else if (isTextElement(element)) {
@@ -110,6 +114,7 @@ export function parseElement({
       isWithinLink,
       isWithinList,
       block,
+      nodes: nodeRelationshipManager.getNodes(),
     });
     if (textNode) {
       parsedNode = textNode;
