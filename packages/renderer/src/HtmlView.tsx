@@ -34,7 +34,7 @@ export interface HtmlViewOptions {
   ImageComponent: React.ElementType<ImageProperties>;
   TouchableComponent: React.ElementType<TouchableWithoutFeedbackProps>;
   WebViewComponent: React.ElementType<WebViewProps>;
-  onLinkPress?: (uri: string) => void;
+  onLinkPress?: (uri: string) => boolean;
   htmlStyles: HtmlStyles;
   OrderedListItemIndicator?: React.ComponentType<HtmlNodeListItemNumberProps>;
   UnorderedListItemIndicator?: React.ComponentType<HtmlNodeListItemBulletProps>;
@@ -58,6 +58,7 @@ export const HtmlView: React.FC<HtmlViewProps> = ({
   UnorderedListItemIndicator,
   containerStyle,
   scrollRef,
+  onLinkPress,
 }) => {
   const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
   const [hasSetMaxWidth, setHasSetMaxWidth] = useState(false);
@@ -91,6 +92,7 @@ export const HtmlView: React.FC<HtmlViewProps> = ({
             htmlStyles,
             OrderedListItemIndicator,
             UnorderedListItemIndicator,
+            onLinkPress,
           },
           maxWidth,
           offsetYsRef.current,

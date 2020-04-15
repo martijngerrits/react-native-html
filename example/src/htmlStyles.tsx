@@ -23,18 +23,21 @@ export const htmlStyles: HtmlStyles = {
     marginTop: 10,
     marginBottom: 5,
     fontWeight: '500',
+    lineHeight: 30,
   },
   h2: {
     fontSize: 26,
     marginTop: 10,
     marginBottom: 5,
     fontWeight: '500',
+    lineHeight: 26,
   },
   h3: {
     fontSize: 24,
     marginTop: 10,
     marginBottom: 5,
     fontWeight: '500',
+    lineHeight: 24,
   },
   listItem: {
     marginVertical: 2,

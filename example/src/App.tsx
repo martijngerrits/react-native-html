@@ -11,6 +11,8 @@ import { ArticleExampleScreen } from './ArticleExampleScreen';
 import { CachedArticleExampleScreen } from './CachedArticleExampleScreen';
 import { ParseUrlScreen } from './ParseUrlScreen';
 import { ListExampleScreen } from './ListExampleScreen';
+import { IFrameExampleScreen } from './IFrameExampleScreen';
+import { CustomLinkHandlingExampleScreen } from './CustomLinkHandlingExampleScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -27,6 +29,11 @@ export const App: React.FC = () => {
         <Stack.Screen name="CachedArticleExample" component={CachedArticleExampleScreen} />
         <Stack.Screen name="ParseUrl" component={ParseUrlScreen} />
         <Stack.Screen name="ListExample" component={ListExampleScreen} />
+        <Stack.Screen name="IFrameExample" component={IFrameExampleScreen} />
+        <Stack.Screen
+          name="CustomLinkHandlingExample"
+          component={CustomLinkHandlingExampleScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

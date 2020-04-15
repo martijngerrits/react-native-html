@@ -18,6 +18,7 @@ interface Props {
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
+  onLinkPress?: (uri: string) => void;
 }
 
 export const HtmlNodeLink: React.FC<Props> = ({
@@ -28,12 +29,13 @@ export const HtmlNodeLink: React.FC<Props> = ({
   renderChildNode,
   onLayout,
   firstChildInListItemStyle,
+  onLinkPress,
 }) => {
   const LinkComponent = node.isWithinTextContainer ? TextComponent : TouchableComponent;
   return (
     <LinkComponent
       style={[style, firstChildInListItemStyle]}
-      onPress={() => onPress(node.source)}
+      onPress={() => onPress(node.source, onLinkPress)}
       onLayout={onLayout}
     >
       {node.children.map((child, childIndex) => renderChildNode(child, childIndex))}

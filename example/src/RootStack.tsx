@@ -8,4 +8,6 @@ export type RootStackParamList = {
   CachedArticleExample: undefined;
   ParseUrl: undefined;
   ListExample: undefined;
+  IFrameExample: undefined;
+  CustomLinkHandlingExample: undefined;
 };

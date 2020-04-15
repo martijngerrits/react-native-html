@@ -19,6 +19,7 @@ import { HtmlNodeLink } from './nodes/HtmlNodeLink';
 import { HtmlNodeList } from './nodes/HtmlNodeList';
 import { HtmlNodeInternalLink } from './nodes/HtmlNodeInternalLink';
 import { HtmlNodeText } from './nodes/HtmlNodeText';
+import { HtmlNodeIFrame } from './nodes/HtmlNodeIFrame';
 
 export const renderNodes = (
   nodes: NodeBase[],
@@ -140,6 +141,7 @@ const renderNode = (
         renderChildNode={renderChildNode}
         onLayout={onLayout}
         firstChildInListItemStyle={firstChildInListItemStyle}
+        onLinkPress={options.onLinkPress}
       />
     );
   }
@@ -160,11 +162,14 @@ const renderNode = (
   }
   if (isIFrameNode(node)) {
     return (
-      <WebViewComponent
+      <HtmlNodeIFrame
         onLayout={onLayout}
         key={key}
-        source={{ uri: node.source }}
-        style={[htmlStyles.iframe, firstChildInListItemStyle]}
+        node={node}
+        style={htmlStyles.iframe}
+        firstChildInListItemStyle={firstChildInListItemStyle}
+        WebViewComponent={WebViewComponent}
+        onLinkPress={options.onLinkPress}
       />
     );
   }
