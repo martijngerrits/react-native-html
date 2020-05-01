@@ -185,7 +185,7 @@ describe('parseHtml - list tests', () => {
                 isWithinTextContainer: false,
                 isWithinList: true,
                 isFirstChildInListItem: true,
-                canBeTextContainerBase: true,
+                canBeTextContainerBase: false,
                 isAfterHeader: false,
               } as TextNode,
               {
@@ -462,7 +462,7 @@ describe('parseHtml - list tests', () => {
                 isWithinTextContainer: false,
                 isWithinList: true,
                 isFirstChildInListItem: true,
-                canBeTextContainerBase: true,
+                canBeTextContainerBase: false,
                 isAfterHeader: false,
               } as TextNode,
               {

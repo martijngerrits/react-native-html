@@ -43,7 +43,7 @@ describe('parseHtml - text tests', () => {
         isWithinTextContainer: false,
         isWithinLink: false,
         isWithinList: false,
-        canBeTextContainerBase: true,
+        canBeTextContainerBase: false,
         isAfterHeader: false,
       } as TextNode,
     ]);
