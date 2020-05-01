@@ -91,9 +91,9 @@ const getImageSize = (
     cancel = reject;
     Image.getSize(
       uri,
-      (w, h) => {
+      (width, height) => {
         cancel = undefined;
-        resolve({ width: w, height: h });
+        resolve({ width, height });
       },
       error => {
         reject(error);
