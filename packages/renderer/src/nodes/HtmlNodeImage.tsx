@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
 import { onLayoutHandler } from './types';
@@ -22,6 +22,7 @@ export const HtmlNodeImage: React.FC<Props> = ({
   firstChildInListItemStyle,
 }) => {
   const { source: uri, width, height } = node;
+  const previousUriRef = useRef('');
 
   const [scaledSize, setScaledSize] = useState<{ width: number | null; height: number | null }>({
     width: null,
@@ -29,22 +30,39 @@ export const HtmlNodeImage: React.FC<Props> = ({
   });
 
   useEffect(() => {
-    Image.getSize(
-      uri,
-      (w, h) => {
-        const nextSize = getScaledSize(w, h, width, height, maxWidth);
-        setScaledSize(nextSize);
-      },
-      error => {
-        if (__DEV__) {
-          // eslint-disable-next-line no-console
-          console.warn(error);
-        }
-      }
-    );
+    let cancel: CancelPromise;
+    if (previousUriRef.current !== uri) {
+      const sideEffect = async (): Promise<void> => {
+        try {
+          const operation = getImageSize(uri);
+          cancel = operation.cancel;
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uri]);
+          const { width: w, height: h } = await operation.size;
+          const nextSize = getScaledSize(w, h, width, height, maxWidth);
+          setScaledSize(nextSize);
+        } catch (error) {
+          if (__DEV__ && error) {
+            // eslint-disable-next-line no-console
+            console.warn(error);
+          }
+        }
+      };
+      sideEffect();
+      previousUriRef.current = uri;
+    } else if (
+      typeof scaledSize.width === 'number' &&
+      typeof scaledSize.height === 'number' &&
+      maxWidth < scaledSize.width
+    ) {
+      setScaledSize(getSizeIfExceedingMaxWidth(scaledSize.width, scaledSize.height, maxWidth));
+    }
+
+    return () => {
+      if (cancel) {
+        cancel();
+      }
+    };
+  }, [uri, height, maxWidth, width, scaledSize]);
 
   if (!scaledSize.height || !scaledSize.width || !uri) return null;
 
@@ -62,6 +80,37 @@ export const HtmlNodeImage: React.FC<Props> = ({
       onLayout={onLayout}
     />
   );
+};
+
+export type CancelPromise = ((reason?: Error) => void) | undefined;
+const getImageSize = (
+  uri: string
+): { size: Promise<{ width: number; height: number }>; cancel: CancelPromise } => {
+  let cancel: CancelPromise;
+  const size = new Promise<{ width: number; height: number }>((resolve, reject) => {
+    cancel = reject;
+    Image.getSize(
+      uri,
+      (w, h) => {
+        cancel = undefined;
+        resolve({ width: w, height: h });
+      },
+      error => {
+        reject(error);
+      }
+    );
+  });
+
+  return { size, cancel };
+};
+
+const getSizeIfExceedingMaxWidth = (
+  sourceWidth: number,
+  sourceHeight: number,
+  maxWidth: number
+): { width: number; height: number } => {
+  const aspectRatio = sourceWidth / sourceHeight;
+  return { height: maxWidth / aspectRatio, width: maxWidth };
 };
 
 const getScaledSize = (
@@ -84,9 +133,13 @@ const getScaledSize = (
   let computedWidth = sourceWidth * ratio;
   let computedHeight = sourceHeight * ratio;
   if (computedWidth > maxWidth) {
-    const aspectRatio = sourceWidth / sourceHeight;
-    computedHeight = maxWidth / aspectRatio;
-    computedWidth = maxWidth;
+    const { width: boundedWidth, height: boundedHeight } = getSizeIfExceedingMaxWidth(
+      sourceWidth,
+      sourceHeight,
+      maxWidth
+    );
+    computedWidth = boundedWidth;
+    computedHeight = boundedHeight;
   }
 
   return {

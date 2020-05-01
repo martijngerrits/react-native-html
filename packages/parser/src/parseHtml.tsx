@@ -1,13 +1,13 @@
 import { DomHandler, Parser } from 'htmlparser2-without-node-native';
 
 import { NodeBase, NodeReferences } from './types/nodes';
-import { resolveInternalLinks } from './resolveInternalLinks';
 import { CustomParser } from './types/customParser';
 import { parseElements } from './parseElements';
 import { DomElementBase, DomElement } from './types/elements';
 import { createDefaultParserPerTag, ParserPerTag } from './parseTags';
 import { createNodeRelationshipManager } from './nodes/NodeRelationshipManager';
 import { createBlockManager } from './blocks/BlockManager';
+import { EXCLUDED_TAGS } from './types/tags';
 
 export enum ResultType {
   Failure,
@@ -31,6 +31,11 @@ export interface ParseHtmlOptions {
    * Use the custom parser to convert any element in a custom node
    */
   customParser?: CustomParser;
+
+  /**
+   * additional arguments that can be provided to the custom parer
+   */
+  customParserAdditionalArgs?: Record<string, unknown>;
   /**
    * This defines how tags are converted to the corresponding node.
    * You can extend the resulting object of createDefaultParserPerTag.
@@ -63,25 +68,9 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
     customParser,
     parserPerTag = createDefaultParserPerTag(),
     parseFromCssClass,
-    excludeTags = new Set([
-      'input',
-      'textarea',
-      'dl',
-      'table',
-      'audio',
-      'video',
-      'form',
-      'button',
-      'frame',
-      'frameset',
-      'noframes',
-      'script',
-      'noscript',
-      'object',
-      'option',
-      'track',
-    ]),
+    excludeTags = EXCLUDED_TAGS,
     customHtmlParser,
+    customParserAdditionalArgs = {},
     treatImageAsBlockElement = true,
   }: ParseHtmlOptions = {}
 ): Promise<ParseHtmlResult> {
@@ -116,15 +105,12 @@ export async function parseHtml<S, T extends DomElementBase<S> = DomElementBase<
       elements,
       parserPerTag,
       customParser,
+      customParserAdditionalArgs,
       excludeTags,
       nodeReferences,
       parseFromCssClass,
       nodeRelationshipManager,
       blockManager,
-    });
-
-    resolveInternalLinks({
-      nodeReferences,
     });
 
     return {

@@ -142,7 +142,7 @@ export const parseText = (parseTextArgs: ParseTextArgs): TextNodeWithoutKey | un
     isWithinTextContainer,
     isWithinLink,
     isWithinList,
-    canBeTextContainerBase: !isBold && !isItalic && !hasStrikethrough && !isUnderlined,
+    canBeTextContainerBase: !isBold && !isItalic && !hasStrikethrough && !isUnderlined && !header,
     isAfterHeader:
       previousSibling &&
       isTextNode(previousSibling) &&

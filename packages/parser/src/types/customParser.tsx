@@ -1,4 +1,4 @@
-import type { NodeWithoutKey } from './nodes';
+import type { NodeWithoutKey, NodeBase } from './nodes';
 import type { DomElement } from './elements';
 import { BlockBase } from '../blocks/BlockBase';
 import { NodeRelationshipManager } from '../nodes/NodeRelationshipManager';
@@ -16,6 +16,8 @@ export interface CustomParserArgs {
   hasClassName: (className: string) => boolean;
   block: BlockBase;
   nodeRelationshipManager: NodeRelationshipManager;
+  additionalArgs: Record<string, unknown>;
+  children: NodeBase[];
 }
 
 export interface CustomParserResult {

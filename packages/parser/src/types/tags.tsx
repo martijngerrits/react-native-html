@@ -119,3 +119,22 @@ export const getHeaderNumber = (pathName: string): number | undefined => {
   }
   return undefined;
 };
+
+export const EXCLUDED_TAGS = new Set([
+  'input',
+  'textarea',
+  'dl',
+  'table',
+  'audio',
+  'video',
+  'form',
+  'button',
+  'frame',
+  'frameset',
+  'noframes',
+  'script',
+  'noscript',
+  'object',
+  'option',
+  'track',
+]);

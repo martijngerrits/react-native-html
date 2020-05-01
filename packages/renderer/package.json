@@ -1,6 +1,6 @@
 {
   "name": "@react-native-html/renderer",
-  "version": "0.0.7",
+  "version": "0.0.18",
   "description": "Renders nodes from @react-native-html/parser in react native",
   "main": "dist/commonjs/index.js",
   "module": "dist/module/index.js",
@@ -13,7 +13,7 @@
     "url-parse": "^1.4.7"
   },
   "peerDependencies": {
-    "@react-native-html/parser": ">= 0.19",
+    "@react-native-html/parser": ">= 0.24",
     "react": ">= 16.8",
     "react-native": ">= 59.0",
     "react-native-webview": ">= 6.0"

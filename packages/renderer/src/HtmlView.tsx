@@ -26,10 +26,12 @@ export interface CustomRendererArgs {
   renderChildNode: (node: NodeBase, index: number) => React.ReactNode;
   onLayout?: onLayoutHandler;
   firstChildInListItemStyle?: StyleProp<ViewStyle>;
+  additionalArgs?: Record<string, unknown>;
 }
 
 export interface HtmlViewOptions {
   customRenderer?: (args: CustomRendererArgs) => React.ReactNode;
+  customRendererAdditionalArgs?: RefObject<Record<string, unknown>>;
   TextComponent: React.ElementType<TextProperties>;
   ImageComponent: React.ElementType<ImageProperties>;
   TouchableComponent: React.ElementType<TouchableWithoutFeedbackProps>;
@@ -46,45 +48,43 @@ export interface HtmlViewProps extends Partial<HtmlViewOptions> {
   scrollRef?: RefObject<MinimalScrollView | null>;
 }
 
-export const HtmlView: React.FC<HtmlViewProps> = ({
-  nodes,
-  customRenderer,
-  TextComponent = Text,
-  ImageComponent = Image,
-  TouchableComponent = TouchableOpacity,
-  WebViewComponent = WebView,
-  htmlStyles = {},
-  OrderedListItemIndicator,
-  UnorderedListItemIndicator,
-  containerStyle,
-  scrollRef,
-  onLinkPress,
-}) => {
-  const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
-  const [hasSetMaxWidth, setHasSetMaxWidth] = useState(false);
-  const offsetYsRef = useRef<Record<string, number>>({});
+export const HtmlView: React.FC<HtmlViewProps> = React.memo(
+  ({
+    nodes,
+    customRenderer,
+    TextComponent = Text,
+    ImageComponent = Image,
+    TouchableComponent = TouchableOpacity,
+    WebViewComponent = WebView,
+    htmlStyles = {},
+    OrderedListItemIndicator,
+    UnorderedListItemIndicator,
+    containerStyle,
+    scrollRef,
+    onLinkPress,
+    customRendererAdditionalArgs,
+  }) => {
+    const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
+    const offsetYsRef = useRef<Record<string, number>>({});
 
-  return (
-    <View
-      style={[styles.container, containerStyle]}
-      onLayout={({
-        nativeEvent: {
-          layout: { width },
-        },
-      }) => {
-        if (width !== maxWidth) {
-          setMaxWidth(width);
-        }
-        if (!hasSetMaxWidth) {
-          setHasSetMaxWidth(true);
-        }
-      }}
-    >
-      {hasSetMaxWidth &&
-        renderNodes(
+    return (
+      <View
+        style={[styles.container, containerStyle]}
+        onLayout={({
+          nativeEvent: {
+            layout: { width },
+          },
+        }) => {
+          if (width !== maxWidth) {
+            setMaxWidth(width);
+          }
+        }}
+      >
+        {renderNodes(
           nodes,
           {
             customRenderer,
+            customRendererAdditionalArgs: customRendererAdditionalArgs ?? undefined,
             TextComponent,
             ImageComponent,
             TouchableComponent,
@@ -98,9 +98,10 @@ export const HtmlView: React.FC<HtmlViewProps> = ({
           offsetYsRef.current,
           scrollRef
         )}
-    </View>
-  );
-};
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {},

@@ -1,8 +1,8 @@
 import React, { useState, SyntheticEvent } from 'react';
-import { StyleProp, ViewStyle, Linking } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import { IFrameNode } from '@react-native-html/parser';
 import { WebViewProps } from 'react-native-webview';
-import Url from 'url-parse';
+// import Url from 'url-parse';
 
 import { onLayoutHandler } from './types';
 
@@ -23,27 +23,27 @@ export const HtmlNodeIFrame: React.FC<Props> = ({
   style,
   firstChildInListItemStyle,
   onLayout,
-  onLinkPress,
+  // onLinkPress,
 }) => {
   const hasHeight = typeof node.height !== 'undefined';
 
   const source = { uri: node.source };
-  const onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest = ({ url }) => {
-    if (!url) {
-      return true;
-    }
+  // const onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest = ({ url }) => {
+  //   if (!url) {
+  //     return true;
+  //   }
 
-    const originalUrl = new Url(node.source);
-    const targetUrl = new Url(url);
+  //   const originalUrl = new Url(node.source);
+  //   const targetUrl = new Url(url);
 
-    if (
-      originalUrl.hostname.replace('www.', '') !== targetUrl.hostname.replace('www.', '') ||
-      originalUrl.pathname !== targetUrl.pathname
-    ) {
-      return onPress(url, onLinkPress);
-    }
-    return true;
-  };
+  //   if (
+  //     originalUrl.hostname.replace('www.', '') !== targetUrl.hostname.replace('www.', '') ||
+  //     originalUrl.pathname !== targetUrl.pathname
+  //   ) {
+  //     return onPress(url, onLinkPress);
+  //   }
+  //   return true;
+  // };
 
   return hasHeight ? (
     <WebViewComponent
@@ -51,7 +51,7 @@ export const HtmlNodeIFrame: React.FC<Props> = ({
       source={source}
       style={[{ height: node.height, width: node.width }, style, firstChildInListItemStyle]}
       scrollEnabled={false}
-      onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+      // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   ) : (
     <AutoHeightWebView
@@ -60,7 +60,7 @@ export const HtmlNodeIFrame: React.FC<Props> = ({
       firstChildInListItemStyle={firstChildInListItemStyle}
       WebViewComponent={WebViewComponent}
       source={source}
-      onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+      // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   );
 };
@@ -71,7 +71,7 @@ interface AutoHeightProps {
   style?: StyleProp<ViewStyle>;
   firstChildInListItemStyle?: StyleProp<ViewStyle>;
   onLayout?: onLayoutHandler;
-  onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest;
+  // onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest;
 }
 
 const AutoHeightWebView: React.FC<AutoHeightProps> = ({
@@ -80,7 +80,7 @@ const AutoHeightWebView: React.FC<AutoHeightProps> = ({
   style,
   firstChildInListItemStyle,
   onLayout,
-  onShouldStartLoadWithRequest,
+  // onShouldStartLoadWithRequest,
 }) => {
   const [height, setHeight] = useState(0);
 
@@ -112,7 +112,7 @@ const AutoHeightWebView: React.FC<AutoHeightProps> = ({
       injectedJavaScript={script}
       scrollEnabled={false}
       onLayout={onLayout}
-      onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+      // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   );
 };
@@ -148,10 +148,10 @@ observer.observe(document, {
 true; 
 `;
 
-const onPress = (uri: string, customHandler?: (uri: string) => boolean): boolean => {
-  if (customHandler) {
-    return customHandler(uri);
-  }
-  Linking.openURL(uri);
-  return false;
-};
+// const onPress = (uri: string, customHandler?: (uri: string) => boolean): boolean => {
+//   if (customHandler) {
+//     return customHandler(uri);
+//   }
+//   Linking.openURL(uri);
+//   return false;
+// };

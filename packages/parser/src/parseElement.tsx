@@ -25,6 +25,7 @@ export interface ParseElementArgs {
   element: DomElement;
   parentPathIds?: string[];
   customParser?: CustomParser;
+  customParserAdditionalArgs: Record<string, unknown>;
   block: BlockBase;
   excludeTags: Set<string>;
   parserPerTag: ParserPerTag;
@@ -38,6 +39,7 @@ export function parseElement({
   parentPathIds = [],
   parserPerTag,
   customParser,
+  customParserAdditionalArgs,
   excludeTags,
   nodeReferences,
   blockManager,
@@ -80,6 +82,7 @@ export function parseElement({
     }
   }
 
+  const children: NodeBase[] = [];
   const customParseResult =
     customParser &&
     customParser({
@@ -95,6 +98,8 @@ export function parseElement({
       hasClassName: (className: string) => hasElementClassName(element, className),
       block,
       nodeRelationshipManager,
+      children,
+      additionalArgs: customParserAdditionalArgs,
     });
   if (customParseResult?.continueParsing === false) {
     return;
@@ -123,7 +128,6 @@ export function parseElement({
     const tagParser = parserPerTag[element.name];
     if (tagParser) {
       canParseChildren = tagParser.canParseChildren;
-      const children: NodeBase[] = [];
       const nodeWithoutKey = tagParser.resolver({
         element,
         children,
@@ -181,6 +185,7 @@ export function parseElement({
           parentPathIds: pathIds,
           parserPerTag,
           customParser,
+          customParserAdditionalArgs,
           excludeTags,
           nodeReferences,
           nodeRelationshipManager,

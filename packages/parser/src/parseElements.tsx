@@ -1,33 +1,48 @@
-import { ParserPerTag } from './parseTags';
+import { ParserPerTag, createDefaultParserPerTag } from './parseTags';
 import { parseElement } from './parseElement';
-import { NodeReferences } from './types/nodes';
+import { NodeReferences, NodeBase } from './types/nodes';
 import { CustomParser } from './types/customParser';
 import { DomElement, hasElementClassName } from './types/elements';
-import { BlockManager } from './blocks/BlockManager';
-import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
+import { BlockManager, createBlockManager } from './blocks/BlockManager';
+import {
+  NodeRelationshipManager,
+  createNodeRelationshipManager,
+} from './nodes/NodeRelationshipManager';
 import { isAnonymousBlock } from './blocks/AnonymousBlock';
+import { resolveInternalLinks } from './resolveInternalLinks';
+import { EXCLUDED_TAGS } from './types/tags';
 
 interface ParseElementsArgs {
   elements: DomElement[];
-  parserPerTag: ParserPerTag;
+  nodes?: NodeBase[];
+  parserPerTag?: ParserPerTag;
   customParser?: CustomParser;
-  excludeTags: Set<string>;
+  customParserAdditionalArgs?: Record<string, unknown>;
+  excludeTags?: Set<string>;
   parseFromCssClass?: string;
-  blockManager: BlockManager;
-  nodeRelationshipManager: NodeRelationshipManager;
-  nodeReferences: NodeReferences;
+  blockManager?: BlockManager;
+  nodeRelationshipManager?: NodeRelationshipManager;
+  nodeReferences?: NodeReferences;
+  treatImageAsBlockElement?: boolean;
 }
 
 export function parseElements({
   elements,
-  parserPerTag,
+  parserPerTag = createDefaultParserPerTag(),
   customParser,
-  excludeTags,
-  nodeReferences,
+  customParserAdditionalArgs = {},
+  excludeTags = EXCLUDED_TAGS,
+  nodeReferences = {
+    internalLinkNodes: [],
+    nodeMap: new Map(),
+    domIdToKeys: new Map(),
+  },
+  nodes = [],
+  treatImageAsBlockElement = true,
+  blockManager = createBlockManager(treatImageAsBlockElement),
+  nodeRelationshipManager = createNodeRelationshipManager(nodes),
   parseFromCssClass,
-  blockManager,
-  nodeRelationshipManager,
-}: ParseElementsArgs): void {
+}: ParseElementsArgs): NodeBase[] {
   let selectedElements: DomElement[];
   if (parseFromCssClass) {
     const element = getElementByCssClass(elements, parseFromCssClass);
@@ -42,6 +57,7 @@ export function parseElements({
         element: child,
         parserPerTag,
         customParser,
+        customParserAdditionalArgs,
         excludeTags,
         nodeReferences,
         nodeRelationshipManager,
@@ -56,6 +72,12 @@ export function parseElements({
   if (block && isAnonymousBlock(block)) {
     block.postProcess();
   }
+
+  resolveInternalLinks({
+    nodeReferences,
+  });
+
+  return nodes;
 }
 
 const getElementByCssClass = (elements: DomElement[], cssClass: string): DomElement | undefined => {

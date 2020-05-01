@@ -45,6 +45,7 @@ const renderNode = (
 ): React.ReactNode => {
   const {
     customRenderer,
+    customRendererAdditionalArgs,
     TextComponent,
     ImageComponent,
     TouchableComponent,
@@ -73,6 +74,7 @@ const renderNode = (
       renderChildNode,
       onLayout,
       firstChildInListItemStyle,
+      additionalArgs: customRendererAdditionalArgs?.current ?? {},
     });
     if (view) {
       return view;

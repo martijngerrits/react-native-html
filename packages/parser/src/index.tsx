@@ -4,3 +4,4 @@ export * from './types/nodes';
 export * from './types/elements';
 export * from './types/tags';
 export * from './types/customParser';
+export * from './parseElements';
