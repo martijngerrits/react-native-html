@@ -13,6 +13,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<BasicStyle>;
 }
 
+// TODO: make image max size based on available size of image's direct ancestor
 export const HtmlNodeImage: React.FC<Props> = ({
   node,
   ImageComponent,
