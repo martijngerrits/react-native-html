@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
+import { Image, ImageProperties, ImageStyle, StyleProp, StyleSheet } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
 import { onLayoutHandler } from './types';
 import { BasicStyle } from '../HtmlStyles';
@@ -23,6 +23,7 @@ export const HtmlNodeImage: React.FC<Props> = ({
 }) => {
   const { source: uri, width, height } = node;
   const previousUriRef = useRef('');
+  const cancelGetSizeRef = useRef<CancelPromise>();
 
   const [scaledSize, setScaledSize] = useState<{ width: number | null; height: number | null }>({
     width: null,
@@ -30,15 +31,15 @@ export const HtmlNodeImage: React.FC<Props> = ({
   });
 
   useEffect(() => {
-    let cancel: CancelPromise;
+    const actualMaxWidth = getActualMaxWidth(maxWidth, style);
     if (previousUriRef.current !== uri) {
       const sideEffect = async (): Promise<void> => {
         try {
           const operation = getImageSize(uri);
-          cancel = operation.cancel;
+          cancelGetSizeRef.current = operation.cancel;
 
-          const { width: w, height: h } = await operation.size;
-          const nextSize = getScaledSize(w, h, width, height, maxWidth);
+          const { width: w, height: h } = await operation.start();
+          const nextSize = getScaledSize(w, h, width, height, actualMaxWidth);
           setScaledSize(nextSize);
         } catch (error) {
           if (__DEV__ && error) {
@@ -52,17 +53,21 @@ export const HtmlNodeImage: React.FC<Props> = ({
     } else if (
       typeof scaledSize.width === 'number' &&
       typeof scaledSize.height === 'number' &&
-      maxWidth < scaledSize.width
+      actualMaxWidth < scaledSize.width
     ) {
-      setScaledSize(getSizeIfExceedingMaxWidth(scaledSize.width, scaledSize.height, maxWidth));
+      setScaledSize(
+        getSizeIfExceedingMaxWidth(scaledSize.width, scaledSize.height, actualMaxWidth)
+      );
     }
+  }, [uri, height, maxWidth, width, scaledSize, style]);
 
+  useEffect(() => {
     return () => {
-      if (cancel) {
-        cancel();
+      if (cancelGetSizeRef.current) {
+        cancelGetSizeRef.current();
       }
     };
-  }, [uri, height, maxWidth, width, scaledSize]);
+  }, []);
 
   if (!scaledSize.height || !scaledSize.width || !uri) return null;
 
@@ -83,25 +88,25 @@ export const HtmlNodeImage: React.FC<Props> = ({
 };
 
 export type CancelPromise = ((reason?: Error) => void) | undefined;
-const getImageSize = (
-  uri: string
-): { size: Promise<{ width: number; height: number }>; cancel: CancelPromise } => {
+export type ImageSize = { width: number; height: number };
+const getImageSize = (uri: string): { start: () => Promise<ImageSize>; cancel: CancelPromise } => {
   let cancel: CancelPromise;
-  const size = new Promise<{ width: number; height: number }>((resolve, reject) => {
-    cancel = reject;
-    Image.getSize(
-      uri,
-      (width, height) => {
-        cancel = undefined;
-        resolve({ width, height });
-      },
-      error => {
-        reject(error);
-      }
-    );
-  });
+  const start = (): Promise<ImageSize> =>
+    new Promise<{ width: number; height: number }>((resolve, reject) => {
+      cancel = reject;
+      Image.getSize(
+        uri,
+        (width, height) => {
+          cancel = undefined;
+          resolve({ width, height });
+        },
+        error => {
+          reject(error);
+        }
+      );
+    });
 
-  return { size, cancel };
+  return { start, cancel };
 };
 
 const getSizeIfExceedingMaxWidth = (
@@ -146,4 +151,40 @@ const getScaledSize = (
     width: computedWidth,
     height: computedHeight,
   };
+};
+
+const getActualMaxWidth = (maxWidth: number, style: StyleProp<ImageStyle>): number => {
+  const flattenedStyle = StyleSheet.flatten(style);
+  const paddingLeft = getNumberValue(flattenedStyle.paddingLeft);
+  const paddingRight = getNumberValue(flattenedStyle.paddingRight);
+  const paddingHorizontal = getNumberValue(flattenedStyle.paddingHorizontal);
+  const marginLeft = getNumberValue(flattenedStyle.marginLeft);
+  const marginRight = getNumberValue(flattenedStyle.marginRight);
+  const marginHorizontal = getNumberValue(flattenedStyle.marginHorizontal);
+
+  return (
+    maxWidth -
+    paddingLeft -
+    paddingRight -
+    2 * paddingHorizontal -
+    marginLeft -
+    marginRight -
+    2 * marginHorizontal
+  );
+};
+
+const getNumberValue = (spacing: number | string | undefined): number => {
+  switch (typeof spacing) {
+    case 'number':
+      return spacing;
+    case 'string':
+      if (__DEV__) {
+        // eslint-disable-next-line no-console
+        console.warn('string for paddings/margins are not supported on HtmlNodeImage');
+      }
+      return 0;
+    default:
+    case 'undefined':
+      return 0;
+  }
 };

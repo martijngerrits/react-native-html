@@ -15,7 +15,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps, children }) => {
+export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps = {}, children }) => {
   // const [hasScrollViewRef, setHasScrollViewRef] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
 
@@ -25,11 +25,11 @@ export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps, childr
       <ScrollView ref={scrollRef}>
         <HtmlParseAndView
           rawHtml={rawHtml}
-          htmlStyles={htmlStyles}
           containerStyle={styles.container}
           scrollRef={(scrollRef as unknown) as MutableRefObject<MinimalScrollView | null>}
           // eslint-disable-next-line react/jsx-props-no-spreading
           {...htmlViewProps}
+          htmlStyles={{ ...htmlStyles, ...htmlViewProps.htmlStyles }}
         />
       </ScrollView>
     </SafeAreaView>
@@ -38,6 +38,6 @@ export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps, childr
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 10,
+    marginHorizontal: 20,
   },
 });

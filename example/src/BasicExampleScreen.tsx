@@ -17,5 +17,18 @@ const html = `<h1>Basic Example</h1>
 `;
 
 export const BasicExampleScreen: React.FC = () => {
-  return <HtmlScreenBase rawHtml={html} />;
+  return (
+    <HtmlScreenBase
+      rawHtml={html}
+      htmlViewProps={{
+        htmlStyles: {
+          // testing extra margin on image
+          image: {
+            marginLeft: 20,
+            marginRight: 20,
+          },
+        },
+      }}
+    />
+  );
 };
