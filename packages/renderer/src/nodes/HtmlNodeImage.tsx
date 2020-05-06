@@ -90,7 +90,12 @@ export const HtmlNodeImage: React.FC<Props> = ({
 
 export type CancelPromise = ((reason?: Error) => void) | undefined;
 export type ImageSize = { width: number; height: number };
-const getImageSize = (uri: string): { start: () => Promise<ImageSize>; cancel: CancelPromise } => {
+interface ImageSizeOperation {
+  start: () => Promise<ImageSize>;
+  cancel: CancelPromise;
+}
+
+const getImageSize = (uri: string): ImageSizeOperation => {
   let cancel: CancelPromise;
   const start = (): Promise<ImageSize> =>
     new Promise<{ width: number; height: number }>((resolve, reject) => {
