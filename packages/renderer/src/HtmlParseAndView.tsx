@@ -10,6 +10,8 @@ import {
 
 import { HtmlViewOptions, HtmlView } from './HtmlView';
 import { MinimalScrollView } from './nodes/types';
+import { cancellablePromise } from './utils/cancellablePromise';
+import { CancelPromise } from './nodes/HtmlNodeImage';
 
 interface ParseInputProps {
   rawHtml: string;
@@ -44,6 +46,7 @@ export const HtmlParseAndView: React.FC<HtmlParseAndViewProps> = ({
 }) => {
   const [nodes, setNodes] = useState<NodeBase[]>([]);
   const previousHtmlRef = useRef('');
+  const cancelRef = useRef<CancelPromise>();
 
   useEffect(() => {
     const canIParseChecker =
@@ -61,26 +64,37 @@ export const HtmlParseAndView: React.FC<HtmlParseAndViewProps> = ({
     ) {
       previousHtmlRef.current = rawHtml;
       const applyEffect = async (): Promise<void> => {
-        const result = await parseHtml(rawHtml, {
-          customParser,
-          parserPerTag,
-          excludeTags: new Set(excludeTags),
-          parseFromCssClass,
-          treatImageAsBlockElement,
-          customParserAdditionalArgs: customParserAdditionalArgs?.current ?? undefined,
-        });
-        if (result.type === ResultType.Success) {
-          // console.log(result.nodes);
-          setNodes(result.nodes);
-        } else {
+        try {
+          const operation = cancellablePromise(
+            parseHtml(rawHtml, {
+              customParser,
+              parserPerTag,
+              excludeTags: new Set(excludeTags),
+              parseFromCssClass,
+              treatImageAsBlockElement,
+              customParserAdditionalArgs: customParserAdditionalArgs?.current ?? undefined,
+            })
+          );
+          cancelRef.current = operation.cancel;
+          const result = await operation.start();
+          if (result.type === ResultType.Success) {
+            // console.log(result.nodes);
+            setNodes(result.nodes);
+          } else {
+            if (__DEV__) {
+              // eslint-disable-next-line no-console
+              console.warn(result.error);
+            }
+            setNodes([]);
+          }
+          if (onLoad) {
+            onLoad();
+          }
+        } catch (error) {
           if (__DEV__) {
             // eslint-disable-next-line no-console
-            console.warn(result.error);
+            console.warn(error);
           }
-          setNodes([]);
-        }
-        if (onLoad) {
-          onLoad();
         }
       };
       applyEffect();
@@ -96,6 +110,14 @@ export const HtmlParseAndView: React.FC<HtmlParseAndViewProps> = ({
     parseWhen,
     onLoad,
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (cancelRef.current) {
+        cancelRef.current();
+      }
+    };
+  }, []);
 
   if (!nodes) return null;
 
