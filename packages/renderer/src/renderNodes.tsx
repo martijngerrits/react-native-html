@@ -172,6 +172,7 @@ const renderNode = (
         firstChildInListItemStyle={firstChildInListItemStyle}
         WebViewComponent={WebViewComponent}
         onLinkPress={options.onLinkPress}
+        maxWidth={maxWidth}
       />
     );
   }

@@ -24,8 +24,8 @@ export const BasicExampleScreen: React.FC = () => {
         htmlStyles: {
           // testing extra margin on image
           image: {
-            marginLeft: 20,
-            marginRight: 20,
+            // marginLeft: 20,
+            // marginRight: 20,
           },
         },
       }}

@@ -13,6 +13,7 @@ interface Props {
   firstChildInListItemStyle?: StyleProp<ViewStyle>;
   onLayout?: onLayoutHandler;
   onLinkPress?: (uri: string) => boolean;
+  maxWidth: number;
 }
 
 type OnShouldStartLoadWithRequest = (event: { url?: string }) => boolean;
@@ -23,10 +24,9 @@ export const HtmlNodeIFrame: React.FC<Props> = ({
   style,
   firstChildInListItemStyle,
   onLayout,
+  maxWidth,
   // onLinkPress,
 }) => {
-  const hasHeight = typeof node.height !== 'undefined';
-
   const source = { uri: node.source };
   // const onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest = ({ url }) => {
   //   if (!url) {
@@ -45,21 +45,35 @@ export const HtmlNodeIFrame: React.FC<Props> = ({
   //   return true;
   // };
 
-  return hasHeight ? (
-    <WebViewComponent
-      onLayout={onLayout}
-      source={source}
-      style={[{ height: node.height, width: node.width }, style, firstChildInListItemStyle]}
-      scrollEnabled={false}
-      // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-    />
-  ) : (
+  if (typeof node.height !== 'undefined') {
+    let height = 0;
+    let width: number | undefined = 0;
+    if (!node.width || node.width <= maxWidth) {
+      height = node.height;
+      width = node.width;
+    } else {
+      width = maxWidth;
+      height = (maxWidth / node.width) * node.height;
+    }
+    return (
+      <WebViewComponent
+        onLayout={onLayout}
+        source={source}
+        style={[{ height, width }, style, firstChildInListItemStyle]}
+        scrollEnabled={false}
+        // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+      />
+    );
+  }
+
+  return (
     <AutoHeightWebView
       onLayout={onLayout}
       style={style}
       firstChildInListItemStyle={firstChildInListItemStyle}
       WebViewComponent={WebViewComponent}
       source={source}
+      width={node.width && node.width < maxWidth ? node.width : maxWidth}
       // onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
     />
   );
@@ -71,6 +85,7 @@ interface AutoHeightProps {
   style?: StyleProp<ViewStyle>;
   firstChildInListItemStyle?: StyleProp<ViewStyle>;
   onLayout?: onLayoutHandler;
+  width: number;
   // onShouldStartLoadWithRequest: OnShouldStartLoadWithRequest;
 }
 
@@ -80,6 +95,7 @@ const AutoHeightWebView: React.FC<AutoHeightProps> = ({
   style,
   firstChildInListItemStyle,
   onLayout,
+  width,
   // onShouldStartLoadWithRequest,
 }) => {
   const [height, setHeight] = useState(0);
@@ -105,6 +121,7 @@ const AutoHeightWebView: React.FC<AutoHeightProps> = ({
       style={[
         {
           height,
+          width,
         },
         style,
         firstChildInListItemStyle,

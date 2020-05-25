@@ -19,6 +19,7 @@ import { HtmlStyles } from './HtmlStyles';
 import { HtmlNodeListItemNumberProps, HtmlNodeListItemBulletProps } from './nodes/HtmlNodeListItem';
 import { onLayoutHandler, MinimalScrollView } from './nodes/types';
 import { renderNodes } from './renderNodes';
+import { getActualMaxWidth } from './utils/getActualMaxWidth';
 
 export interface CustomRendererArgs {
   node: NodeBase;
@@ -64,7 +65,9 @@ export const HtmlView: React.FC<HtmlViewProps> = React.memo(
     onLinkPress,
     customRendererAdditionalArgs,
   }) => {
-    const [maxWidth, setMaxWidth] = useState(Dimensions.get('window').width);
+    const [maxWidth, setMaxWidth] = useState(
+      getActualMaxWidth(Dimensions.get('window').width, containerStyle)
+    );
     const offsetYsRef = useRef<Record<string, number>>({});
 
     return (
@@ -75,8 +78,9 @@ export const HtmlView: React.FC<HtmlViewProps> = React.memo(
             layout: { width },
           },
         }) => {
-          if (width !== maxWidth) {
-            setMaxWidth(width);
+          const actualWidth = getActualMaxWidth(width, containerStyle, { includeMargins: false });
+          if (actualWidth !== maxWidth) {
+            setMaxWidth(actualWidth);
           }
         }}
       >

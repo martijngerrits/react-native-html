@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Image, ImageProperties, ImageStyle, StyleProp, StyleSheet } from 'react-native';
+import { Image, ImageProperties, ImageStyle, StyleProp } from 'react-native';
 import { ImageNode } from '@react-native-html/parser';
 import { onLayoutHandler } from './types';
 import { BasicStyle } from '../HtmlStyles';
+import { getActualMaxWidth } from '../utils/getActualMaxWidth';
 
 interface Props {
   node: ImageNode;
@@ -157,40 +158,4 @@ const getScaledSize = (
     width: computedWidth,
     height: computedHeight,
   };
-};
-
-const getActualMaxWidth = (maxWidth: number, style: StyleProp<ImageStyle>): number => {
-  const flattenedStyle = StyleSheet.flatten(style);
-  const paddingLeft = getNumberValue(flattenedStyle.paddingLeft);
-  const paddingRight = getNumberValue(flattenedStyle.paddingRight);
-  const paddingHorizontal = getNumberValue(flattenedStyle.paddingHorizontal);
-  const marginLeft = getNumberValue(flattenedStyle.marginLeft);
-  const marginRight = getNumberValue(flattenedStyle.marginRight);
-  const marginHorizontal = getNumberValue(flattenedStyle.marginHorizontal);
-
-  return (
-    maxWidth -
-    paddingLeft -
-    paddingRight -
-    2 * paddingHorizontal -
-    marginLeft -
-    marginRight -
-    2 * marginHorizontal
-  );
-};
-
-const getNumberValue = (spacing: number | string | undefined): number => {
-  switch (typeof spacing) {
-    case 'number':
-      return spacing;
-    case 'string':
-      if (__DEV__) {
-        // eslint-disable-next-line no-console
-        console.warn('string for paddings/margins are not supported on HtmlNodeImage');
-      }
-      return 0;
-    default:
-    case 'undefined':
-      return 0;
-  }
 };

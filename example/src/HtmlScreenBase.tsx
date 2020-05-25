@@ -38,6 +38,6 @@ export const HtmlScreenBase: React.FC<Props> = ({ rawHtml, htmlViewProps = {}, c
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
+    paddingHorizontal: 20,
   },
 });
