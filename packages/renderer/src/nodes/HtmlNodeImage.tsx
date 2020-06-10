@@ -37,12 +37,15 @@ export const HtmlNodeImage: React.FC<Props> = ({
     if (previousUriRef.current !== uri) {
       const sideEffect = async (): Promise<void> => {
         try {
-          const operation = getImageSize(uri);
-          cancelGetSizeRef.current = operation.cancel;
+          // dont get size for base64 encode images
+          if (!uri.startsWith('image/')) {
+            const operation = getImageSize(uri);
+            cancelGetSizeRef.current = operation.cancel;
 
-          const { width: w, height: h } = await operation.start();
-          const nextSize = getScaledSize(w, h, width, height, actualMaxWidth);
-          setScaledSize(nextSize);
+            const { width: w, height: h } = await operation.start();
+            const nextSize = getScaledSize(w, h, width, height, actualMaxWidth);
+            setScaledSize(nextSize);
+          }
         } catch (error) {
           if (__DEV__ && error) {
             // eslint-disable-next-line no-console

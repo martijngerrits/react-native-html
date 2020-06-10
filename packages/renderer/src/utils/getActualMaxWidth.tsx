@@ -32,18 +32,22 @@ export const getActualMaxWidth = (
     const paddingLeft = getNumberValue(flattenedStyle.paddingLeft);
     const paddingRight = getNumberValue(flattenedStyle.paddingRight);
     const paddingHorizontal = getNumberValue(flattenedStyle.paddingHorizontal);
+    const padding = getNumberValue(flattenedStyle.padding);
     const marginLeft = includeMargins ? getNumberValue(flattenedStyle.marginLeft) : 0;
     const marginRight = includeMargins ? getNumberValue(flattenedStyle.marginRight) : 0;
     const marginHorizontal = includeMargins ? getNumberValue(flattenedStyle.marginHorizontal) : 0;
+    const margin = includeMargins ? getNumberValue(flattenedStyle.margin) : 0;
 
     return (
       maxWidth -
       paddingLeft -
       paddingRight -
       2 * paddingHorizontal -
+      2 * padding -
       marginLeft -
       marginRight -
-      2 * marginHorizontal
+      2 * marginHorizontal -
+      2 * margin
     );
   }
   return maxWidth;
