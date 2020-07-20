@@ -1382,13 +1382,13 @@
   integrity sha512-9KbP7LTLFz9dx1heURJbO6nuVMdSjDez8znlrUzaB1nUwKVsTTwlKRuHxGUYIIkReLWrJQeCv9tidy+84z2eCw==
 
 "@react-native-html/parser@file:../packages/parser":
-  version "0.0.19"
+  version "0.0.24"
   dependencies:
     entities "^2.0.0"
     htmlparser2-without-node-native "^3.9.2"
 
 "@react-native-html/renderer@file:../packages/renderer":
-  version "0.0.6"
+  version "0.0.24"
   dependencies:
     url-parse "^1.4.7"
 
@@ -4711,9 +4711,9 @@ lodash.throttle@^4.1.1:
   integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
 
 lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.3.0:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+  version "4.17.19"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
+  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
 log-symbols@^2.2.0:
   version "2.2.0"
