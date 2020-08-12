@@ -36,7 +36,8 @@ type MergePick<T> = {[K in keyof T]: T[K]}
 
 export type HtmlTableCellStyles =
   MergePick<Pick<ViewStyle, HtmlElementTableCelStyleKeys> & Pick<TextStyle, HtmlTableElementBaseTextStyleKeys>>;
-export type HtmlTableStylesEvenOdd = Pick<ViewStyle, HtmlTableElementBaseViewStyleBackgroundColorKeys>;
+export type HtmlTableStylesEvenOdd =
+  MergePick<Pick<ViewStyle, HtmlTableElementBaseViewStyleBackgroundColorKeys> & Pick<TextStyle, HtmlTableElementBaseTextStyleKeys>>;
 
 export interface HtmlTableStyles {
   th?: StyleProp<HtmlTableCellStyles>;

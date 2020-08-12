@@ -65,7 +65,7 @@ const htmlStyles: HtmlStyles = {
       padding: '20px 20px 20px 5px',
       backgroundColor: 'orange',
       fontSize: 25,
-      fontWeight: 100,
+      fontWeight: '100',
       textAlign: 'left',
     },
     td: {

@@ -73,7 +73,7 @@ export const HtmlNodeTable: React.FC<Props> = ({
           </html>
         `,
       }}
-      width={node.width && node.width < maxWidth ? node.width : maxWidth}
+      width={maxWidth}
     />
   );
 }
