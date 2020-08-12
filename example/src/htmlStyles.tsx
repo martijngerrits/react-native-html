@@ -43,4 +43,15 @@ export const htmlStyles: HtmlStyles = {
     marginVertical: 2,
   },
   listItemContent: {},
+  table: {
+    th: {
+      padding: 20,
+      backgroundColor: 'darkgrey',
+      fontSize: 25,
+      textAlign: 'left',
+    },
+    odd: {
+      backgroundColor: 'lightgrey',
+    },
+  }
 };

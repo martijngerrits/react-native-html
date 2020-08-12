@@ -9,5 +9,6 @@ export type RootStackParamList = {
   ParseUrl: undefined;
   ListExample: undefined;
   IFrameExample: undefined;
+  TableExample: undefined;
   CustomLinkHandlingExample: undefined;
 };
