@@ -13,6 +13,7 @@ export {
   ListItemNode,
   ListNode,
   IFrameNode,
+  TableNode,
   Node,
   NodeType,
 } from '@react-native-html/parser';

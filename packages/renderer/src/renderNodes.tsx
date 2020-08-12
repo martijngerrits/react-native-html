@@ -9,6 +9,7 @@ import {
   isInternalLinkNode,
   isIFrameNode,
   isListNode,
+  isTableNode,
 } from '@react-native-html/parser';
 import type { HtmlViewOptions } from './HtmlView';
 import { onLayoutHandler, MinimalScrollView } from './nodes/types';
@@ -20,6 +21,7 @@ import { HtmlNodeList } from './nodes/HtmlNodeList';
 import { HtmlNodeInternalLink } from './nodes/HtmlNodeInternalLink';
 import { HtmlNodeText } from './nodes/HtmlNodeText';
 import { HtmlNodeIFrame } from './nodes/HtmlNodeIFrame';
+import { HtmlNodeTable } from './nodes/HtmlNodeTable';
 
 export const renderNodes = (
   nodes: NodeBase[],
@@ -200,6 +202,19 @@ const renderNode = (
         firstChildInListItemStyle={firstChildInListItemStyle}
       />
     );
+  }
+  if (isTableNode(node)) {
+    return (
+      <HtmlNodeTable
+        key={key}
+        onLayout={onLayout}
+        node={node}
+        styles={{ ...htmlStyles.table }}
+        firstChildInListItemStyle={firstChildInListItemStyle}
+        WebViewComponent={WebViewComponent}
+        maxWidth={maxWidth}
+      />
+    )
   }
 
   return null;

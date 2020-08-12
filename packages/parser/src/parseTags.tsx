@@ -1,4 +1,6 @@
 import { decodeHTML } from 'entities';
+import { Node } from 'domhandler';
+import { getOuterHTML } from 'domutils';
 
 import {
   NodeType,
@@ -10,6 +12,7 @@ import {
   NodeWithoutKey,
   TextNode,
   isTextNode,
+  TableNode,
 } from './types/nodes';
 import { getElementAttribute, DomElement } from './types/elements';
 import { NodeRelationshipManager } from './nodes/NodeRelationshipManager';
@@ -182,6 +185,19 @@ export const createDefaultParserPerTag = (): ParserPerTag => {
     },
   };
   parserPerTag.iframe = iframeParser;
+
+  const tableParser = {
+    canParseChildren: false,
+    resolver: ({ element }: TagResolverArgs) => {
+      if (element.name !== 'table') return undefined;
+
+      return {
+        type: NodeType.Table,
+        source: `${getOuterHTML(element as Node)}`,
+      } as TableNode;
+    },
+  }
+  parserPerTag.table = tableParser;
 
   return parserPerTag;
 };

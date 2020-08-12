@@ -124,7 +124,6 @@ export const EXCLUDED_TAGS = new Set([
   'input',
   'textarea',
   'dl',
-  'table',
   'audio',
   'video',
   'form',

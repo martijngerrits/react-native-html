@@ -25,6 +25,27 @@ export interface HtmlHeaderStyles {
   h6?: StyleProp<TextStyle>;
 }
 
+type HtmlTableElementBaseViewStyleBackgroundColorKeys = 'backgroundColor';
+type HtmlTableElementBaseViewStylePaddingKeys = 'padding' | 'paddingHorizontal' | 'paddingVertical';
+type HtmlTableElementBaseTextStyleKeys = 'color' | 'fontSize' | 'fontWeight' | 'textAlign';
+
+type HtmlElementTableCelStyleKeys =
+  HtmlTableElementBaseViewStyleBackgroundColorKeys | HtmlTableElementBaseViewStylePaddingKeys;
+
+type MergePick<T> = {[K in keyof T]: T[K]}
+
+export type HtmlTableCellStyles =
+  MergePick<Pick<ViewStyle, HtmlElementTableCelStyleKeys> & Pick<TextStyle, HtmlTableElementBaseTextStyleKeys>>;
+export type HtmlTableStylesEvenOdd = Pick<ViewStyle, HtmlTableElementBaseViewStyleBackgroundColorKeys>;
+
+export interface HtmlTableStyles {
+  th?: StyleProp<HtmlTableCellStyles>;
+  tr?: StyleProp<HtmlTableCellStyles>;
+  td?: StyleProp<HtmlTableCellStyles>;
+  even?: StyleProp<HtmlTableStylesEvenOdd>;
+  odd?: StyleProp<HtmlTableStylesEvenOdd>;
+}
+
 export interface HtmlStyles extends HtmlListStyles, HtmlHeaderStyles {
   paragraph?: StyleProp<TextStyle>; // stand-alone text or text container
   paragraphAfterHeader?: StyleProp<TextStyle>;
@@ -34,4 +55,5 @@ export interface HtmlStyles extends HtmlListStyles, HtmlHeaderStyles {
   touchable?: StyleProp<ViewStyle>;
   iframe?: StyleProp<ViewStyle>;
   firstChildInListItem?: StyleProp<BasicStyle>;
+  table?: HtmlTableStyles,
 }

@@ -30,6 +30,7 @@ export enum NodeType {
   InternalLink = 'InternalLink',
   List = 'List',
   ListItem = 'ListItem',
+  Table = 'Table',
 }
 
 export interface TextNode extends NodeBase {
@@ -118,6 +119,13 @@ export type InternalLinkNodeWithoutKey = Omit<LinkNode, 'key'>;
 export const isInternalLinkNode = (node: NodeBase): node is InternalLinkNode =>
   node.type === NodeType.InternalLink;
 
+export interface TableNode extends NodeBase {
+  type: NodeType.Table;
+  source: string;
+}
+export type TableNodeWithoutKey = Omit<TableNode, 'key'>;
+export const isTableNode = (node: NodeBase): node is TableNode => node.type === NodeType.Table;
+
 export type Node =
   | TextNode
   | TextContainerNode
@@ -126,7 +134,8 @@ export type Node =
   | ListNode
   | ListItemNode
   | LinkNode
-  | InternalLinkNode;
+  | InternalLinkNode
+  | TableNode;
 
 // TODO: table? input? labels? buttons?
 
